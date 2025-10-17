@@ -11,9 +11,11 @@ export default function HeroShowcase() {
     <section className="page-container py-6 sm:py-8">
       <div className="grid grid-cols-1 gap-4 sm:gap-6 lg:grid-cols-3">
         {/* Left large card */}
-        <div className="relative overflow-hidden rounded-3xl lg:col-span-2 min-h-[300px] sm:min-h-[400px] lg:min-h-[520px] bg-[#827978] dark:bg-[#6e6761] flex items-center justify-center px-6 sm:px-10">
+  {/* Left large card */}
+<div className="relative overflow-hidden rounded-3xl lg:col-span-2 min-h-[300px] sm:min-h-[400px] lg:min-h-[520px] bg-[#827978] dark:bg-[#6e6761] flex flex-col sm:flex-row items-center justify-between px-6 sm:px-10">
+  
   {/* Text Content */}
-  <div className="relative z-10 flex flex-col gap-3 text-left max-w-sm mr-auto">
+  <div className="relative z-10 flex flex-col gap-3 text-left max-w-sm sm:max-w-md pt-10 sm:pt-16 lg:pt-20">
     <h3 className="text-3xl sm:text-4xl font-semibold text-white">
       Opening Sales 15%
     </h3>
@@ -31,15 +33,23 @@ export default function HeroShowcase() {
   </div>
 
   {/* Image */}
-  <div className="relative flex justify-center items-center w-[50%]">
+  <div className="relative flex justify-center items-center w-full sm:w-[55%] mt-6 sm:mt-0">
     <Image
       src={discountImg}
       alt="Perfume Bottle"
-      className="w-full max-w-[300px] sm:max-w-[380px] md:max-w-[420px] lg:max-w-[460px] animate-float drop-shadow-2xl select-none"
+      className="
+        w-[80%] max-w-[420px]
+        sm:w-[90%] sm:max-w-[460px]
+        md:w-[100%] md:max-w-[500px]
+        lg:w-[100%] lg:max-w-[520px]
+        animate-float drop-shadow-2xl select-none
+        transition-all duration-500
+      "
       priority
     />
   </div>
 </div>
+
 
 
         {/* Right side stack */}
