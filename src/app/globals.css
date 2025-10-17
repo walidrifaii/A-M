@@ -19,8 +19,111 @@
   }
 }
 
+/* Manual toggle class overrides system preference when present */
+html.theme-dark {
+  --background: #111111;
+  --foreground: #ededed;
+}
+
+html.theme-light {
+  --background: #ffffff;
+  --foreground: #171717;
+}
+
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+}
+
+/* Consistent page container width and gutters */
+.page-container {
+  width: 100%;
+  padding-left: 1rem; /* 16px */
+  padding-right: 1rem;
+}
+
+@media (min-width: 640px) {
+  .page-container {
+    padding-left: 1.5rem; /* 24px */
+    padding-right: 1.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .page-container {
+    padding-left: 2rem; /* 32px */
+    padding-right: 2rem;
+  }
+}
+
+/* Animations */
+@keyframes float {
+  0% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+  100% {
+    transform: translateY(0px);
+  }
+}
+
+@keyframes fade-in-up {
+  0% {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-float {
+  animation: float 5s ease-in-out infinite;
+}
+
+.animate-fade-in-up {
+  animation: fade-in-up 700ms ease both;
+}
+
+.delay-150 {
+  animation-delay: 150ms;
+}
+.delay-300 {
+  animation-delay: 300ms;
+}
+
+/* Scroll reveal utility */
+.reveal {
+  opacity: 0;
+  transform: translateY(10px);
+  animation: fade-in-up 700ms ease both;
+}
+
+.is-visible {
+  opacity: 1;
+  transform: none;
+}
+
+/* Vertical marquee for sidebar slider */
+@keyframes marquee-horiz {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.marquee-horizontal {
+  display: flex;
+  gap: 0.5rem;
+  width: max-content;
+  animation: marquee-horiz 22s linear infinite;
+}
+
+.marquee-horizontal:hover {
+  animation-play-state: paused;
 }

@@ -24,6 +24,12 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      {/* Prevent theme flash by setting class before paint */}
+      <script
+        dangerouslySetInnerHTML={{
+          __html: `(()=>{try{const t=localStorage.getItem("theme");const m=window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches;const dark=t?t==="dark":m;const r=document.documentElement;r.classList.remove("theme-dark","theme-light");r.classList.add(dark?"theme-dark":"theme-light");}catch{}})();`,
+        }}
+      />
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
