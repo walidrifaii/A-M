@@ -17,7 +17,7 @@ export default function AboutRecreatePerfume() {
           <p className="text-[#5c5753] dark:text-gray-300 text-base sm:text-lg leading-relaxed">
             At <span className="font-semibold">Recreate Perfume</span>, we bring
             back timeless fragrances that speak to your soul. Our passion lies
-            in blending artistry and science to recreate the world's most iconic
+            in blending artistry and science to recreate the world s most iconic
             perfumes — capturing every note with precision and emotion.
           </p>
           <p className="text-[#5c5753] dark:text-gray-300 text-base sm:text-lg leading-relaxed">
