@@ -13,6 +13,8 @@ export type QuickProduct = {
   compareAtPrice?: string;
   image: string | StaticImageData;
   sizes?: string[];
+  qty?: number; // <-- Add this
+  maxQty?: number;
   shortDescription?: string;
   longDescription?: string;
 };
@@ -33,11 +35,11 @@ export default function QuickAddModal({
   const [qty, setQty] = useState(1);
 
   // reset on product change
-  useEffect(() => {
-    if (!product) return;
-    setSize(product.sizes && product.sizes.length ? product.sizes[0] : "50ml");
-    setQty(1);
-  }, [product]);
+ useEffect(() => {
+  if (!product) return;
+  setSize(product.sizes && product.sizes.length ? product.sizes[0] : "50ml");
+  setQty(Math.max(1, Math.min(product.qty ?? 1, product.maxQty ?? 99))); // 👈 use product defaults/limits
+}, [product]);
 
   // lock body scroll when open
   useEffect(() => {
@@ -119,7 +121,14 @@ export default function QuickAddModal({
 
               <SizePicker sizes={sizes} selected={size} onSelect={setSize} />
 
-              <Quantity qty={qty} onDec={dec} onInc={inc} />
+              <Quantity
+  qty={qty}
+  onDec={() => setQty((n) => Math.max(1, n - 1))}
+  onInc={() => setQty((n) => Math.min(product?.maxQty ?? 99, n + 1))}
+  onChange={(v) => setQty(v)}
+  min={1}
+  max={product?.maxQty ?? 99}
+/>
 
               {product.longDescription && (
                 <p className="mt-4 text-sm leading-relaxed text-black/80 dark:text-white/80">
@@ -172,7 +181,7 @@ export default function QuickAddModal({
         {/* Scroll area */}
         <div className="overflow-y-auto max-h-[calc(88vh-64px)]">
           {/* Image */}
-          <div className="relative aspect-[4/3] w-full bg-neutral-100 dark:bg-neutral-900 rounded-t-2xl">
+          <div className="relative aspect-[4/3] w-full  rounded-t-2xl">
             <Image
               src={product.image}
               alt={product.name}
@@ -201,7 +210,14 @@ export default function QuickAddModal({
 
             <SizePicker sizes={sizes} selected={size} onSelect={setSize} />
 
-            <Quantity qty={qty} onDec={dec} onInc={inc} />
+            <Quantity
+  qty={qty}
+  onDec={() => setQty((n) => Math.max(1, n - 1))}
+  onInc={() => setQty((n) => Math.min(product?.maxQty ?? 99, n + 1))}
+  onChange={(v) => setQty(v)}
+  min={1}
+  max={product?.maxQty ?? 99}
+/>
 
             {product.longDescription && (
               <p className="mt-2 text-sm leading-relaxed opacity-80">{product.longDescription}</p>
@@ -286,18 +302,55 @@ function SizePicker({
   );
 }
 
-function Quantity({ qty, onDec, onInc }: { qty: number; onDec: () => void; onInc: () => void }) {
+function Quantity({
+  qty,
+  onDec,
+  onInc,
+  onChange,
+  min = 1,
+  max = 99,
+}: {
+  qty: number;
+  onDec: () => void;
+  onInc: () => void;
+  onChange: (v: number) => void;
+  min?: number;
+  max?: number;
+}) {
   return (
     <div className="mt-5 flex items-center gap-3">
       <div className="flex items-center rounded-xl border border-neutral-300 dark:border-neutral-700">
-        <button onClick={onDec} className="p-2 hover:bg-neutral-100 dark:hover:bg-neutral-800" aria-label="Decrease">
+        <button
+          onClick={() => onChange(Math.max(min, qty - 1))}
+          className="p-2 hover:bg-neutral-100 dark:hover:bg-neutral-800"
+          aria-label="Decrease"
+        >
           <Minus size={16} />
         </button>
-        <span className="px-4 min-w-[2ch] text-center tabular-nums">{qty}</span>
-        <button onClick={onInc} className="p-2 hover:bg-neutral-100 dark:hover:bg-neutral-800" aria-label="Increase">
+
+        <input
+          type="number"
+          inputMode="numeric"
+          min={min}
+          max={max}
+          value={qty}
+          onChange={(e) => {
+            const val = Number(e.target.value);
+            if (Number.isNaN(val)) return;
+            onChange(Math.max(min, Math.min(max, val)));
+          }}
+          className="w-14 text-center outline-none bg-transparent py-2 tabular-nums"
+        />
+
+        <button
+          onClick={() => onChange(Math.min(max, qty + 1))}
+          className="p-2 hover:bg-neutral-100 dark:hover:bg-neutral-800"
+          aria-label="Increase"
+        >
           <Plus size={16} />
         </button>
       </div>
     </div>
   );
 }
+
