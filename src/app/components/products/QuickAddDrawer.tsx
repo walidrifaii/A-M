@@ -13,7 +13,7 @@ export type QuickProduct = {
   compareAtPrice?: string;
   image: string | StaticImageData;
   sizes?: string[];
-  qty?: number; // <-- Add this
+  qty?: number;
   maxQty?: number;
   shortDescription?: string;
   longDescription?: string;
@@ -35,24 +35,19 @@ export default function QuickAddModal({
   const [qty, setQty] = useState(1);
 
   // reset on product change
- useEffect(() => {
-  if (!product) return;
-  setSize(product.sizes && product.sizes.length ? product.sizes[0] : "50ml");
-  setQty(Math.max(1, Math.min(product.qty ?? 1, product.maxQty ?? 99))); // 👈 use product defaults/limits
-}, [product]);
+  useEffect(() => {
+    if (!product) return;
+    setSize(product.sizes && product.sizes.length ? product.sizes[0] : "50ml");
+    setQty(Math.max(1, Math.min(product.qty ?? 1, product.maxQty ?? 99)));
+  }, [product]);
 
   // lock body scroll when open
   useEffect(() => {
     if (!open) return;
     const prev = document.body.style.overflow;
     document.body.style.overflow = "hidden";
-    return () => {
-      document.body.style.overflow = prev;
-    };
+    return () => { document.body.style.overflow = prev; };
   }, [open]);
-
-  const dec = () => setQty((n) => Math.max(1, n - 1));
-  const inc = () => setQty((n) => Math.min(99, n + 1));
 
   if (!product) return null;
 
@@ -122,13 +117,13 @@ export default function QuickAddModal({
               <SizePicker sizes={sizes} selected={size} onSelect={setSize} />
 
               <Quantity
-  qty={qty}
-  onDec={() => setQty((n) => Math.max(1, n - 1))}
-  onInc={() => setQty((n) => Math.min(product?.maxQty ?? 99, n + 1))}
-  onChange={(v) => setQty(v)}
-  min={1}
-  max={product?.maxQty ?? 99}
-/>
+                qty={qty}
+                onDec={() => setQty((n) => Math.max(1, n - 1))}
+                onInc={() => setQty((n) => Math.min(product?.maxQty ?? 99, n + 1))}
+                onChange={(v) => setQty(v)}
+                min={1}
+                max={product?.maxQty ?? 99}
+              />
 
               {product.longDescription && (
                 <p className="mt-4 text-sm leading-relaxed text-black/80 dark:text-white/80">
@@ -164,10 +159,11 @@ export default function QuickAddModal({
         className={[
           "md:hidden fixed inset-x-0 bottom-0 z-[99]",
           "rounded-t-2xl bg-[var(--background)] text-[var(--foreground)]",
-          "shadow-[0_-20px_60px_rgba(0,0,0,0.25)]",
-          "max-h-[88vh] overflow-hidden",
+          "shadow-[0_-20px_60px_rgba(0,0,0,0.25)] border-t border-neutral-200/70 dark:border-neutral-800/70",
+          "max-h-[92dvh] w-full",
           open ? "translate-y-0" : "translate-y-full pointer-events-none",
           "transition-transform duration-300 ease-out",
+          "flex flex-col", // <-- key for sticky footer
         ].join(" ")}
         role="dialog"
         aria-modal="true"
@@ -178,10 +174,9 @@ export default function QuickAddModal({
           <span className="h-1.5 w-12 rounded-full bg-black/15 dark:bg-white/15" />
         </div>
 
-        {/* Scroll area */}
-        <div className="overflow-y-auto max-h-[calc(88vh-64px)]">
-          {/* Image */}
-          <div className="relative aspect-[4/3] w-full  rounded-t-2xl">
+        {/* Header image */}
+        <div className="relative w-full bg-neutral-100 dark:bg-neutral-900">
+          <div className="relative mx-auto max-w-[560px] w-full aspect-[4/3]">
             <Image
               src={product.image}
               alt={product.name}
@@ -198,9 +193,11 @@ export default function QuickAddModal({
               <X size={18} />
             </button>
           </div>
+        </div>
 
-          {/* Content */}
-          <div className="p-5">
+        {/* Scrollable content */}
+        <div className="flex-1 overflow-y-auto">
+          <div className="p-5 pb-6">
             <TitlePrice
               name={product.name}
               price={product.price}
@@ -211,24 +208,26 @@ export default function QuickAddModal({
             <SizePicker sizes={sizes} selected={size} onSelect={setSize} />
 
             <Quantity
-  qty={qty}
-  onDec={() => setQty((n) => Math.max(1, n - 1))}
-  onInc={() => setQty((n) => Math.min(product?.maxQty ?? 99, n + 1))}
-  onChange={(v) => setQty(v)}
-  min={1}
-  max={product?.maxQty ?? 99}
-/>
+              qty={qty}
+              onDec={() => setQty((n) => Math.max(1, n - 1))}
+              onInc={() => setQty((n) => Math.min(product?.maxQty ?? 99, n + 1))}
+              onChange={(v) => setQty(v)}
+              min={1}
+              max={product?.maxQty ?? 99}
+            />
 
             {product.longDescription && (
-              <p className="mt-2 text-sm leading-relaxed opacity-80">{product.longDescription}</p>
+              <p className="mt-3 text-sm leading-relaxed opacity-80">
+                {product.longDescription}
+              </p>
             )}
           </div>
         </div>
 
-        {/* Sticky CTA + safe area */}
-        <div className="p-4 pt-2 border-t border-neutral-200/70 dark:border-neutral-800/70 bg-[var(--background)]">
+        {/* Sticky footer + safe area */}
+        <div className="px-4 pb-3 pt-2 border-t border-neutral-200/70 dark:border-neutral-800/70 bg-[var(--background)]">
           <button
-            className="w-full rounded-2xl bg-[#827978] hover:bg-[#6f6862] text-white font-semibold py-3 tracking-wide transition disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full rounded-2xl bg-[#827978] hover:bg-[#6f6862] text-white font-semibold py-3 tracking-wide transition"
             onClick={() => onConfirmAdd?.(product, size, qty)}
           >
             ADD TO CART →
@@ -321,7 +320,7 @@ function Quantity({
     <div className="mt-5 flex items-center gap-3">
       <div className="flex items-center rounded-xl border border-neutral-300 dark:border-neutral-700">
         <button
-          onClick={() => onChange(Math.max(min, qty - 1))}
+          onClick={onDec}
           className="p-2 hover:bg-neutral-100 dark:hover:bg-neutral-800"
           aria-label="Decrease"
         >
@@ -343,7 +342,7 @@ function Quantity({
         />
 
         <button
-          onClick={() => onChange(Math.min(max, qty + 1))}
+          onClick={onInc}
           className="p-2 hover:bg-neutral-100 dark:hover:bg-neutral-800"
           aria-label="Increase"
         >
@@ -353,4 +352,3 @@ function Quantity({
     </div>
   );
 }
-
