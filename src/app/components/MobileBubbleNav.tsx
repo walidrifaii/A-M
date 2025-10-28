@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { Home, Grid2X2, Heart, ShoppingCart, Sun, Moon } from "lucide-react";
 
 export default function MobileBubbleNav({
@@ -21,16 +22,45 @@ export default function MobileBubbleNav({
   onToggleTheme?: () => void;
   isDark?: boolean;
 }) {
+  const pathname = usePathname();
   const [active, setActive] = useState(initialActiveId);
+  const [isVisible, setIsVisible] = useState(true);
 
-  const ACTIVE_COLOR = "#f0b100"; // <- your requested color
+  // ✅ Always call useEffect, never inside a condition
+  useEffect(() => {
+    const handleScroll = () => {
+      const scrollY = window.scrollY;
+      const windowHeight = window.innerHeight;
+      const documentHeight = document.body.scrollHeight;
+
+      // Hide if near bottom
+      if (scrollY + windowHeight >= documentHeight - 100) {
+        setIsVisible(false);
+      } else {
+        setIsVisible(true);
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  const ACTIVE_COLOR = "#f0b100";
   const bubbleBase =
     "relative h-11 w-11 rounded-full flex items-center justify-center transition shadow-sm active:scale-[0.97]";
+  const activeStyle = { backgroundColor: ACTIVE_COLOR, color: "#111111" };
 
-  const activeStyle = { backgroundColor: ACTIVE_COLOR, color: "#111111" }; // dark text on yellow
+  // ✅ Hide visually instead of returning null (keeps hooks consistent)
+  const shouldHide = pathname === "/success";
 
   return (
-    <div className="fixed bottom-5 left-1/2 z-[75] -translate-x-1/2 md:hidden">
+    <div
+      className={`fixed bottom-5 left-1/2 z-[75] -translate-x-1/2 md:hidden transition-all duration-300 ${
+        !isVisible || shouldHide
+          ? "opacity-0 translate-y-8 pointer-events-none"
+          : "opacity-100 translate-y-0"
+      }`}
+    >
       <div
         className="
           rounded-full border border-black/10 dark:border-white/10
@@ -39,7 +69,7 @@ export default function MobileBubbleNav({
           px-2.5 py-1.5 flex items-center gap-1.5
         "
       >
-        {/* Home (link) */}
+        {/* Home */}
         <Link
           href="/"
           onClick={() => setActive("home")}
@@ -54,7 +84,7 @@ export default function MobileBubbleNav({
           <Home size={18} />
         </Link>
 
-        {/* All Products (link) */}
+        {/* All Products */}
         <Link
           href="/#products"
           onClick={() => setActive("all")}
@@ -69,10 +99,13 @@ export default function MobileBubbleNav({
           <Grid2X2 size={18} />
         </Link>
 
-        {/* Favorites (opens drawer) */}
+        {/* Favorites */}
         <button
           type="button"
-          onClick={onOpenFav}
+          onClick={() => {
+            setActive("fav");
+            onOpenFav?.();
+          }}
           aria-label="Favorites"
           className={`${bubbleBase} ${
             active === "fav"
@@ -80,7 +113,6 @@ export default function MobileBubbleNav({
               : "bg-[var(--background)] text-[var(--foreground)] hover:opacity-80"
           }`}
           style={active === "fav" ? activeStyle : undefined}
-          onMouseDown={() => setActive("fav")}
         >
           <Heart size={18} />
           {favCount > 0 && (
@@ -90,16 +122,20 @@ export default function MobileBubbleNav({
           )}
         </button>
 
-        {/* Cart (opens drawer) */}
+        {/* Cart */}
         <button
           type="button"
-          onClick={onOpenCart}
+          onClick={() => {
+            setActive("cart");
+            onOpenCart?.();
+          }}
           aria-label="Cart"
           className={`${bubbleBase} ${
             active === "cart"
               ? "text-[var(--background)]"
               : "bg-[var(--background)] text-[var(--foreground)] hover:opacity-80"
           }`}
+          style={active === "cart" ? activeStyle : undefined}
         >
           <ShoppingCart size={18} />
           {cartCount > 0 && (
@@ -109,7 +145,7 @@ export default function MobileBubbleNav({
           )}
         </button>
 
-        {/* Tiny divider dot */}
+        {/* Divider dot */}
         <span className="mx-0.5 h-2 w-2 rounded-full bg-[var(--foreground)]/10" />
 
         {/* Theme toggle */}
@@ -124,7 +160,6 @@ export default function MobileBubbleNav({
         </button>
       </div>
 
-      {/* iOS safe area */}
       <div className="safe-bottom" />
     </div>
   );
