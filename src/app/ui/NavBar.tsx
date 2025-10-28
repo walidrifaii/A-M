@@ -247,7 +247,8 @@ function Drawer({
 
       {checkout && (
         <div className="pb-10 px-4 pt-2 border-t border-neutral-200/70">
-          <Link href="/checkout" className="block w-full rounded-xl bg-[#827978] hover:bg-[#6f6862] text-white text-center font-semibold py-3">
+          <Link href="/checkout"   onClick={() => onClose()}
+ className="block w-full rounded-xl bg-[#827978] hover:bg-[#6f6862] text-white text-center font-semibold py-3">
             Checkout
           </Link>
         </div>
