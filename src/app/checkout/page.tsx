@@ -11,64 +11,65 @@ import toast, { Toaster } from "react-hot-toast";
 interface CartItem {
   id: string | number;
   name: string;
-  price: string; // stored as "$29.99"
+  price: string;
   qty: number;
   image: string;
 }
 
+// notes is required but can be empty string
 interface CheckoutFormValues {
   fullName: string;
   email: string;
   phone: string;
   city: string;
   address: string;
-  notes?: string;
+  notes: string;
 }
 
-// Yup validation schema
-const schema = yup.object().shape({
+ // Yup schema with default for notes
+const schema = yup.object({
   fullName: yup.string().required("Full Name is required"),
   email: yup
     .string()
     .required("Email is required")
     .email("Invalid email format")
-    .matches(
-      /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/,
-      "Email must have a valid TLD"
-    ),
+    .matches(/^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/, "Email must have a valid TLD"),
   phone: yup.string().required("Phone is required"),
   city: yup.string().required("City is required"),
   address: yup.string().required("Address is required"),
-  notes: yup.string(),
-});
+  notes: yup.string().default(""),
+}) as yup.ObjectSchema<CheckoutFormValues>;
 
 export default function CheckoutPage() {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [loading, setLoading] = useState(false);
 
-  const { register, handleSubmit, formState: { errors } } = useForm<CheckoutFormValues>({
-    resolver: yupResolver<CheckoutFormValues, object, CheckoutFormValues>(schema),
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<CheckoutFormValues>({
+    resolver: yupResolver(schema),
+    defaultValues: {
+      fullName: "",
+      email: "",
+      phone: "",
+      city: "",
+      address: "",
+      notes: "",
+    },
   });
 
-  // Load cart from localStorage
+  // Load cart
   useEffect(() => {
-    try {
-      const stored = localStorage.getItem("cart");
-      if (stored) setCartItems(JSON.parse(stored));
-    } catch (error) {
-      console.error("Error loading cart:", error);
-    }
+    const stored = localStorage.getItem("cart");
+    if (stored) setCartItems(JSON.parse(stored));
   }, []);
 
-  // Calculate totals
-  const subtotal = cartItems.reduce((sum, i) => {
-    const priceNumber = Number(i.price.replace("$", ""));
-    return sum + priceNumber * i.qty;
-  }, 0);
+  const subtotal = cartItems.reduce((sum, i) => sum + Number(i.price.replace("$", "")) * i.qty, 0);
   const shipping = cartItems.length > 0 ? 4 : 0;
   const total = subtotal + shipping;
 
-  // Submit handler
   const onSubmit: SubmitHandler<CheckoutFormValues> = async (data) => {
     if (cartItems.length === 0) {
       toast.error("Your cart is empty.");
@@ -82,12 +83,9 @@ export default function CheckoutPage() {
       addressLine1: data.address,
       addressLine2: "",
       city: data.city,
-      notes: data.notes || "",
+      notes: data.notes,
       paymentMethod: "COD",
-      items: cartItems.map((item) => ({
-        productId: item.id,
-        quantity: item.qty,
-      })),
+      items: cartItems.map((item) => ({ productId: item.id, quantity: item.qty })),
     };
 
     try {
@@ -119,13 +117,11 @@ export default function CheckoutPage() {
       className="min-h-screen transition-colors duration-300"
       style={{ backgroundColor: "var(--background)", color: "var(--foreground)" }}
     >
-      {/* Toast container */}
       <Toaster position="top-right" />
 
       <div className="container mx-auto p-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Left - Shipping & Payment */}
         <div className="lg:col-span-2 space-y-6">
-          {/* Shipping Details */}
           <div
             className="p-6 rounded-2xl shadow-sm border border-neutral-300/40"
             style={{ backgroundColor: "var(--background)", color: "var(--foreground)" }}
@@ -135,7 +131,7 @@ export default function CheckoutPage() {
               className="grid grid-cols-1 sm:grid-cols-2 gap-4"
               onSubmit={handleSubmit(onSubmit)}
             >
-              {[ 
+              {[
                 { placeholder: "Full Name", name: "fullName" },
                 { placeholder: "Email Address", name: "email" },
                 { placeholder: "Phone Number", name: "phone" },
@@ -183,7 +179,6 @@ export default function CheckoutPage() {
                 )}
               </div>
 
-              {/* Payment Method */}
               <div
                 className="p-6 rounded-2xl shadow-sm border border-neutral-300/40 sm:col-span-2"
                 style={{ backgroundColor: "var(--background)", color: "var(--foreground)" }}
@@ -191,13 +186,7 @@ export default function CheckoutPage() {
                 <h2 className="text-lg font-semibold mb-4">Payment Method</h2>
                 <label className="flex items-center justify-between border border-[#827978] rounded-xl p-3 bg-transparent">
                   <span>Cash on Delivery</span>
-                  <input
-                    type="radio"
-                    name="payment"
-                    value="cash"
-                    defaultChecked
-                    className="accent-[#827978]"
-                  />
+                  <input type="radio" name="payment" value="cash" defaultChecked className="accent-[#827978]" />
                 </label>
               </div>
             </form>
@@ -269,11 +258,18 @@ export default function CheckoutPage() {
             </>
           ) : (
             <div className="text-center py-10">
-                <p className="text-sm opacity-70">Your cart is empty.</p>
+              <p className="text-sm opacity-70">Your cart is empty.</p>
+              <Link
+                href="/"
+                className="inline-block bg-[#827978] hover:bg-[#6f6862] text-white font-semibold px-6 py-3 rounded-xl"
+              >
+                Continue Shopping
+              </Link>
             </div>
           )}
-        </div>  
         </div>
+      </div>
     </div>
-    );
+  );
 }
+
