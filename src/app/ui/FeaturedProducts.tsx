@@ -6,6 +6,7 @@ import { useRef, useState } from "react";
 import { useGetProductsQuery } from "../store/api/productsApi";
 import QuickAddModal, { QuickProduct } from "../components/products/QuickAddDrawer";
 import { useStore } from "../store/StoreContext";
+import PageSkeleton from "../components/loading/PageSkeleton";
 
 export type Product = {
 id: string;
@@ -90,7 +91,7 @@ const handleAddToCart = (product: QuickProduct, size: string, qty: number) => {
   setModalOpen(false);
 };
 
-if (isLoading) return <p>Loading...</p>;
+if (isLoading) return <PageSkeleton rows={2} />;
 
 return (
    <section className="page-container py-12 sm:py-16"> <h2 className="mb-6 text-xl font-semibold tracking-tight sm:text-2xl text-black dark:text-white">{title}</h2>
