@@ -49,12 +49,7 @@ export default function RootLayout({
         <ReduxProvider>
           <StoreProvider>
             {
-              loading ? <IntroLoader/> : (
-                <>
-                  <MobileBubbleNav />
-                  <Navbar />
-                </>
-              )
+              loading && <IntroLoader/> 
             }
             {children}
             
