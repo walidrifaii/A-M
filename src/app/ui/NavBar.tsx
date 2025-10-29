@@ -96,6 +96,14 @@ export default function Navbar() {
               <NavLink href="/about" label="About" pathname={pathname} />
               <NavLink href="/contact" label="Contact" pathname={pathname} />
 
+              {/* Login Button */}
+              <Link
+                href="/auth/login"
+                className="rounded-xl px-4 py-2 text-sm font-medium hover:bg-yellow-400/20 transition focus:outline-none focus:ring-2 focus:ring-yellow-400/50"
+              >
+                Login
+              </Link>
+
               {/* Theme Toggle */}
               <button
                 onClick={() => setIsDark((v) => !v)}
