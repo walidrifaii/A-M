@@ -4,10 +4,13 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Moon, Sun, ShoppingCart, Heart, Trash2 } from "lucide-react";
+import { useStore } from "../store/StoreContext";
 import MobileBubbleNav from "../components/MobileBubbleNav";
+import Image from "next/image";
 
 export default function Navbar() {
   const pathname = usePathname();
+  const { cart, favorites, removeCartItem, removeFavItem } = useStore();
 
   // Theme
   const [mounted, setMounted] = useState(false);
@@ -17,26 +20,15 @@ export default function Navbar() {
   const [cartOpen, setCartOpen] = useState(false);
   const [favOpen, setFavOpen] = useState(false);
 
-  // Mock Data (replace with real store later)
-  const [cartItems, setCartItems] = useState([
-    { id: "c1", name: "Amber No.1 (50ml)", price: "$129", qty: 1 },
-    { id: "c2", name: "Citrus Bloom (100ml)", price: "$99", qty: 2 },
-  ]);
-  const [favItems, setFavItems] = useState([
-    { id: "w1", name: "Velvet Rose", price: "$149" },
-  ]);
+ const cartCount = Array.isArray(cart) ? cart.reduce((n, i) => n + (i.qty || 1), 0) : 0;
+const favCount = Array.isArray(favorites) ? favorites.length : 0;
 
-  const cartCount = cartItems.reduce((n, i) => n + i.qty, 0);
-  const favCount = favItems.length;
-
-  // Load theme from localStorage or system
+  // Load theme
   useEffect(() => {
     setMounted(true);
     try {
       const saved = localStorage.getItem("theme");
-      const prefersDark =
-        typeof window !== "undefined" &&
-        window.matchMedia("(prefers-color-scheme: dark)").matches;
+      const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
       const dark = saved ? saved === "dark" : prefersDark;
       setIsDark(dark);
       applyThemeClass(dark ? "dark" : "light");
@@ -47,9 +39,7 @@ export default function Navbar() {
   useEffect(() => {
     if (!mounted) return;
     applyThemeClass(isDark ? "dark" : "light");
-    try {
-      localStorage.setItem("theme", isDark ? "dark" : "light");
-    } catch {}
+    localStorage.setItem("theme", isDark ? "dark" : "light");
   }, [isDark, mounted]);
 
   function applyThemeClass(mode: "dark" | "light") {
@@ -58,24 +48,10 @@ export default function Navbar() {
     root.classList.add(mode === "dark" ? "theme-dark" : "theme-light");
   }
 
-  function removeCart(id: string) {
-    setCartItems((arr) => arr.filter((i) => i.id !== id));
-  }
-
-  function removeFav(id: string) {
-    setFavItems((arr) => arr.filter((i) => i.id !== id));
-  }
-
   return (
     <>
       {/* Header */}
-      <header
-        className="sticky top-0 z-50 transition-colors duration-300"
-        style={{
-          backgroundColor: "var(--background)",
-          color: "var(--foreground)",
-        }}
-      >
+      <header className="sticky top-0 z-50 bg-[var(--background)] text-[var(--foreground)] transition-colors duration-300">
         <nav className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="flex h-16 items-center justify-between">
             {/* Brand */}
@@ -88,7 +64,7 @@ export default function Navbar() {
               <span className="text-lg font-semibold tracking-tight">M&A</span>
             </Link>
 
-            {/* Desktop Nav ONLY (hidden on mobile) */}
+            {/* Desktop Nav */}
             <div className="hidden items-center gap-2 md:flex">
               <NavLink href="/" label="Home" pathname={pathname} />
               <NavLink href="/services" label="Services" pathname={pathname} />
@@ -109,7 +85,6 @@ export default function Navbar() {
                 onClick={() => setIsDark((v) => !v)}
                 className="ml-2 rounded-xl p-2 hover:bg-yellow-400/20 focus:outline-none focus:ring-2 focus:ring-yellow-400/60"
                 aria-label="Toggle theme"
-                style={{ color: "var(--foreground)" }}
               >
                 {isDark ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
               </button>
@@ -151,46 +126,30 @@ export default function Navbar() {
       )}
 
       {/* Cart Drawer */}
-      <aside
-        role="dialog"
-        aria-modal="true"
-        className={`fixed right-0 top-0 z-[81] h-dvh w-[86%] max-w-sm bg-[var(--background)] text-[var(--foreground)] shadow-2xl transition-transform duration-300 transform-gpu ${
-          cartOpen ? "translate-x-0" : "translate-x-full"
-        } rounded-l-2xl`}
-      >
-        <DrawerHeader title="Your Cart" count={cartCount} onClose={() => setCartOpen(false)} />
-        <DrawerList items={cartItems} removeItem={removeCart} empty="Your cart is empty." />
-        <div className="p-4 border-t border-neutral-200/70">
-          <Link
-            href="/checkout"
-            className="block w-full rounded-xl bg-[#827978] hover:bg-[#6f6862] text-white text-center font-semibold py-3"
-          >
-            Checkout
-          </Link>
-        </div>
-      </aside>
+      <Drawer
+        open={cartOpen}
+        title="Your Cart"
+        count={cartCount}
+        onClose={() => setCartOpen(false)}
+        items={cart}
+        removeItem={removeCartItem}
+        empty="Your cart is empty."
+        checkout
+      />
 
       {/* Favorites Drawer */}
-      <aside
-        role="dialog"
-        aria-modal="true"
-        className={`fixed right-0 top-0 z-[81] h-dvh w-[86%] max-w-sm bg-[var(--background)] text-[var(--foreground)] shadow-2xl transition-transform duration-300 transform-gpu ${
-          favOpen ? "translate-x-0" : "translate-x-full"
-        } rounded-l-2xl`}
-      >
-        <DrawerHeader title="Favorites" count={favCount} onClose={() => setFavOpen(false)} />
-        <DrawerList items={favItems} removeItem={removeFav} empty="No favorites yet." />
-        <div className="p-4 border-t border-neutral-200/70">
-          <Link
-            href="/wishlist"
-            className="block w-full rounded-xl border border-neutral-300/70 hover:bg-black/5 py-3 text-center font-medium"
-          >
-            View Wishlist
-          </Link>
-        </div>
-      </aside>
+      <Drawer
+        open={favOpen}
+        title="Favorites"
+        count={favCount}
+        onClose={() => setFavOpen(false)}
+        items={favorites}
+        removeItem={removeFavItem}
+        empty="No favorites yet."
+        checkout={false}
+      />
 
-      {/* Mobile Floating Nav (replaces hamburger) */}
+      {/* Mobile Nav */}
       <MobileBubbleNav
         cartCount={cartCount}
         favCount={favCount}
@@ -205,33 +164,12 @@ export default function Navbar() {
 
 /* ---------- Helper Components ---------- */
 
-function NavLink({
-  href,
-  label,
-  pathname,
-  mobile = false, // kept for API compatibility
-}: {
-  href: string;
-  label: string;
-  pathname: string;
-  mobile?: boolean;
-}) {
+function NavLink({ href, label, pathname }: { href: string; label: string; pathname: string }) {
   const active = pathname === href;
-  const base =
-    "rounded-xl px-3 py-2 text-sm font-medium transition focus:outline-none focus:ring-2 focus:ring-yellow-400/50";
+  const base = "rounded-xl px-3 py-2 text-sm font-medium transition focus:outline-none focus:ring-2 focus:ring-yellow-400/50";
   const activeStyle = "bg-yellow-500 text-white shadow";
   const hover = "hover:bg-yellow-400/20";
-
-  return (
-    <Link
-      href={href}
-      className={`${base} ${active ? activeStyle : hover} ${
-        mobile ? "block text-base" : ""
-      }`}
-    >
-      {label}
-    </Link>
-  );
+  return <Link href={href} className={`${base} ${active ? activeStyle : hover}`}>{label}</Link>;
 }
 
 function Badge({ count }: { count: number }) {
@@ -242,66 +180,87 @@ function Badge({ count }: { count: number }) {
   );
 }
 
-function DrawerHeader({
+interface DrawerItem { id: string; name: string; price?: string; qty?: number; image?: string; }
+
+function Drawer({
+  open,
   title,
   count,
   onClose,
-}: {
-  title: string;
-  count: number;
-  onClose: () => void;
-}) {
-  return (
-    <div className="flex items-center justify-between px-4 py-3 border-b border-neutral-200/70">
-      <h3 className="text-base font-semibold">
-        {title} ({count})
-      </h3>
-      <button onClick={onClose} className="rounded-lg px-3 py-1 hover:bg-black/5">
-        Close
-      </button>
-    </div>
-  );
-}
-
-interface DrawerItem {
-  id: string;
-  name: string;
-  price?: string;
-  qty?: number;
-}
-
-function DrawerList({
   items,
   removeItem,
   empty,
+  checkout,
 }: {
+  open: boolean;
+  title: string;
+  count: number;
+  onClose: () => void;
   items: DrawerItem[];
   removeItem: (id: string) => void;
   empty: string;
+  checkout?: boolean;
 }) {
   return (
-    <div className="p-4 space-y-3 overflow-y-auto h-[calc(100dvh-52px-72px)]">
-      {items.length === 0 && <p className="text-sm opacity-70">{empty}</p>}
-      {items.map((i) => (
-        <div
-          key={i.id}
-          className="flex items-center gap-3 rounded-xl border border-neutral-200/70 p-3"
-        >
-          <div className="h-12 w-12 rounded-lg bg-neutral-200/60" />
-          <div className="flex-1">
-            <p className="text-sm font-medium">{i.name}</p>
-            {i.price && (
-              <p className="text-xs opacity-70">
-                {i.price}
-                {i.qty && ` • Qty ${i.qty}`}
-              </p>
-            )}
-          </div>
-          <button onClick={() => removeItem(i.id)} className="p-2 rounded-lg hover:bg-black/5">
-            <Trash2 size={16} />
-          </button>
-        </div>
-      ))}
+    <aside
+      role="dialog"
+      aria-modal="true"
+      className={`fixed right-0 top-0 z-[81] h-dvh w-[86%] max-w-sm bg-[var(--background)] text-[var(--foreground)] shadow-2xl transition-transform duration-300 transform-gpu ${
+        open ? "translate-x-0" : "translate-x-full"
+      } rounded-l-2xl`}
+    >
+      <div className="flex items-center justify-between px-4 py-3 border-b border-neutral-200/70">
+        <h3 className="text-base font-semibold">{title} ({count})</h3>
+        <button onClick={onClose} className="rounded-lg px-3 py-1 hover:bg-black/5">Close</button>
+      </div>
+
+<div className="p-4 space-y-3 overflow-y-auto h-[calc(100dvh-52px-72px)] pb-24">     {Array.isArray(items) && items.length > 0 ? (
+  items.map((i, idx) => (
+    <div key={i.id ?? idx} className="flex items-center gap-3 rounded-xl border border-neutral-200/70 p-3">
+      {/* Product Image */}
+      <div className="h-12 w-12 rounded-lg overflow-hidden bg-neutral-200/60">
+        {typeof i !== 'string' && i.image && (
+          <Image
+            src={i.image}
+            alt={i.name}
+            className="h-full w-full object-cover"
+            width="12"
+            height="12"
+          />
+        )}
+      </div>
+
+      {/* Product Info */}
+      <div className="flex-1">
+        <p className="text-sm font-medium">{typeof i === 'string' ? i : i.name}</p>
+        {typeof i !== 'string' && i.price && (
+          <p className="text-xs opacity-70">{i.price}{i.qty && ` • Qty ${i.qty}`}</p>
+        )}
+      </div>
+
+      {/* Remove Button */}
+      <button
+        onClick={() => removeItem(typeof i === 'string' ? i : i.id)}
+        className="p-2 rounded-lg hover:bg-black/5"
+      >
+        <Trash2 size={16} />
+      </button>
     </div>
+  ))
+) : (
+  <p className="text-sm opacity-70">{empty}</p>
+)}
+
+      </div>
+
+      {checkout && (
+        <div className="pb-10 px-4 pt-2 border-t border-neutral-200/70">
+          <Link href="/checkout"   onClick={() => onClose()}
+ className="block w-full rounded-xl bg-[#827978] hover:bg-[#6f6862] text-white text-center font-semibold py-3">
+            Checkout
+          </Link>
+        </div>
+      )}
+    </aside>
   );
 }
