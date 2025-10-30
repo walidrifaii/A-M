@@ -59,7 +59,7 @@ const Sidebar = ({ isOpen, setIsOpen, isRTL = false }: SidebarProps) => {
       <div
         className={`
            fixed top-0 lg:top-28
-           bg-white z-50 lg:z-auto
+           bg-transparent z-50 lg:z-auto
            flex flex-col
            h-full lg:h-auto
            w-72 lg:w-56
@@ -103,7 +103,7 @@ const Sidebar = ({ isOpen, setIsOpen, isRTL = false }: SidebarProps) => {
                     : 'lg:rounded-l-full'
                   }
                   ${isActive
-                    ? 'bg-gradient-to-br from-yellow-500 to-yellow-300 font-centurygothicbold '
+                    ? 'bg-white font-centurygothicbold '
                     : 'text-gray-500 hover:bg-gray-100 hover:text-gray-900'
                   }
                   active:scale-95 lg:active:scale-100

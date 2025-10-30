@@ -44,7 +44,7 @@ const NavbarDashboard = ({ isSidebarOpen, setIsSidebarOpen }: NavbarProps) => {
 
     return (
 
-        <div className='bg-white flex items-center justify-between mx-auto px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 2xl:px-32 w-full 
+        <div className='bg-transparent flex items-center justify-between mx-auto px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 2xl:px-32 w-full 
                        h-[80px] sm:h-[90px] lg:h-[100px]  fixed z-10  '>
             {/* Logo */}
             <section className='flex items-center justify-between w-full'>
