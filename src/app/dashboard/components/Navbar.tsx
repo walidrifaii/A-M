@@ -44,7 +44,7 @@ const NavbarDashboard = ({ isSidebarOpen, setIsSidebarOpen }: NavbarProps) => {
 
     return (
 
-        <div className='bg-transparent flex items-center justify-between mx-auto px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 2xl:px-32 w-full 
+        <div className='bg-transparent  flex items-center justify-between mx-auto px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 2xl:px-32 w-full 
                        h-[80px] sm:h-[90px] lg:h-[100px]  fixed z-10  '>
             {/* Logo */}
             <section className='flex items-center justify-between w-full'>
@@ -58,7 +58,7 @@ const NavbarDashboard = ({ isSidebarOpen, setIsSidebarOpen }: NavbarProps) => {
                                 <path fill="currentColor" d="M12 3l9 7-3 11H6L3 10l9-7z" />
                             </svg>
                         </span>
-                        <span className="text-lg font-semibold tracking-tight">M&A</span>
+                        <span className="text-lg font-semibold tracking-tight ">M&A</span>
                     </Link>
                 </div>
 
