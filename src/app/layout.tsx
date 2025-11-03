@@ -7,6 +7,7 @@ import Navbar from "./ui/NavBar";
 import { StoreProvider } from "./store/StoreContext";
 import { useEffect, useState } from "react";
 import IntroLoader from "./components/loading/IntroLoader";
+import Footer from "./ui/Footer";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -51,7 +52,12 @@ export default function RootLayout({
             {
               loading && <IntroLoader/> 
             }
+                    <MobileBubbleNav />
+
+                    <Navbar />
+            
             {children}
+                  <Footer />
             
           </StoreProvider>
         </ReduxProvider>

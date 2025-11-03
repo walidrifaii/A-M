@@ -41,7 +41,7 @@ price: `$${p.price.toFixed(2)}`,
 shortDescription: p.description,
 longDescription: p.description,
 image: p.image,
-sizes: [p.size],
+sizes: Array.isArray(p.size) ? p.size : [p.size],
 })) ?? [];
 
 // ✅ Use global favorite handler

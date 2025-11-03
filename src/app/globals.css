@@ -19,6 +19,13 @@
     --foreground: #ededed;
   }
 }
+html.theme-dark {
+  color-scheme: dark;
+}
+html.theme-light {
+  color-scheme: light;
+}
+
 /* === Brand skeleton shimmer (#f0b100) === */
 @keyframes sk-shimmer {
   0% {

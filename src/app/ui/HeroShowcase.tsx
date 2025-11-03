@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import menImg from "@/assets/Giorgio-Armani-Emporio-Armani-Stronger-With-You-Perfume-By-Giorgio-Armani-EDT-For-Men-and-Women-50_ml-_1-f44d2a84.webp";
+import menImg from "@/assets/placeholder.webp";
 import womenImg from "@/assets/vecteezy_ai-generated-elegant-bottle-of-perfume-png_34763805.png";
 import discountImg from "@/assets/perfume-bottle-with-shadow-free-png.webp";
 
@@ -24,7 +24,7 @@ export default function HeroShowcase() {
     </p>
     <div className="mt-2">
       <Link
-        href="/#collection"
+        href="/products"
         className="inline-flex items-center rounded-2xl bg-white/90 px-5 py-2 text-sm font-semibold text-black shadow hover:bg-white"
       >
         Shop Now
@@ -75,7 +75,7 @@ export default function HeroShowcase() {
               </p>
               <div className="mt-3">
                 <Link
-                  href="/#men"
+                  href="/products?sex=men"
                   className="inline-flex items-center rounded-2xl bg-white/90 px-4 py-2 text-sm font-semibold text-black shadow hover:bg-white"
                 >
                   View All
@@ -105,7 +105,7 @@ export default function HeroShowcase() {
               </p>
               <div className="mt-3">
                 <Link
-                  href="/#women"
+                  href="/products?sex=women"
                   className="inline-flex items-center rounded-2xl bg-white/90 px-4 py-2 text-sm font-semibold text-black shadow hover:bg-white"
                 >
                   Explore
