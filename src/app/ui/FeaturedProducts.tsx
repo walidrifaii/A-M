@@ -152,7 +152,7 @@ return (
               <h3 className="text-sm font-semibold tracking-tight sm:text-base">
                 <span className="bg-gradient-to-r from-yellow-500 to-yellow-300 bg-clip-text text-transparent">{p.name}</span>
               </h3>
-              <p className="mt-1.5 text-xs text-black/80 dark:text-white/80" style={{ minHeight: 36 }}>
+              <p className="mt-1.5 text-xs  text-[var(--foreground)]" style={{ minHeight: 36 }}>
                 {p.shortDescription}
               </p>
             </div>

@@ -14,6 +14,7 @@ interface CartItem {
   price: string;
   qty: number;
   image: string;
+  selectedSize?: string;
 }
 
 // notes is required but can be empty string
@@ -85,7 +86,7 @@ export default function CheckoutPage() {
       city: data.city,
       notes: data.notes,
       paymentMethod: "COD",
-      items: cartItems.map((item) => ({ productId: item.id, quantity: item.qty })),
+      items: cartItems.map((item) => ({ productId: item.id, quantity: item.qty  ,   size: item.selectedSize || null, })),
     };
 
     try {
