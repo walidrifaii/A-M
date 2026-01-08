@@ -23,7 +23,7 @@ export default function Hero({
 }: HeroProps) {
   return (
     <section
-      className="relative page-container flex flex-col items-center justify-center py-20 text-center sm:py-24"
+      className="relative  flex flex-col items-center justify-center py-20 text-center sm:py-24"
       style={{
         backgroundColor: "var(--background)",
         color: "var(--foreground)",

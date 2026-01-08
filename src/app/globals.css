@@ -19,9 +19,11 @@
     --foreground: #ededed;
   }
 }
+
 html.theme-dark {
   color-scheme: dark;
 }
+
 html.theme-light {
   color-scheme: light;
 }
@@ -31,6 +33,7 @@ html.theme-light {
   0% {
     background-position: -200% 0;
   }
+
   100% {
     background-position: 200% 0;
   }
@@ -39,12 +42,10 @@ html.theme-light {
 .sk-line {
   height: 14px;
   border-radius: 9999px;
-  background-image: linear-gradient(
-    90deg,
-    rgba(240, 177, 0, 0.15) 0%,
-    rgba(240, 177, 0, 0.45) 20%,
-    rgba(240, 177, 0, 0.15) 40%
-  );
+  background-image: linear-gradient(90deg,
+      rgba(240, 177, 0, 0.15) 0%,
+      rgba(240, 177, 0, 0.45) 20%,
+      rgba(240, 177, 0, 0.15) 40%);
   background-size: 200% 100%;
   animation: sk-shimmer 1.4s linear infinite;
 }
@@ -55,10 +56,12 @@ html.theme-light {
     opacity: 0.3;
     transform: scaleX(0.5);
   }
+
   50% {
     opacity: 1;
     transform: scaleX(1);
   }
+
   100% {
     opacity: 0.3;
     transform: scaleX(0.5);
@@ -77,6 +80,7 @@ html.theme-light {
 .loader-line:nth-child(2) {
   animation-delay: 0.15s;
 }
+
 .loader-line:nth-child(3) {
   animation-delay: 0.3s;
 }
@@ -88,6 +92,7 @@ html.theme-dark {
   --background: #111111;
   --foreground: #ededed;
 }
+
 html.theme-light {
   --background: #ffffff;
   --foreground: #171717;
@@ -105,8 +110,13 @@ body {
 }
 
 /* iOS home-indicator spacing helper */
-:root { --safe-bottom: env(safe-area-inset-bottom); }
-.safe-bottom { height: max(var(--safe-bottom, 0px), 16px); }
+:root {
+  --safe-bottom: env(safe-area-inset-bottom);
+}
+
+.safe-bottom {
+  height: max(var(--safe-bottom, 0px), 16px);
+}
 
 /* ───────────────
    Page Container
@@ -116,48 +126,136 @@ body {
   padding-left: 1rem;
   padding-right: 1rem;
 }
+
 @media (min-width: 640px) {
-  .page-container { padding-left: 1.5rem; padding-right: 1.5rem; }
+  .page-container {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+  }
 }
+
 @media (min-width: 1024px) {
-  .page-container { padding-left: 2rem; padding-right: 2rem; }
+  .page-container {
+    padding-left: 2rem;
+    padding-right: 2rem;
+  }
 }
 
 /* ───────────────
    Animations
 ───────────────── */
 @keyframes float {
-  0% { transform: translateY(0); }
-  50% { transform: translateY(-8px); }
-  100% { transform: translateY(0); }
+  0% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-8px);
+  }
+
+  100% {
+    transform: translateY(0);
+  }
 }
+
 @keyframes fade-in-up {
-  0% { opacity: 0; transform: translateY(8px); }
-  100% { opacity: 1; transform: translateY(0); }
+  0% {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
-.animate-float { animation: float 5s ease-in-out infinite; }
-.animate-fade-in-up { animation: fade-in-up 700ms ease both; }
-.delay-150 { animation-delay: 150ms; }
-.delay-300 { animation-delay: 300ms; }
+
+.animate-float {
+  animation: float 5s ease-in-out infinite;
+}
+
+.animate-fade-in-up {
+  animation: fade-in-up 700ms ease both;
+}
+
+.delay-150 {
+  animation-delay: 150ms;
+}
+
+.delay-300 {
+  animation-delay: 300ms;
+}
 
 /* Scroll reveal utility */
-.reveal { opacity: 0; transform: translateY(10px); animation: fade-in-up 700ms ease both; }
-.is-visible { opacity: 1; transform: none; }
+.reveal {
+  opacity: 0;
+  transform: translateY(10px);
+  animation: fade-in-up 700ms ease both;
+}
+
+.is-visible {
+  opacity: 1;
+  transform: none;
+}
 
 /* ───────────────
    Marquee (Horizontal)
 ───────────────── */
-@keyframes marquee-horiz { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
-.marquee-horizontal { display: flex; gap: .5rem; width: max-content; animation: marquee-horiz 22s linear infinite; }
-.marquee-horizontal:hover { animation-play-state: paused; }
+@keyframes marquee-horiz {
+  0% {
+    transform: translateX(0);
+  }
+
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.marquee-horizontal {
+  display: flex;
+  gap: .5rem;
+  width: max-content;
+  animation: marquee-horiz 22s linear infinite;
+}
+
+.marquee-horizontal:hover {
+  animation-play-state: paused;
+}
 
 /* ───────────────
    Drawer Animations (Optional)
 ───────────────── */
-@keyframes drawer-in { from { transform: translate3d(100%,0,0); opacity:.96; } to { transform: translate3d(0,0,0); opacity:1; } }
-@keyframes drawer-out { from { transform: translate3d(0,0,0); opacity:1; } to { transform: translate3d(100%,0,0); opacity:.96; } }
-.drawer-enter { animation: drawer-in 280ms cubic-bezier(.2,.8,.2,1) both; }
-.drawer-exit { animation: drawer-out 240ms cubic-bezier(.2,.8,.2,1) both; }
+@keyframes drawer-in {
+  from {
+    transform: translate3d(100%, 0, 0);
+    opacity: .96;
+  }
+
+  to {
+    transform: translate3d(0, 0, 0);
+    opacity: 1;
+  }
+}
+
+@keyframes drawer-out {
+  from {
+    transform: translate3d(0, 0, 0);
+    opacity: 1;
+  }
+
+  to {
+    transform: translate3d(100%, 0, 0);
+    opacity: .96;
+  }
+}
+
+.drawer-enter {
+  animation: drawer-in 280ms cubic-bezier(.2, .8, .2, 1) both;
+}
+
+.drawer-exit {
+  animation: drawer-out 240ms cubic-bezier(.2, .8, .2, 1) both;
+}
 
 /* ───────────────
    Accessibility

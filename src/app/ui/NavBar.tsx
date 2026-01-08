@@ -51,8 +51,9 @@ export default function Navbar() {
   return (
     <>
       {/* Header */}
-      <header className="sticky top-0 z-50 bg-[var(--background)] text-[var(--foreground)] transition-colors duration-300">
-        <nav className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <header className="sticky top-0 z-50 bg-[var(--background)] text-[var(--foreground)] transition-colors 
+      duration-300">
+        <nav className="mx-auto  px-4 sm:px-6 lg:px-32">
           <div className="flex h-16 items-center justify-between">
             {/* Brand */}
             <Link href="/" className="flex items-center gap-2">
@@ -96,7 +97,7 @@ export default function Navbar() {
                 aria-label="Open favorites"
               >
                 <Heart className="h-5 w-5" />
-                {favCount > 0 && <Badge count={favCount} />}
+                {mounted && favCount > 0 && <Badge count={favCount} />}
               </button>
 
               {/* Cart */}
@@ -106,7 +107,7 @@ export default function Navbar() {
                 aria-label="Open cart"
               >
                 <ShoppingCart className="h-5 w-5" />
-                {cartCount > 0 && <Badge count={cartCount} />}
+                {mounted && cartCount > 0 && <Badge count={cartCount} />}
               </button>
             </div>
           </div>
@@ -149,7 +150,8 @@ export default function Navbar() {
         checkout={false}
       />
 
-      {/* Mobile Nav */}
+      {/* Mobile Nav - pass mounted prop if needed or ensure mobile nav handles its own hydration, 
+          but here we just fix the main navbar badges */}
       <MobileBubbleNav
         cartCount={cartCount}
         favCount={favCount}

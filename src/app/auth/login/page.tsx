@@ -2,38 +2,102 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
+import { useForm, SubmitHandler } from 'react-hook-form';
+import * as yup from 'yup';
+import { yupResolver } from '@hookform/resolvers/yup';
+import toast, { Toaster } from 'react-hot-toast';
 import { Mail, Lock, ArrowLeft, Eye, EyeOff } from 'lucide-react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import axios from 'axios';
+import Cookies from 'js-cookie';
+
+interface LoginFormValues {
+  email: string;
+  password: string;
+}
+
+const schema = yup.object({
+  email: yup
+    .string()
+    .required('Email is required')
+    .email('Invalid email format'),
+  password: yup
+    .string()
+    .required('Password is required')
+    .min(6, 'Password must be at least 6 characters'),
+}) as yup.ObjectSchema<LoginFormValues>;
 
 export default function LoginPage() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const router = useRouter();
+  const searchParams = useSearchParams();
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError('');
-    setIsLoading(true);
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm<LoginFormValues>({
+    resolver: yupResolver(schema),
+    defaultValues: {
+      email: '',
+      password: '',
+    },
+  });
 
-    // Simulate login process
-    setTimeout(() => {
-      setIsLoading(false);
-      if (email && password) {
-        // Here you would typically call your authentication API
-        alert(`Login attempted with email: ${email}`);
-        // Redirect to home after successful login
-        window.location.href = '/';
-      } else {
-        setError('Please enter both email and password');
+  const onSubmit: SubmitHandler<LoginFormValues> = async (data) => {
+    try {
+      const response = await axios.post(
+        'https://api-perfuim.onrender.com/auth/login',
+        {
+          email: data.email,
+          password: data.password,
+        },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+
+      if (response.status === 201) {
+        // Store JWT token in cookies
+        if (response.data.access_token) {
+          Cookies.set('access_token', response.data.access_token);
+        }
+        
+        toast.success('Login successful!');
+        
+        // Redirect to the original destination or dashboard
+        const redirectTo = searchParams.get('redirect') || '/dashboard';
+        router.push(redirectTo);
       }
-    }, 1000);
+    } catch (error) {
+      console.error('Login error:', error);
+      
+      if (axios.isAxiosError(error)) {
+        if (error.response) {
+          // Server responded with error status
+          const errorMessage = (error.response.data as { message?: string })?.message;
+          toast.error(errorMessage || 'Login failed. Please check your credentials.');
+        } else if (error.request) {
+          // Request was made but no response received
+          toast.error('Network error. Please check your connection.');
+        } else {
+          // Something else happened
+          toast.error('Something went wrong. Please try again.');
+        }
+      } else {
+        toast.error('Something went wrong. Please try again.');
+      }
+    }
   };
 
   return (
     <div className="min-h-screen flex items-center justify-center px-4 py-12" style={{ 
       background: 'linear-gradient(to bottom, var(--background) 0%, hsl(var(--background), 0.95) 100%)'
     }}>
+      <Toaster position="top-right" />
+      
       {/* Back to home link */}
       <Link 
         href="/" 
@@ -59,14 +123,7 @@ export default function LoginPage() {
 
         {/* Login Form */}
         <div className="bg-[var(--background)] rounded-2xl shadow-xl border border-neutral-200/50 p-8">
-          <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Error Message */}
-            {error && (
-              <div className="p-3 rounded-xl bg-red-50 border border-red-200 text-red-700 text-sm">
-                {error}
-              </div>
-            )}
-
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
             {/* Email Field */}
             <div>
               <label htmlFor="email" className="block text-sm font-medium mb-2">
@@ -79,13 +136,16 @@ export default function LoginPage() {
                 <input
                   id="email"
                   type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="w-full pl-11 pr-4 py-3 rounded-xl border border-neutral-200/70 focus:outline-none  focus:border-yellow-400 bg-[var(--background)] text-[var(--foreground)] transition"
+                  {...register('email')}
+                  className={`w-full pl-11 pr-4 py-3 rounded-xl border ${
+                    errors.email ? 'border-red-300' : 'border-neutral-200/70'
+                  } focus:outline-none focus:border-yellow-400 bg-[var(--background)] text-[var(--foreground)] transition`}
                   placeholder="you@example.com"
-                  required
                 />
               </div>
+              {errors.email && (
+                <p className="text-xs text-red-500 mt-1">{errors.email.message}</p>
+              )}
             </div>
 
             {/* Password Field */}
@@ -100,32 +160,32 @@ export default function LoginPage() {
                 <input
                   id="password"
                   type={showPassword ? 'text' : 'password'}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="w-full pl-11 pr-12 py-3 rounded-xl border border-neutral-200/70 focus:outline-none 
-                   focus:border-yellow-400 bg-[var(--background)] text-[var(--foreground)] transition"
+                  {...register('password')}
+                  className={`w-full pl-11 pr-12 py-3 rounded-xl border ${
+                    errors.password ? 'border-red-300' : 'border-neutral-200/70'
+                  } focus:outline-none focus:border-yellow-400 bg-[var(--background)] text-[var(--foreground)] transition`}
                   placeholder="Enter your password"
-                  required
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-neutral-500 hover:text-neutral-700 focus:outline-none"
                 >
-                  {showPassword ? <EyeOff    className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                  {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                 </button>
               </div>
+              {errors.password && (
+                <p className="text-xs text-red-500 mt-1">{errors.password.message}</p>
+              )}
             </div>
-
-        
 
             {/* Submit Button */}
             <button
               type="submit"
-              disabled={isLoading}
+              disabled={isSubmitting}
               className="w-full bg-gradient-to-r from-yellow-500 to-yellow-400 hover:from-yellow-600 hover:to-yellow-500 text-white font-semibold py-3 px-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 ease-linear disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
-              {isLoading ? (
+              {isSubmitting ? (
                 <>
                   <svg className="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
@@ -138,10 +198,7 @@ export default function LoginPage() {
               )}
             </button>
           </form>
-
         </div>
-
-       
       </div>
     </div>
   );

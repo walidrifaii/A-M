@@ -321,7 +321,7 @@ function Quantity({
       <div className="flex items-center rounded-xl border border-neutral-300 dark:border-neutral-700">
         <button
           onClick={onDec}
-          className="p-2 hover:bg-neutral-100 dark:hover:bg-neutral-800"
+          className="p-2 cursor-pointer "
           aria-label="Decrease"
         >
           <Minus size={16} />
@@ -343,7 +343,7 @@ function Quantity({
 
         <button
           onClick={onInc}
-          className="p-2 hover:bg-neutral-100 dark:hover:bg-neutral-800"
+          className="p-2 cursor-pointer"
           aria-label="Increase"
         >
           <Plus size={16} />

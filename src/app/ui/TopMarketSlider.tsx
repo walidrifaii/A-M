@@ -36,7 +36,7 @@ export default function TopMarketSlider({
   return (
     <section className="w-full py-10 sm:py-14" style={{ color: "var(--foreground)" }}>
       {/* Header */}
-      <header className="mb-6 flex items-center gap-3 px-6 lg:px-12">
+      <header className="mb-6 flex items-center gap-3 ">
         <span className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-yellow-500 to-yellow-300 text-white shadow-md">
           {logoSvg}
         </span>

@@ -9,7 +9,7 @@ export default function PageSkeleton({ rows = 1 }: { rows?: number }) {
       role="status"
       aria-live="polite"
       aria-busy="true"
-      className="page-container py-10"
+      className=" py-10"
     >
       <div className="space-y-6">
         {Array.from({ length: rows }).map((_, i) => (

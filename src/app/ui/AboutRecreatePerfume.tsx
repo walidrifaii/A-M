@@ -7,8 +7,8 @@ import standImg from "@/assets/standed.png";
 
 export default function AboutRecreatePerfume() {
   return (
-    <section className="page-container py-12 sm:py-20">
-      <div className="flex flex-col lg:flex-row items-center justify-between gap-12 p-8 sm:p-12">
+    <section className=" py-12 sm:py-20">
+      <div className="flex flex-col lg:flex-row items-center justify-between gap-12 ">
         {/* Left: Description */}
         <div className="flex-1 space-y-5 text-left">
           <h2 className="text-3xl sm:text-4xl font-semibold  text-[var(--foreground)]">

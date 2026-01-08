@@ -8,36 +8,36 @@ import discountImg from "@/assets/perfume-bottle-with-shadow-free-png.webp";
 
 export default function HeroShowcase() {
   return (
-    <section className="page-container py-6 sm:py-8">
+    <section className=" py-6 sm:py-8">
       <div className="grid grid-cols-1 gap-4 sm:gap-6 lg:grid-cols-3">
         {/* Left large card */}
-  {/* Left large card */}
-<div className="relative overflow-hidden rounded-3xl lg:col-span-2 min-h-[300px] sm:min-h-[400px] lg:min-h-[520px] bg-[#827978] dark:bg-[#6e6761] flex flex-col sm:flex-row items-center justify-between px-6 sm:px-10">
-  
-  {/* Text Content */}
-  <div className="relative z-10 flex flex-col gap-3 text-left max-w-sm sm:max-w-md pt-10 sm:pt-16 lg:pt-20">
-    <h3 className="text-3xl sm:text-4xl font-semibold text-white">
-      Opening Sales 15%
-    </h3>
-    <p className="text-sm sm:text-base text-white/80">
-      Enjoy 15% off on all products for a limited time.
-    </p>
-    <div className="mt-2">
-      <Link
-        href="/products"
-        className="inline-flex items-center rounded-2xl bg-white/90 px-5 py-2 text-sm font-semibold text-black shadow hover:bg-white"
-      >
-        Shop Now
-      </Link>
-    </div>
-  </div>
+        {/* Left large card */}
+        <div className="relative overflow-hidden rounded-3xl lg:col-span-2 min-h-[300px] sm:min-h-[400px] lg:min-h-[520px] bg-[#827978] dark:bg-[#6e6761] flex flex-col sm:flex-row items-center justify-between px-6 sm:px-10">
 
-  {/* Image */}
-  <div className="relative flex justify-center items-center w-full sm:w-[55%] mt-6 sm:mt-0">
-    <Image
-      src={discountImg}
-      alt="Perfume Bottle"
-      className="
+          {/* Text Content */}
+          <div className="relative z-10 flex flex-col gap-3 text-left max-w-sm sm:max-w-md pt-10 sm:pt-16 lg:pt-20">
+            <h3 className="text-3xl sm:text-4xl font-semibold text-white">
+              Opening Sales 15%
+            </h3>
+            <p className="text-sm sm:text-base text-white/80">
+              Enjoy 15% off on all products for a limited time.
+            </p>
+            <div className="mt-2">
+              <Link
+                href="/products"
+                className="inline-flex items-center rounded-2xl bg-white/90 px-5 py-2 text-sm font-semibold text-black shadow hover:bg-white"
+              >
+                Shop Now
+              </Link>
+            </div>
+          </div>
+
+          {/* Image */}
+          <div className="relative flex justify-center items-center w-full sm:w-[55%] mt-6 sm:mt-0">
+            <Image
+              src={discountImg}
+              alt="Perfume Bottle"
+              className="
         w-[80%] max-w-[420px]
         sm:w-[90%] sm:max-w-[460px]
         md:w-[100%] md:max-w-[500px]
@@ -45,10 +45,10 @@ export default function HeroShowcase() {
         animate-float drop-shadow-2xl select-none
         transition-all duration-500
       "
-      priority
-    />
-  </div>
-</div>
+              priority
+            />
+          </div>
+        </div>
 
 
 
