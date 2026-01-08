@@ -16,9 +16,13 @@ export type QuickProduct = {
 interface StoreContextType {
   cart: QuickProduct[];
   favorites: QuickProduct[];
+  buyNowItem: QuickProduct | null;
   addToCart: (p: QuickProduct) => void;
- addFavorite: (p: QuickProduct, action?: "remove") => void;
-   removeCartItem: (id: string) => void;
+  setCart: (p: QuickProduct[]) => void;
+  setBuyNowItem: (p: QuickProduct | null) => void;
+  clearCart: () => void;
+  addFavorite: (p: QuickProduct, action?: "remove") => void;
+  removeCartItem: (id: string, selectedSize?: string) => void;
   removeFavItem: (id: string) => void;
 }
 
@@ -46,11 +50,21 @@ export const StoreProvider = ({ children }: { children: ReactNode }) => {
     }
   });
 
+  const [buyNowItem, setBuyNowItem] = useState<QuickProduct | null>(() => {
+    if (typeof window === "undefined") return null;
+    try {
+      const saved = localStorage.getItem("buyNowItem");
+      return saved ? JSON.parse(saved) : null;
+    } catch {
+      return null;
+    }
+  });
+
   // Persist cart
   useEffect(() => {
     try {
       localStorage.setItem("cart", JSON.stringify(cart));
-    } catch {}
+    } catch { }
   }, [cart]);
 
   // Persist favorites
@@ -59,62 +73,86 @@ export const StoreProvider = ({ children }: { children: ReactNode }) => {
       if (Array.isArray(favorites)) {
         localStorage.setItem("favorites", JSON.stringify(favorites));
       }
-    } catch {}
+    } catch { }
   }, [favorites]);
 
+  // Persist buyNowItem
+  useEffect(() => {
+    try {
+      if (buyNowItem) {
+        localStorage.setItem("buyNowItem", JSON.stringify(buyNowItem));
+      } else {
+        localStorage.removeItem("buyNowItem");
+      }
+    } catch { }
+  }, [buyNowItem]);
+
   const addToCart = (p: QuickProduct) => {
-  const addQty = Math.max(1, p.qty ?? 1); // 👈 use qty from caller, fallback 1
+    const addQty = Math.max(1, p.qty ?? 1); // 👈 use qty from caller, fallback 1
 
-  setCart((prev) => {
-    // treat same product but different size as different line items
-    const idx = prev.findIndex(
-      (i) => i.id === p.id && i.selectedSize === p.selectedSize
-    );
+    setCart((prev) => {
+      // treat same product but different size as different line items
+      const idx = prev.findIndex(
+        (i) => i.id === p.id && i.selectedSize === p.selectedSize
+      );
 
-    if (idx >= 0) {
-      const next = [...prev];
-      next[idx] = {
-        ...next[idx],
-        qty: (next[idx].qty ?? 1) + addQty, // 👈 increment by passed qty
-      };
-      return next;
-    }
+      if (idx >= 0) {
+        const next = [...prev];
+        next[idx] = {
+          ...next[idx],
+          qty: (next[idx].qty ?? 1) + addQty, // 👈 increment by passed qty
+        };
+        return next;
+      }
 
-    // new line
-    return [...prev, { ...p, qty: addQty }];
-  });
-};
+      // new line
+      return [...prev, { ...p, qty: addQty }];
+    });
+  };
 
-interface AddFavoriteOptions {
-  action?: "remove";
-}
+  interface AddFavoriteOptions {
+    action?: "remove";
+  }
 
-const addFavorite = (
-  product: QuickProduct,
-  action?: AddFavoriteOptions["action"]
-) => {
-  setFavorites((prev: QuickProduct[]) => {
-    let updated: QuickProduct[];
-    if (action === "remove") {
-      updated = prev.filter((f: QuickProduct) => f.id !== product.id);
-    } else {
-      const exists = prev.some((f: QuickProduct) => f.id === product.id);
-      updated = exists ? prev : [...prev, product];
-    }
-    localStorage.setItem("favorites", JSON.stringify(updated));
-    return updated;
-  });
-};
+  const addFavorite = (
+    product: QuickProduct,
+    action?: AddFavoriteOptions["action"]
+  ) => {
+    setFavorites((prev: QuickProduct[]) => {
+      let updated: QuickProduct[];
+      if (action === "remove") {
+        updated = prev.filter((f: QuickProduct) => f.id !== product.id);
+      } else {
+        const exists = prev.some((f: QuickProduct) => f.id === product.id);
+        updated = exists ? prev : [...prev, product];
+      }
+      localStorage.setItem("favorites", JSON.stringify(updated));
+      return updated;
+    });
+  };
 
-  const removeCartItem = (id: string) =>
-    setCart((prev) => prev.filter((i) => i.id !== id));
+  const removeCartItem = (id: string, selectedSize?: string) =>
+    setCart((prev) => prev.filter((i) => !(i.id === id && i.selectedSize === selectedSize)));
 
   const removeFavItem = (id: string) =>
     setFavorites((prev) => prev.filter((i) => i.id !== id));
 
+  const clearCart = () => setCart([]);
+
   return (
     <StoreCtx.Provider
-      value={{ cart, favorites, addToCart, addFavorite, removeCartItem, removeFavItem }}
+      value={{
+        cart,
+        favorites,
+        buyNowItem,
+        addToCart,
+        setCart,
+        setBuyNowItem,
+        clearCart,
+        addFavorite,
+        removeCartItem,
+        removeFavItem
+      }}
     >
       {children}
     </StoreCtx.Provider>

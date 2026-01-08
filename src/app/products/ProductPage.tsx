@@ -3,22 +3,22 @@
 import { useState, useRef, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
-import { HeartIcon, ShoppingCart } from "lucide-react";
+import { useSearchParams, useRouter } from "next/navigation";
+import { HeartIcon, ShoppingCart, CreditCard } from "lucide-react";
 import { useGetProductsQuery } from "../store/api/productsApi";
 import { useStore } from "../store/StoreContext";
 import QuickAddModal, { QuickProduct } from "../components/products/QuickAddDrawer";
 
 
 export type Product = {
-id: string;
-slug: string;
-name: string;
-price: string;
-shortDescription?: string;
-longDescription?: string;
-image: string;
-sizes?: string[];
+  id: string;
+  slug: string;
+  name: string;
+  price: string;
+  shortDescription?: string;
+  longDescription?: string;
+  image: string;
+  sizes?: string[];
 };
 
 export default function ProductsPage() {
@@ -32,7 +32,8 @@ export default function ProductsPage() {
   const [activeProduct, setActiveProduct] = useState<QuickProduct | null>(null);
 
   // 🛍️ Global store
-  const { addToCart, addFavorite, favorites } = useStore();
+  const { addToCart, addFavorite, favorites, setBuyNowItem } = useStore();
+  const router = useRouter();
 
   // 🟢 Sync URL param to filter
   useEffect(() => {
@@ -77,7 +78,7 @@ export default function ProductsPage() {
   };
 
   // 🛒 Quick add modal
-  const openQuickAdd = (p: { 
+  const openQuickAdd = (p: {
     id: string;
     slug: string;
     name: string;
@@ -110,19 +111,30 @@ export default function ProductsPage() {
     setModalOpen(false);
   };
 
+  const handleBuyNow = (product: QuickProduct, size: string, qty: number) => {
+    setBuyNowItem({
+      ...product,
+      sizes: [size],
+      selectedSize: size,
+      qty,
+      image: typeof product.image === "string" ? product.image : (product.image as any).src ?? "",
+    });
+    setModalOpen(false);
+    router.push("/checkout?source=buy_now");
+  };
+
   return (
-    <div className="p-6">
+    <div className="pb-12">
       {/* 🟢 Filter Buttons */}
       <div className="flex justify-center gap-3 mb-6">
-        {["all", "men", "women", "unisex"].map((type) => (
+        {["all", "men", "women"].map((type) => (
           <button
             key={type}
-            onClick={() => setFilter(type as "all" | "men" | "women" | "unisex")}
-            className={`px-4 py-2 rounded-full text-sm font-medium transition ${
-              filter === type
-                ? "bg-yellow-500 text-white"
-                : "bg-gray-100 dark:bg-neutral-800 dark:text-white hover:bg-gray-200 dark:hover:bg-neutral-700"
-            }`}
+            onClick={() => setFilter(type as "all" | "men" | "women")}
+            className={`px-4 py-2 rounded-full text-sm font-medium transition ${filter === type
+              ? "bg-yellow-500 text-white"
+              : "bg-gray-100 dark:bg-neutral-800 dark:text-white hover:bg-gray-200 dark:hover:bg-neutral-700"
+              }`}
           >
             {type === "all"
               ? "All"
@@ -153,32 +165,49 @@ export default function ProductsPage() {
                 className="group relative rounded-3xl transition-transform duration-300 hover:-translate-y-1"
                 style={{ animationDelay: `${Math.min(idx * 100, 400)}ms` }}
               >
-                <div className="rounded-3xl p-3">
+                <div className="rounded-3xl p-3 shadow-md">
                   <Link
                     href={`/product/${p.slug}`}
                     className="relative mx-auto block aspect-square w-full max-w-[240px] overflow-hidden rounded-2xl"
                   >
-                    <Image
-                      src={p.image && p.image.trim() !== "" ? p.image : "/src/assets/placeholder.webp"}
-                      alt={p.name}
-                      fill
-                      sizes="(min-width: 1024px) 320px, (min-width: 640px) 45vw, 90vw"
-                      className="object-contain transition-transform duration-300 group-hover:scale-[1.04]"
-                      priority={idx < 3}
-                    />
+                    {p.image && p.image.trim() !== "" ? (
+                      <Image
+                        src={p.image}
+                        alt={p.name}
+                        fill
+                        sizes="(min-width: 1024px) 320px, (min-width: 640px) 45vw, 90vw"
+                        className="object-contain transition-transform duration-300 group-hover:scale-[1.04]"
+                        priority={idx < 3}
+                      />
+                    ) : (
+                      <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-neutral-200 to-neutral-300 dark:from-neutral-700 dark:to-neutral-800">
+                        <svg
+                          viewBox="0 0 24 24"
+                          className="h-16 w-16 text-neutral-400 dark:text-neutral-600"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="1.5"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z"
+                          />
+                        </svg>
+                      </div>
+                    )}
                     <span className="absolute left-2 top-2 rounded-lg bg-yellow-500/95 px-2.5 py-0.5 text-[10px] font-bold text-white shadow-sm sm:text-xs">
                       {p.price}
                     </span>
                   </Link>
 
-                  {/* ❤️ + 🛒 Buttons */}
+                  {/* ❤️ Button */}
                   <div className="pointer-events-none absolute right-3 top-3 flex gap-2">
                     <button
-                      className={`pointer-events-auto rounded-lg p-2 shadow-sm transition ${
-                        wished
-                          ? "bg-rose-500 text-white"
-                          : "bg-white/90 dark:bg-neutral-800/90 text-black dark:text-white hover:bg-white dark:hover:bg-neutral-800"
-                      }`}
+                      className={`pointer-events-auto rounded-lg p-2 shadow-sm transition ${wished
+                        ? "bg-rose-500 text-white"
+                        : "bg-white/90 dark:bg-neutral-800/90 text-black dark:text-white hover:bg-white dark:hover:bg-neutral-800"
+                        }`}
                       onClick={(e) => {
                         e.preventDefault();
                         e.stopPropagation();
@@ -186,17 +215,6 @@ export default function ProductsPage() {
                       }}
                     >
                       <HeartIcon size={16} fill={wished ? "currentColor" : "none"} />
-                    </button>
-
-                    <button
-                      className="pointer-events-auto rounded-lg p-2 shadow-sm bg-white/90 dark:bg-neutral-800/90 text-black dark:text-white hover:bg-white dark:hover:bg-neutral-800 transition"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        openQuickAdd(p);
-                      }}
-                    >
-                      <ShoppingCart size={16} />
                     </button>
                   </div>
 
@@ -213,6 +231,16 @@ export default function ProductsPage() {
                       {p.shortDescription}
                     </p>
                   </div>
+
+                  <button
+                    onClick={() => openQuickAdd(p)}
+                    className="flex-1 flex items-center justify-center gap-3 text-[16px] w-full mt-2
+                                     font-bold py-2 px-8 rounded-xl bg-yellow-500 text-white
+                                       transition-all hover:-translate-y-1 active:scale-95 "
+                  >
+                    <CreditCard className="h-5 w-5 stroke-[2.5]" />
+                    Buy Now
+                  </button>
                 </div>
               </article>
             );
@@ -225,6 +253,7 @@ export default function ProductsPage() {
         product={activeProduct}
         onClose={() => setModalOpen(false)}
         onConfirmAdd={handleAddToCart}
+        onConfirmBuy={handleBuyNow}
       />
     </div>
   );

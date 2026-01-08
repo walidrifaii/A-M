@@ -24,11 +24,13 @@ export default function QuickAddModal({
   onClose,
   product,
   onConfirmAdd,
+  onConfirmBuy,
 }: {
   open: boolean;
   onClose: () => void;
   product: QuickProduct | null;
   onConfirmAdd?: (p: QuickProduct, size: string, qty: number) => void;
+  onConfirmBuy?: (p: QuickProduct, size: string, qty: number) => void;
 }) {
   const sizes = product?.sizes?.length ? product.sizes : ["50ml", "100ml"];
   const [size, setSize] = useState(sizes[0]);
@@ -138,7 +140,10 @@ export default function QuickAddModal({
                 >
                   ADD TO CART →
                 </button>
-                <button className="w-full rounded-2xl bg-[#fde9a6] text-black font-semibold py-3 tracking-wide">
+                <button
+                  className="w-full rounded-2xl bg-[#fde9a6] hover:bg-[#f6dc87] text-black font-semibold py-3 tracking-wide transition"
+                  onClick={() => onConfirmBuy?.(product, size, qty)}
+                >
                   BUY IT NOW
                 </button>
                 <Link
@@ -225,12 +230,18 @@ export default function QuickAddModal({
         </div>
 
         {/* Sticky footer + safe area */}
-        <div className="px-4 pb-3 pt-2 border-t border-neutral-200/70 dark:border-neutral-800/70 bg-[var(--background)]">
+        <div className="px-4 pb-3 pt-2 border-t border-neutral-200/70 dark:border-neutral-800/70 bg-[var(--background)] space-y-2">
           <button
             className="w-full rounded-2xl bg-[#827978] hover:bg-[#6f6862] text-white font-semibold py-3 tracking-wide transition"
             onClick={() => onConfirmAdd?.(product, size, qty)}
           >
             ADD TO CART →
+          </button>
+          <button
+            className="w-full rounded-2xl bg-[#fde9a6] hover:bg-[#f6dc87] text-black font-semibold py-3 tracking-wide transition"
+            onClick={() => onConfirmBuy?.(product, size, qty)}
+          >
+            BUY IT NOW
           </button>
           <div className="safe-bottom" />
         </div>

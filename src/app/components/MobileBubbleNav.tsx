@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, Grid2X2, Heart, ShoppingCart, Sun, Moon } from "lucide-react";
+import { Home, Grid2X2, Heart, ShoppingCart, Sun, Moon, Info, MessageCircle } from "lucide-react";
 
 export default function MobileBubbleNav({
   initialActiveId = "home",
@@ -26,7 +26,14 @@ export default function MobileBubbleNav({
   const [active, setActive] = useState(initialActiveId);
   const [isVisible, setIsVisible] = useState(true);
 
-  // ✅ Always call useEffect, never inside a condition
+  // ✅ Sync active state with pathname
+  useEffect(() => {
+    if (pathname === "/") setActive("home");
+    else if (pathname.startsWith("/about")) setActive("about");
+    else if (pathname.startsWith("/contact")) setActive("contact");
+  }, [pathname]);
+
+  // ✅ Scroll visibility effect
   useEffect(() => {
     const handleScroll = () => {
       const scrollY = window.scrollY;
@@ -47,19 +54,19 @@ export default function MobileBubbleNav({
 
   const ACTIVE_COLOR = "#f0b100";
   const bubbleBase =
-    "relative h-11 w-11 rounded-full flex items-center justify-center transition shadow-sm active:scale-[0.97]";
-  const activeStyle = { backgroundColor: ACTIVE_COLOR, color: "#111111" };
+    "relative h-11 flex items-center justify-center transition-all duration-300 shadow-sm active:scale-[0.97] rounded-full overflow-hidden whitespace-nowrap px-4 gap-2";
+  const activeStyle = { backgroundColor: ACTIVE_COLOR, color: "#111111", width: "auto", minWidth: "100px" };
+  const inactiveStyle = { width: "44px", padding: "0" };
 
   // ✅ Hide visually instead of returning null (keeps hooks consistent)
   const shouldHide = pathname === "/success";
 
   return (
     <div
-      className={`fixed bottom-5 left-1/2 z-[75] -translate-x-1/2 md:hidden transition-all duration-300 ${
-        !isVisible || shouldHide
-          ? "opacity-0 translate-y-8 pointer-events-none"
-          : "opacity-100 translate-y-0"
-      }`}
+      className={`fixed bottom-5 left-1/2 z-[75] -translate-x-1/2 md:hidden transition-all duration-300 ${!isVisible || shouldHide
+        ? "opacity-0 translate-y-8 pointer-events-none"
+        : "opacity-100 translate-y-0"
+        }`}
     >
       <div
         className="
@@ -74,90 +81,53 @@ export default function MobileBubbleNav({
           href="/"
           onClick={() => setActive("home")}
           aria-label="Home"
-          className={`${bubbleBase} ${
-            active === "home"
-              ? "text-[var(--background)]"
-              : "bg-[var(--background)] text-[var(--foreground)] hover:opacity-80"
-          }`}
-          style={active === "home" ? activeStyle : undefined}
+          className={`${bubbleBase} ${active === "home"
+            ? "text-[var(--background)]"
+            : "bg-[var(--background)] text-[var(--foreground)] hover:opacity-80"
+            }`}
+          style={active === "home" ? activeStyle : inactiveStyle}
         >
           <Home size={18} />
+          <span className={`text-xs font-bold transition-all duration-300 ${active === "home" ? "opacity-100 max-w-xs" : "opacity-0 max-w-0"}`}>
+            Home
+          </span>
         </Link>
 
-        {/* All Products */}
+        {/* About Us */}
         <Link
-          href="/#products"
-          onClick={() => setActive("all")}
-          aria-label="All Products"
-          className={`${bubbleBase} ${
-            active === "all"
-              ? "text-[var(--background)]"
-              : "bg-[var(--background)] text-[var(--foreground)] hover:opacity-80"
-          }`}
-          style={active === "all" ? activeStyle : undefined}
+          href="/about"
+          onClick={() => setActive("about")}
+          aria-label="About Us"
+          className={`${bubbleBase} ${active === "about"
+            ? "text-[var(--background)]"
+            : "bg-[var(--background)] text-[var(--foreground)] hover:opacity-80"
+            }`}
+          style={active === "about" ? activeStyle : inactiveStyle}
         >
-          <Grid2X2 size={18} />
+          <Info size={18} />
+          <span className={`text-xs font-bold transition-all duration-300 ${active === "about" ? "opacity-100 max-w-xs" : "opacity-0 max-w-0"}`}>
+            About
+          </span>
         </Link>
 
-        {/* Favorites */}
-        <button
-          type="button"
-          onClick={() => {
-            setActive("fav");
-            onOpenFav?.();
-          }}
-          aria-label="Favorites"
-          className={`${bubbleBase} ${
-            active === "fav"
-              ? "text-[var(--background)]"
-              : "bg-[var(--background)] text-[var(--foreground)] hover:opacity-80"
-          }`}
-          style={active === "fav" ? activeStyle : undefined}
+        {/* Contact Us */}
+        <Link
+          href="/contact"
+          onClick={() => setActive("contact")}
+          aria-label="Contact Us"
+          className={`${bubbleBase} ${active === "contact"
+            ? "text-[var(--background)]"
+            : "bg-[var(--background)] text-[var(--foreground)] hover:opacity-80"
+            }`}
+          style={active === "contact" ? activeStyle : inactiveStyle}
         >
-          <Heart size={18} />
-          {favCount > 0 && (
-            <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 rounded-full bg-[#827978] text-white text-[10px] font-semibold flex items-center justify-center">
-              {favCount}
-            </span>
-          )}
-        </button>
+          <MessageCircle size={18} />
+          <span className={`text-xs font-bold transition-all duration-300 ${active === "contact" ? "opacity-100 max-w-xs" : "opacity-0 max-w-0"}`}>
+            Contact
+          </span>
+        </Link>
 
-        {/* Cart */}
-        <button
-          type="button"
-          onClick={() => {
-            setActive("cart");
-            onOpenCart?.();
-          }}
-          aria-label="Cart"
-          className={`${bubbleBase} ${
-            active === "cart"
-              ? "text-[var(--background)]"
-              : "bg-[var(--background)] text-[var(--foreground)] hover:opacity-80"
-          }`}
-          style={active === "cart" ? activeStyle : undefined}
-        >
-          <ShoppingCart size={18} />
-          {cartCount > 0 && (
-            <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 rounded-full bg-[#827978] text-white text-[10px] font-semibold flex items-center justify-center">
-              {cartCount}
-            </span>
-          )}
-        </button>
 
-        {/* Divider dot */}
-        <span className="mx-0.5 h-2 w-2 rounded-full bg-[var(--foreground)]/10" />
-
-        {/* Theme toggle */}
-        <button
-          type="button"
-          onClick={onToggleTheme}
-          aria-label={isDark ? "Light mode" : "Dark mode"}
-          className={`${bubbleBase} bg-[var(--background)] text-[var(--foreground)] hover:opacity-80`}
-          title={isDark ? "Light mode" : "Dark mode"}
-        >
-          {isDark ? <Sun size={18} /> : <Moon size={18} />}
-        </button>
       </div>
 
       <div className="safe-bottom" />

@@ -5,7 +5,6 @@ import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Moon, Sun, ShoppingCart, Heart, Trash2 } from "lucide-react";
 import { useStore } from "../store/StoreContext";
-import MobileBubbleNav from "../components/MobileBubbleNav";
 import Image from "next/image";
 
 export default function Navbar() {
@@ -66,25 +65,22 @@ export default function Navbar() {
             </Link>
 
             {/* Desktop Nav */}
-            <div className="hidden items-center gap-2 md:flex">
-              <NavLink href="/" label="Home" pathname={pathname} />
-              <NavLink href="/services" label="Services" pathname={pathname} />
-              <NavLink href="/portfolio" label="Portfolio" pathname={pathname} />
-              <NavLink href="/about" label="About" pathname={pathname} />
-              <NavLink href="/contact" label="Contact" pathname={pathname} />
+            <div className=" items-center gap-2 flex">
+              <div className="hidden md:flex items-center gap-2">
 
-              {/* Login Button */}
-              <Link
-                href="/auth/login"
-                className="rounded-xl px-4 py-2 text-sm font-medium hover:bg-yellow-400/20 transition focus:outline-none focus:ring-2 focus:ring-yellow-400/50"
-              >
-                Login
-              </Link>
+                <NavLink href="/" label="Home" pathname={pathname} />
+                <NavLink href="/products" label="All Products" pathname={pathname} />
+                <NavLink href="/about" label="About" pathname={pathname} />
+                <NavLink href="/contact" label="Contact" pathname={pathname} />
+              </div>
+
+
 
               {/* Theme Toggle */}
               <button
                 onClick={() => setIsDark((v) => !v)}
-                className="ml-2 rounded-xl p-2 hover:bg-yellow-400/20 focus:outline-none focus:ring-2 focus:ring-yellow-400/60"
+                className="ml-2 rounded-xl p-2 hover:bg-yellow-400/20 focus:outline-none 
+                focus:ring-2 focus:ring-yellow-400/60"
                 aria-label="Toggle theme"
               >
                 {isDark ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
@@ -136,6 +132,7 @@ export default function Navbar() {
         removeItem={removeCartItem}
         empty="Your cart is empty."
         checkout
+        mounted={mounted}
       />
 
       {/* Favorites Drawer */}
@@ -148,18 +145,12 @@ export default function Navbar() {
         removeItem={removeFavItem}
         empty="No favorites yet."
         checkout={false}
+        mounted={mounted}
       />
 
       {/* Mobile Nav - pass mounted prop if needed or ensure mobile nav handles its own hydration, 
           but here we just fix the main navbar badges */}
-      <MobileBubbleNav
-        cartCount={cartCount}
-        favCount={favCount}
-        onOpenCart={() => setCartOpen(true)}
-        onOpenFav={() => setFavOpen(true)}
-        onToggleTheme={() => setIsDark((v) => !v)}
-        isDark={isDark}
-      />
+
     </>
   );
 }
@@ -182,7 +173,7 @@ function Badge({ count }: { count: number }) {
   );
 }
 
-interface DrawerItem { id: string; name: string; price?: string; qty?: number; image?: string; }
+interface DrawerItem { id: string; name: string; price?: string; qty?: number; image?: string; selectedSize?: string; }
 
 function Drawer({
   open,
@@ -193,15 +184,17 @@ function Drawer({
   removeItem,
   empty,
   checkout,
+  mounted,
 }: {
   open: boolean;
   title: string;
   count: number;
   onClose: () => void;
   items: DrawerItem[];
-  removeItem: (id: string) => void;
+  removeItem: (id: string, size?: string) => void;
   empty: string;
   checkout?: boolean;
+  mounted: boolean;
 }) {
   return (
     <aside
@@ -211,47 +204,57 @@ function Drawer({
         } rounded-l-2xl`}
     >
       <div className="flex items-center justify-between px-4 py-3 border-b border-neutral-200/70">
-        <h3 className="text-base font-semibold">{title} ({count})</h3>
+        <h3 className="text-base font-semibold">{title} {mounted && `(${count})`}</h3>
         <button onClick={onClose} className="rounded-lg px-3 py-1 hover:bg-black/5">Close</button>
       </div>
 
-      <div className="p-4 space-y-3 overflow-y-auto h-[calc(100dvh-52px-72px)] pb-24">     {Array.isArray(items) && items.length > 0 ? (
-        items.map((i, idx) => (
-          <div key={i.id ?? idx} className="flex items-center gap-3 rounded-xl border border-neutral-200/70 p-3">
-            {/* Product Image */}
-            <div className="h-12 w-12 rounded-lg overflow-hidden bg-neutral-200/60">
-              {typeof i !== 'string' && i.image && (
-                <Image
-                  src={i.image}
-                  alt={i.name}
-                  className="h-full w-full object-cover"
-                  width="12"
-                  height="12"
-                />
-              )}
-            </div>
+      <div className="p-4 space-y-3 overflow-y-auto h-[calc(100dvh-52px-72px)] pb-24">
+        {mounted ? (
+          Array.isArray(items) && items.length > 0 ? (
+            items.map((i, idx) => (
+              <div key={`${i.id}-${i.selectedSize || idx}`} className="flex items-center gap-3 rounded-xl border border-neutral-200/70 p-3">
+                {/* Product Image */}
+                <div className="h-12 w-12 rounded-lg overflow-hidden bg-neutral-200/60">
+                  {typeof i !== 'string' && i.image && (
+                    <Image
+                      src={i.image}
+                      alt={i.name}
+                      className="h-full w-full object-cover"
+                      width={48}
+                      height={48}
+                    />
+                  )}
+                </div>
 
-            {/* Product Info */}
-            <div className="flex-1">
-              <p className="text-sm font-medium">{typeof i === 'string' ? i : i.name}</p>
-              {typeof i !== 'string' && i.price && (
-                <p className="text-xs opacity-70">{i.price}{i.qty && ` • Qty ${i.qty}`}</p>
-              )}
-            </div>
+                {/* Product Info */}
+                <div className="flex-1">
+                  <p className="text-sm font-medium">{typeof i === 'string' ? i : i.name}</p>
+                  {typeof i !== 'string' && i.price && (
+                    <p className="text-xs opacity-70">
+                      {i.price}
+                      {i.selectedSize && ` • ${i.selectedSize}`}
+                      {i.qty && ` • Qty ${i.qty}`}
+                    </p>
+                  )}
+                </div>
 
-            {/* Remove Button */}
-            <button
-              onClick={() => removeItem(typeof i === 'string' ? i : i.id)}
-              className="p-2 rounded-lg hover:bg-black/5"
-            >
-              <Trash2 size={16} />
-            </button>
+                {/* Remove Button */}
+                <button
+                  onClick={() => removeItem(typeof i === 'string' ? i : i.id, typeof i === 'string' ? undefined : i.selectedSize)}
+                  className="p-2 rounded-lg hover:bg-black/5"
+                >
+                  <Trash2 size={16} />
+                </button>
+              </div>
+            ))
+          ) : (
+            <p className="text-sm opacity-70">{empty}</p>
+          )
+        ) : (
+          <div className="flex h-32 items-center justify-center">
+            <div className="h-6 w-6 animate-spin rounded-full border-2 border-yellow-500 border-t-transparent" />
           </div>
-        ))
-      ) : (
-        <p className="text-sm opacity-70">{empty}</p>
-      )}
-
+        )}
       </div>
 
       {checkout && (

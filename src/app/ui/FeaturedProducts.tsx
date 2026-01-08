@@ -3,10 +3,13 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import { useGetProductsQuery } from "../store/api/productsApi";
 import QuickAddModal, { QuickProduct } from "../components/products/QuickAddDrawer";
 import { useStore } from "../store/StoreContext";
 import PageSkeleton from "../components/loading/PageSkeleton";
+import { CreditCard } from "lucide-react";
+import toast from "react-hot-toast";
 
 export type Product = {
   id: string;
@@ -29,7 +32,8 @@ export default function FeaturedProducts({ title = "Featured Perfumes" }: Featur
   const [activeProduct, setActiveProduct] = useState<QuickProduct | null>(null);
 
   // ✅ Use global store instead of local state
-  const { addToCart, addFavorite, favorites } = useStore();
+  const { addToCart, addFavorite, favorites, setBuyNowItem } = useStore();
+  const router = useRouter();
 
   const { data, isLoading } = useGetProductsQuery();
   const products: Product[] =
@@ -75,14 +79,12 @@ export default function FeaturedProducts({ title = "Featured Perfumes" }: Featur
     setModalOpen(true);
   };
 
-  // ✅ Add to cart using global store
   const handleAddToCart = (product: QuickProduct, size: string, qty: number) => {
     addToCart({
       ...product,
-      // keep sizes if you need, but also pass the selected one explicitly
       sizes: [size],
-      selectedSize: size,          // 👈 important for variant lines
-      qty,                         // 👈 this is now respected by the store
+      selectedSize: size,
+      qty,
       image:
         typeof product.image === "string"
           ? product.image
@@ -91,12 +93,29 @@ export default function FeaturedProducts({ title = "Featured Perfumes" }: Featur
     setModalOpen(false);
   };
 
+  const handleBuyNow = (product: QuickProduct, size: string, qty: number) => {
+    setBuyNowItem({
+      ...product,
+      sizes: [size],
+      selectedSize: size,
+      qty,
+      image:
+        typeof product.image === "string"
+          ? product.image
+          : (product.image as any).src ?? "",
+    });
+    setModalOpen(false);
+    router.push("/checkout?source=buy_now");
+  };
+
   if (isLoading) return <PageSkeleton rows={2} />;
 
   return (
     <section className=" py-12 sm:py-16">
-      <h2 className="mb-6 text-xl font-semibold tracking-tight sm:text-2xl text-black dark:text-white">
-        {title}</h2>
+      <h2 className="mb-6 text-xl font-semibold tracking-tight sm:text-2xl ">
+        {title}
+        </h2>
+
       <div ref={gridRef} className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {products.map((p, idx) => {
           const wished = favorites.some((f) => f.id === p.id);
@@ -157,16 +176,7 @@ export default function FeaturedProducts({ title = "Featured Perfumes" }: Featur
                     <HeartIcon filled={wished} />
                   </button>
 
-                  <button
-                    className="pointer-events-auto rounded-lg p-2 shadow-sm bg-white/90 dark:bg-neutral-800/90 text-black dark:text-white hover:bg-white dark:hover:bg-neutral-800 transition"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      openQuickAdd(p);
-                    }}
-                  >
-                    <CartIcon />
-                  </button>
+                
                 </div>
 
                 <div className="mt-3">
@@ -177,6 +187,15 @@ export default function FeaturedProducts({ title = "Featured Perfumes" }: Featur
                     {p.shortDescription}
                   </p>
                 </div>
+                <button
+                  onClick={() => openQuickAdd(p)}
+                  className="flex-1 flex items-center justify-center gap-3 text-[16px] w-full mt-2
+                                   font-bold py-2 px-8 rounded-xl bg-yellow-500 text-white
+                                     transition-all hover:-translate-y-1 active:scale-95 "
+                >
+                  <CreditCard className="h-5 w-5 stroke-[2.5]" />
+                  Buy Now
+                </button>
               </div>
             </article>
           );
@@ -188,6 +207,7 @@ export default function FeaturedProducts({ title = "Featured Perfumes" }: Featur
         product={activeProduct}
         onClose={() => setModalOpen(false)}
         onConfirmAdd={handleAddToCart}
+        onConfirmBuy={handleBuyNow}
       />
     </section>
 

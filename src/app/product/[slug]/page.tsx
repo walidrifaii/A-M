@@ -13,19 +13,19 @@ import {
     Star,
     ChevronRight,
     Minus,
-    Plus
+    Plus,
+    CreditCard
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import Navbar from '../../ui/NavBar';
 import Footer from '../../ui/Footer';
-import MobileBubbleNav from '../../components/MobileBubbleNav';
 
 export default function SingleProductPage() {
     const params = useParams();
     const router = useRouter();
     const { slug } = params;
     const { data: products, isLoading } = useGetProductsQuery();
-    const { addToCart, addFavorite, favorites } = useStore();
+    const { addToCart, addFavorite, favorites, setBuyNowItem } = useStore();
 
     const [selectedSize, setSelectedSize] = useState<string | null>(null);
     const [quantity, setQuantity] = useState(1);
@@ -91,7 +91,7 @@ export default function SingleProductPage() {
             id: product._id,
             slug: product.name.toLowerCase().replace(/\s+/g, "-"),
             name: product.name,
-            price: product.price,
+            price: product.price.toString(),
             image: product.image,
             sizes: product.size,
             selectedSize: selectedSize,
@@ -119,6 +119,27 @@ export default function SingleProductPage() {
         ));
     };
 
+    const handleBuyNow = () => {
+        if (!selectedSize) {
+            toast.error('Please select a size');
+            return;
+        }
+
+        // Use setBuyNowItem to store temporary checkout item
+        setBuyNowItem({
+            id: product._id,
+            slug: product.name.toLowerCase().replace(/\s+/g, "-"),
+            name: product.name,
+            price: product.price.toString(),
+            image: product.image,
+            sizes: product.size,
+            selectedSize: selectedSize,
+            qty: quantity,
+        });
+
+        router.push('/checkout?source=buy_now');
+    };
+
     const handleToggleFavorite = () => {
         if (isFavorite) {
             addFavorite({ id: product._id } as any, "remove");
@@ -127,7 +148,7 @@ export default function SingleProductPage() {
                 id: product._id,
                 slug: product.name.toLowerCase().replace(/\s+/g, "-"),
                 name: product.name,
-                price: product.price,
+                price: product.price.toString(),
                 image: product.image,
                 sizes: product.size,
             });
@@ -136,7 +157,6 @@ export default function SingleProductPage() {
 
     return (
         <div className="min-h-screen ">
-            <MobileBubbleNav />
             {/* Add padding-top to account for fixed/sticky navbar if necessary, or let Navbar handle it */}
             <Navbar />
 
@@ -253,7 +273,7 @@ export default function SingleProductPage() {
 
                         {/* Actions */}
                         <div className="flex flex-col sm:flex-row gap-4 pt-8 border-t border-gray-100 dark:border-neutral-800">
-                            <div className="flex items-center p-1.5 rounded-2xl border border-gray-200 dark:border-neutral-700">
+                            <div className="flex items-center justify-between rounded-2xl border-2 border-gray-200 dark:border-neutral-700">
                                 <button
                                     onClick={() => setQuantity(Math.max(1, quantity - 1))}
                                     className="p-3.5  rounded-xl "
@@ -265,18 +285,28 @@ export default function SingleProductPage() {
                                     onClick={() => setQuantity(quantity + 1)}
                                     className="p-3.5 rounded-xl transition-colors"
                                 >
-                                    <Plus className="h-5 w-5" />        
+                                    <Plus className="h-5 w-5" />
                                 </button>
                             </div>
 
                             <button
                                 onClick={handleAddToCart}
                                 className="flex-1 flex items-center justify-center gap-3
-                                   font-bold py-4 px-8 rounded-2xl shadow-xl bg-yellow-500 text-white
-                                    shadow-yellow-500/20 transition-all hover:-translate-y-1 active:scale-95 text-lg"
+                                   font-bold py-2 px-8 rounded-2xl shadow-xl bg-yellow-500 text-white
+                                    shadow-yellow-500/20 transition-all hover:-translate-y-1 active:scale-95 text-[16px]"
                             >
-                                <ShoppingCart className="h-6 w-6 stroke-[2.5]" />
+                                <ShoppingCart className="h-5 w-5 stroke-[2.5]" />
                                 Add to Cart
+                            </button>
+
+                            <button
+                                onClick={handleBuyNow}
+                                className="flex-1 flex items-center justify-center gap-3 text-[16px]
+                                   font-bold py-2 px-8 rounded-2xl border-2 border-yellow-500
+                                     transition-all hover:-translate-y-1 active:scale-95 "
+                            >
+                                <CreditCard className="h-5 w-5 stroke-[2.5]" />
+                                Buy Now
                             </button>
                         </div>
 

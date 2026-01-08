@@ -1,21 +1,17 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useForm, SubmitHandler } from "react-hook-form";
+import { useSearchParams } from "next/navigation";
+import { Suspense } from "react";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
-import toast, { Toaster } from "react-hot-toast";
-
-interface CartItem {
-  id: string | number;
-  name: string;
-  price: string;
-  qty: number;
-  image: string;
-  selectedSize?: string;
-}
+import toast from "react-hot-toast";
+import Navbar from "../ui/NavBar";
+import Footer from "../ui/Footer";
+import { useStore } from "../store/StoreContext";
 
 // notes is required but can be empty string
 interface CheckoutFormValues {
@@ -24,10 +20,11 @@ interface CheckoutFormValues {
   phone: string;
   city: string;
   address: string;
+  addressLine2?: string;
   notes: string;
 }
 
- // Yup schema with default for notes
+// Yup schema with default for notes
 const schema = yup.object({
   fullName: yup.string().required("Full Name is required"),
   email: yup
@@ -37,13 +34,26 @@ const schema = yup.object({
     .matches(/^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/, "Email must have a valid TLD"),
   phone: yup.string().required("Phone is required"),
   city: yup.string().required("City is required"),
-  address: yup.string().required("Address is required"),
+  address: yup.string().required("Address Line 1 is required"),
+  addressLine2: yup.string(),
   notes: yup.string().default(""),
 }) as yup.ObjectSchema<CheckoutFormValues>;
 
 export default function CheckoutPage() {
-  const [cartItems, setCartItems] = useState<CartItem[]>([]);
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <CheckoutForm />
+    </Suspense>
+  );
+}
+
+function CheckoutForm() {
+  const searchParams = useSearchParams();
+  const source = searchParams.get("source");
+  const { cart: cartItems, buyNowItem, clearCart, setBuyNowItem } = useStore();
   const [loading, setLoading] = useState(false);
+
+  const displayItems = source === "buy_now" && buyNowItem ? [buyNowItem] : cartItems;
 
   const {
     register,
@@ -57,23 +67,23 @@ export default function CheckoutPage() {
       phone: "",
       city: "",
       address: "",
+      addressLine2: "",
       notes: "",
     },
   });
 
-  // Load cart
-  useEffect(() => {
-    const stored = localStorage.getItem("cart");
-    if (stored) setCartItems(JSON.parse(stored));
-  }, []);
-
-  const subtotal = cartItems.reduce((sum, i) => sum + Number(i.price.replace("$", "")) * i.qty, 0);
-  const shipping = cartItems.length > 0 ? 4 : 0;
+  const subtotal = displayItems.reduce((sum, i) => {
+    const p = i.price;
+    const val = typeof p === "string" ? parseFloat(p.replace("$", "")) : Number(p);
+    return sum + (isNaN(val) ? 0 : val) * (i.qty || 1);
+  }, 0);
+  const shipping = displayItems.length > 0 ? 4 : 0;
   const total = subtotal + shipping;
+  const totalQty = displayItems.reduce((sum, i) => sum + (i.qty || 1), 0);
 
   const onSubmit: SubmitHandler<CheckoutFormValues> = async (data) => {
-    if (cartItems.length === 0) {
-      toast.error("Your cart is empty.");
+    if (displayItems.length === 0) {
+      toast.error("Your checkout list is empty.");
       return;
     }
 
@@ -82,11 +92,15 @@ export default function CheckoutPage() {
       customerEmail: data.email,
       customerPhone: data.phone,
       addressLine1: data.address,
-      addressLine2: "",
+      addressLine2: data.addressLine2 || "",
       city: data.city,
       notes: data.notes,
       paymentMethod: "COD",
-      items: cartItems.map((item) => ({ productId: item.id, quantity: item.qty  ,   size: item.selectedSize || null, })),
+      items: displayItems.map((item) => ({
+        productId: item.id,
+        quantity: item.qty || 1,
+        size: item.selectedSize || "Standard"
+      })),
     };
 
     try {
@@ -99,9 +113,13 @@ export default function CheckoutPage() {
       const result = await res.json();
 
       if (res.ok) {
-        localStorage.removeItem("cart");
+        if (source === "buy_now") {
+          setBuyNowItem(null);
+        } else {
+          clearCart();
+        }
         toast.success("Order placed successfully!");
-        window.location.href = "/success";
+        // window.location.href = "/success";
       } else {
         toast.error(result.message || "Failed to place order");
       }
@@ -118,9 +136,10 @@ export default function CheckoutPage() {
       className="min-h-screen transition-colors duration-300"
       style={{ backgroundColor: "var(--background)", color: "var(--foreground)" }}
     >
-      <Toaster position="top-right" />
+      <Navbar />
 
-      <div className="container mx-auto p-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="mx-auto  px-4 sm:px-6 lg:px-32 py-12 lg:py-16
+       grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Left - Shipping & Payment */}
         <div className="lg:col-span-2 space-y-6">
           <div
@@ -157,13 +176,26 @@ export default function CheckoutPage() {
               <div className="flex flex-col sm:col-span-2">
                 <input
                   type="text"
-                  placeholder="Address Line"
+                  placeholder="Address Line 1"
                   {...register("address")}
                   className="border border-neutral-300/50 rounded-xl p-3 w-full bg-transparent focus:ring-1 focus:ring-[#827978]"
                   style={{ color: "var(--foreground)" }}
                 />
                 {errors.address && (
                   <p className="text-xs text-red-500 mt-1">{errors.address.message}</p>
+                )}
+              </div>
+
+              <div className="flex flex-col sm:col-span-2">
+                <input
+                  type="text"
+                  placeholder="Address Line 2 (Optional)"
+                  {...register("addressLine2")}
+                  className="border border-neutral-300/50 rounded-xl p-3 w-full bg-transparent focus:ring-1 focus:ring-[#827978]"
+                  style={{ color: "var(--foreground)" }}
+                />
+                {errors.addressLine2 && (
+                  <p className="text-xs text-red-500 mt-1">{errors.addressLine2.message}</p>
                 )}
               </div>
 
@@ -201,11 +233,12 @@ export default function CheckoutPage() {
         >
           <h2 className="text-lg font-semibold mb-4">Order Summary</h2>
 
-          {cartItems.length > 0 ? (
+          {displayItems.length > 0 ? (
             <>
               <div className="space-y-3 mb-4">
-                {cartItems.map((item) => {
-                  const priceNumber = Number(item.price.replace("$", ""));
+                {displayItems.map((item) => {
+                  const p = item.price;
+                  const priceNumber = typeof p === "string" ? parseFloat(p.replace("$", "")) : Number(p);
                   return (
                     <div
                       key={item.id}
@@ -225,26 +258,33 @@ export default function CheckoutPage() {
                         </div>
                         <div>
                           <p className="text-sm font-medium">{item.name}</p>
-                          <p className="text-xs opacity-70">Qty {item.qty}</p>
+                          <p className="text-xs opacity-70">
+                            {item.selectedSize && `${item.selectedSize} • `}
+                            Qty {item.qty || 1}
+                          </p>
                         </div>
                       </div>
-                      <p className="text-sm font-medium">${(priceNumber * item.qty).toFixed(2)}</p>
+                      <p className="text-sm font-medium">${(priceNumber * (item.qty || 1)).toFixed(2)}</p>
                     </div>
                   );
                 })}
               </div>
 
-              <div className="border-t border-neutral-300/40 pt-4 space-y-2 text-sm">
+              <div className=" pt-4 space-y-2 text-sm">
                 <div className="flex justify-between">
                   <span>Subtotal</span>
                   <span>${subtotal.toFixed(2)}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Total Quantity</span>
+                  <span>{totalQty}</span>
                 </div>
                 <div className="flex justify-between">
                   <span>Shipping</span>
                   <span>${shipping.toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between font-semibold text-base">
-                  <span>Total</span>
+                  <span>Total Price</span>
                   <span>${total.toFixed(2)}</span>
                 </div>
               </div>
@@ -270,7 +310,7 @@ export default function CheckoutPage() {
           )}
         </div>
       </div>
+      <Footer />
     </div>
   );
 }
-
