@@ -14,13 +14,13 @@ export default function AboutRecreatePerfume() {
           <h2 className="text-3xl sm:text-4xl font-semibold  text-[var(--foreground)]">
             Recreate the Essence of Luxury
           </h2>
-          <p className="text-[#5c5753] text-base sm:text-lg leading-relaxed">
+          <p className="text-[#4f5c42] text-base sm:text-lg leading-relaxed">
             At <span className="font-semibold">Recreate Perfume</span>, we bring
             back timeless fragrances that speak to your soul. Our passion lies
             in blending artistry and science to recreate the world s most iconic
             perfumes — capturing every note with precision and emotion.
           </p>
-          <p className="text-[#5c5753]  text-base sm:text-lg leading-relaxed">
+          <p className="text-[#4f5c42]  text-base sm:text-lg leading-relaxed">
             Experience elegance that lasts, crafted with premium ingredients
             designed to mirror luxury scents in both quality and sophistication.
           </p>
@@ -28,7 +28,7 @@ export default function AboutRecreatePerfume() {
           <div className="pt-4">
             <Link
               href="/#collection"
-              className="inline-flex items-center rounded-2xl bg-[#827978] hover:bg-[#6f6862] text-white font-semibold px-6 py-3 shadow-md transition-all"
+              className="inline-flex items-center rounded-2xl bg-[#445f21] hover:bg-[#385119] text-white font-semibold px-6 py-3 shadow-md transition-all"
             >
               Discover Your Fragrance
             </Link>

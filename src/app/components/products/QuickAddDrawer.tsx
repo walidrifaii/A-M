@@ -7,6 +7,7 @@ import { useState, useEffect } from "react";
 
 export type QuickProduct = {
   id: string;
+  _id?: string;
   slug: string;
   name: string;
   price: string;
@@ -138,13 +139,13 @@ export default function QuickAddModal({
 
               <div className="mt-6 space-y-3">
                 <button
-                  className="w-full rounded-2xl bg-[#827978] hover:bg-[#6f6862] text-white font-semibold py-3 tracking-wide transition"
+                  className="w-full rounded-2xl bg-[#445f21] hover:bg-[#385119] text-white font-semibold py-3 tracking-wide transition"
                   onClick={() => onConfirmAdd?.(product, size, qty)}
                 >
                   ADD TO CART →
                 </button>
                 <button
-                  className="w-full rounded-2xl bg-[#fde9a6] hover:bg-[#f6dc87] text-black font-semibold py-3 tracking-wide transition"
+                  className="w-full rounded-2xl bg-[#e8eedd] hover:bg-[#d1ddbf] text-[#1a280d] font-semibold py-3 tracking-wide transition border border-[#445f21]/25"
                   onClick={() => onConfirmBuy?.(product, size, qty)}
                 >
                   BUY IT NOW
@@ -238,13 +239,13 @@ export default function QuickAddModal({
         {/* Sticky footer + safe area */}
         <div className="px-4 pb-3 pt-2 border-t border-neutral-200/70 dark:border-neutral-800/70 bg-[var(--background)] space-y-2">
           <button
-            className="w-full rounded-2xl bg-[#827978] hover:bg-[#6f6862] text-white font-semibold py-3 tracking-wide transition"
+            className="w-full rounded-2xl bg-[#445f21] hover:bg-[#385119] text-white font-semibold py-3 tracking-wide transition"
             onClick={() => onConfirmAdd?.(product, size, qty)}
           >
             ADD TO CART →
           </button>
           <button
-            className="w-full rounded-2xl bg-[#fde9a6] hover:bg-[#f6dc87] text-black font-semibold py-3 tracking-wide transition"
+            className="w-full rounded-2xl bg-[#e8eedd] hover:bg-[#d1ddbf] text-[#1a280d] font-semibold py-3 tracking-wide transition border border-[#445f21]/25"
             onClick={() => onConfirmBuy?.(product, size, qty)}
           >
             BUY IT NOW
@@ -273,7 +274,7 @@ function TitlePrice({
     <>
       <h2 className="text-xl sm:text-2xl font-semibold tracking-tight">{name}</h2>
       <div className="mt-2 flex items-center gap-3">
-        <span className="text-lg font-semibold text-[#6f6862]">{price}</span>
+        <span className="text-lg font-semibold text-[#445f21]">{price}</span>
         {compareAtPrice && <span className="text-sm line-through opacity-60">{compareAtPrice}</span>}
       </div>
       {short && <p className="mt-2 text-sm text-black/80 dark:text-white/80">{short}</p>}
@@ -304,7 +305,7 @@ function SizePicker({
               className={[
                 "rounded-xl px-4 py-2 text-sm border transition",
                 active
-                  ? "border-[#827978] bg-[#827978]/10 text-[#5b5651] dark:text-[#c8c2bd]"
+                  ? "border-[#445f21] bg-[#445f21]/10 text-[#2d4215] dark:text-[#e8eedd]"
                   : "border-neutral-300 dark:border-neutral-700 hover:border-neutral-500 dark:hover:border-neutral-500",
               ].join(" ")}
               aria-pressed={active}

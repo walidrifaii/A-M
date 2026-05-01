@@ -15,7 +15,7 @@ export default function AboutPage() {
             <div className="mx-auto px-4 sm:px-6 lg:px-32 py-12 lg:py-24">
                 {/* Hero Section */}
                 <section className="mb-20 text-center">
-                    <h1 className="text-5xl lg:text-7xl font-black tracking-tighter mb-6  text-[#6f6862]">
+                    <h1 className="text-5xl lg:text-7xl font-black tracking-tighter mb-6  text-[#445f21]">
                         Crafting Elegance
                     </h1>
                     <p className="max-w-2xl mx-auto text-lg opacity-80 leading-relaxed">

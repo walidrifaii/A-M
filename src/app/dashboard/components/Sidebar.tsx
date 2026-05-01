@@ -2,7 +2,7 @@
 import React, { useEffect } from 'react'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
-import { LayoutDashboard, Package, LogOut } from 'lucide-react'
+import { LayoutDashboard, LogOut } from 'lucide-react'
 import Cookies from 'js-cookie'
 import toast, { Toaster } from 'react-hot-toast'
 

@@ -3,7 +3,10 @@
 import { createContext, useContext, useState, ReactNode, useEffect } from "react";
 
 export type QuickProduct = {
+  /** Mongo/API id — primary key sent as checkout `productId` */
   id: string;
+  /** Present on API payloads; kept so cart lines survive older/alternate shapes */
+  _id?: string;
   slug?: string;
   name: string;
   price: string;

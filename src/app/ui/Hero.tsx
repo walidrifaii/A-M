@@ -35,7 +35,7 @@ export default function Hero({
         className="pointer-events-none absolute inset-0 -z-10 opacity-40 [mask-image:radial-gradient(50%_50%_at_50%_50%,black,transparent)]"
         style={{
           background:
-            "radial-gradient(600px 600px at 50% 10%, rgba(250,204,21,0.15), transparent 60%), radial-gradient(600px 600px at 10% 80%, rgba(250,204,21,0.08), transparent 60%)",
+            "radial-gradient(600px 600px at 50% 10%, rgba(68,95,33,0.16), transparent 60%), radial-gradient(600px 600px at 10% 80%, rgba(68,95,33,0.08), transparent 60%)",
         }}
       />
 

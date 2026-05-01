@@ -28,7 +28,7 @@ html.theme-light {
   color-scheme: light;
 }
 
-/* === Brand skeleton shimmer (#f0b100) === */
+/* === Brand skeleton shimmer (#445f21) === */
 @keyframes sk-shimmer {
   0% {
     background-position: -200% 0;
@@ -43,9 +43,9 @@ html.theme-light {
   height: 14px;
   border-radius: 9999px;
   background-image: linear-gradient(90deg,
-      rgba(240, 177, 0, 0.15) 0%,
-      rgba(240, 177, 0, 0.45) 20%,
-      rgba(240, 177, 0, 0.15) 40%);
+      rgba(68, 95, 33, 0.15) 0%,
+      rgba(68, 95, 33, 0.45) 20%,
+      rgba(68, 95, 33, 0.15) 40%);
   background-size: 200% 100%;
   animation: sk-shimmer 1.4s linear infinite;
 }
@@ -71,7 +71,7 @@ html.theme-light {
 .loader-line {
   height: 5px;
   border-radius: 9999px;
-  background-color: #f0b100;
+  background-color: #445f21;
   transform-origin: center;
   animation: pulse-line 1.2s ease-in-out infinite;
 }

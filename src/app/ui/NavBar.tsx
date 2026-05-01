@@ -76,8 +76,8 @@ export default function Navbar() {
               {/* Theme Toggle */}
               <button
                 onClick={() => setIsDark((v) => !v)}
-                className="ml-2 rounded-xl p-2 hover:bg-yellow-400/20 focus:outline-none 
-                focus:ring-2 focus:ring-yellow-400/60"
+                className="ml-2 rounded-xl p-2 hover:bg-brand-500/15 focus:outline-none 
+                focus:ring-2 focus:ring-brand-500/50"
                 aria-label="Toggle theme"
               >
                 {isDark ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
@@ -86,7 +86,7 @@ export default function Navbar() {
               {/* Favorites */}
               <button
                 onClick={() => setFavOpen(true)}
-                className="relative ml-1 rounded-xl p-2 hover:bg-yellow-400/20 focus:outline-none focus:ring-2 focus:ring-yellow-400/60"
+                className="relative ml-1 rounded-xl p-2 hover:bg-brand-500/15 focus:outline-none focus:ring-2 focus:ring-brand-500/50"
                 aria-label="Open favorites"
               >
                 <Heart className="h-5 w-5" />
@@ -96,7 +96,7 @@ export default function Navbar() {
               {/* Cart */}
               <button
                 onClick={() => setCartOpen(true)}
-                className="relative ml-1 rounded-xl p-2 hover:bg-yellow-400/20 focus:outline-none focus:ring-2 focus:ring-yellow-400/60"
+                className="relative ml-1 rounded-xl p-2 hover:bg-brand-500/15 focus:outline-none focus:ring-2 focus:ring-brand-500/50"
                 aria-label="Open cart"
               >
                 <ShoppingCart className="h-5 w-5" />
@@ -156,15 +156,15 @@ export default function Navbar() {
 
 function NavLink({ href, label, pathname }: { href: string; label: string; pathname: string }) {
   const active = pathname === href;
-  const base = "rounded-xl px-3 py-2 text-sm font-medium transition focus:outline-none focus:ring-2 focus:ring-[#6f6862]";
-  const activeStyle = "bg-[#6f6862] text-white shadow";
-  const hover = "hover:bg-[#6f6862]/20";
+  const base = "rounded-xl px-3 py-2 text-sm font-medium transition focus:outline-none focus:ring-2 focus:ring-[#445f21]";
+  const activeStyle = "bg-[#445f21] text-white shadow";
+  const hover = "hover:bg-[#445f21]/20";
   return <Link href={href} className={`${base} ${active ? activeStyle : hover}`}>{label}</Link>;
 }
 
 function Badge({ count }: { count: number }) {
   return (
-    <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 rounded-full bg-[#827978] text-white text-[10px] font-semibold flex items-center justify-center">
+    <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 rounded-full bg-[#385119] text-white text-[10px] font-semibold flex items-center justify-center">
       {count}
     </span>
   );
@@ -249,7 +249,7 @@ function Drawer({
           )
         ) : (
           <div className="flex h-32 items-center justify-center">
-            <div className="h-6 w-6 animate-spin rounded-full border-2 border-yellow-500 border-t-transparent" />
+            <div className="h-6 w-6 animate-spin rounded-full border-2 border-brand-500 border-t-transparent" />
           </div>
         )}
       </div>
@@ -257,7 +257,7 @@ function Drawer({
       {checkout && (
         <div className="pb-10 px-4 pt-2 border-t border-neutral-200/70">
           <Link href="/checkout" onClick={() => onClose()}
-            className="block w-full rounded-xl bg-[#827978] hover:bg-[#6f6862] text-white text-center font-semibold py-3">
+            className="block w-full rounded-xl bg-[#445f21] hover:bg-[#385119] text-white text-center font-semibold py-3">
             Checkout
           </Link>
         </div>

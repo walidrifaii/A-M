@@ -3,7 +3,7 @@
 import Navbar from "../ui/NavBar";
 import Footer from "../ui/Footer";
 import MobileBubbleNav from "../components/MobileBubbleNav";
-import { Mail, Phone, MapPin, Send, Instagram, Twitter, Facebook } from "lucide-react";
+import { Mail, MapPin, Send, Instagram, Twitter, Facebook } from "lucide-react";
 import toast from "react-hot-toast";
 
 export default function ContactPage() {
@@ -33,7 +33,7 @@ export default function ContactPage() {
                     {/* Contact Info */}
                     <div className="space-y-12">
                         <div>
-                            <h1 className="text-5xl lg:text-7xl font-black tracking-tighter mb-6 text-[#6f6862]">
+                            <h1 className="text-5xl lg:text-7xl font-black tracking-tighter mb-6 text-[#445f21]">
                                 Get in Touch
                             </h1>
                             <p className="text-lg opacity-80 leading-relaxed">
@@ -44,9 +44,9 @@ export default function ContactPage() {
                         <div className="space-y-6">
                             <a
                                 href="mailto:m.aperfume7@gmail.com"
-                                className="flex items-center gap-6 p-6 rounded-2xl border border-neutral-300/40 hover:border-[#827978]/50 transition-colors group"
+                                className="flex items-center gap-6 p-6 rounded-2xl border border-neutral-300/40 hover:border-[#445f21]/50 transition-colors group"
                             >
-                                <div className="h-12 w-12 rounded-xl bg-[#827978]/10 flex items-center justify-center text-[#827978] group-hover:bg-[#827978] group-hover:text-white transition-all">
+                                <div className="h-12 w-12 rounded-xl bg-[#445f21]/10 flex items-center justify-center text-[#445f21] group-hover:bg-[#445f21] group-hover:text-white transition-all">
                                     <Mail size={24} />
                                 </div>
                                 <div>
@@ -57,9 +57,9 @@ export default function ContactPage() {
 
                             {/* <a
                                 href="tel:+96170000000"
-                                className="flex items-center gap-6 p-6 rounded-2xl border border-neutral-300/40 hover:border-[#827978]/50 transition-colors group"
+                                className="flex items-center gap-6 p-6 rounded-2xl border border-neutral-300/40 hover:border-[#445f21]/50 transition-colors group"
                             >
-                                <div className="h-12 w-12 rounded-xl bg-[#827978]/10 flex items-center justify-center text-[#827978] group-hover:bg-[#827978] group-hover:text-white transition-all">
+                                <div className="h-12 w-12 rounded-xl bg-[#445f21]/10 flex items-center justify-center text-[#445f21] group-hover:bg-[#445f21] group-hover:text-white transition-all">
                                     <Phone size={24} />
                                 </div>
                                 <div>
@@ -68,8 +68,8 @@ export default function ContactPage() {
                                 </div>
                             </a> */}
 
-                            <div className="flex items-center gap-6 p-6 rounded-2xl border border-neutral-300/40 hover:border-[#827978]/50 transition-colors">
-                                <div className="h-12 w-12 rounded-xl bg-[#827978]/10 flex items-center justify-center text-[#827978]">
+                            <div className="flex items-center gap-6 p-6 rounded-2xl border border-neutral-300/40 hover:border-[#445f21]/50 transition-colors">
+                                <div className="h-12 w-12 rounded-xl bg-[#445f21]/10 flex items-center justify-center text-[#445f21]">
                                     <MapPin size={24} />
                                 </div>
                                 <div>
@@ -81,7 +81,7 @@ export default function ContactPage() {
 
                         <div className="flex gap-4 pt-6">
                             {[Instagram, Twitter, Facebook].map((Icon, idx) => (
-                                <button key={idx} className="h-12 w-12 rounded-xl border border-neutral-300/40 flex items-center justify-center hover:bg-[#827978] hover:text-white transition-all transform hover:-translate-y-1">
+                                <button key={idx} className="h-12 w-12 rounded-xl border border-neutral-300/40 flex items-center justify-center hover:bg-[#445f21] hover:text-white transition-all transform hover:-translate-y-1">
                                     <Icon size={20} />
                                 </button>
                             ))}
@@ -98,7 +98,7 @@ export default function ContactPage() {
                                     name="name"
                                     type="text"
                                     placeholder="John Doe"
-                                    className="w-full p-4 rounded-xl border border-neutral-300/50 bg-transparent focus:ring-2 focus:ring-[#827978]/50 outline-none transition-all"
+                                    className="w-full p-4 rounded-xl border border-neutral-300/50 bg-transparent focus:ring-2 focus:ring-[#445f21]/50 outline-none transition-all"
                                 />
                             </div>
                             <div className="space-y-2">
@@ -108,7 +108,7 @@ export default function ContactPage() {
                                     name="email"
                                     type="email"
                                     placeholder="john@example.com"
-                                    className="w-full p-4 rounded-xl border border-neutral-300/50 bg-transparent focus:ring-2 focus:ring-[#827978]/50 outline-none transition-all"
+                                    className="w-full p-4 rounded-xl border border-neutral-300/50 bg-transparent focus:ring-2 focus:ring-[#445f21]/50 outline-none transition-all"
                                 />
                             </div>
                             <div className="space-y-2">
@@ -118,12 +118,12 @@ export default function ContactPage() {
                                     name="message"
                                     rows={6}
                                     placeholder="How can we help?"
-                                    className="w-full p-4 rounded-xl border border-neutral-300/50 bg-transparent focus:ring-2 focus:ring-[#827978]/50 outline-none transition-all resize-none"
+                                    className="w-full p-4 rounded-xl border border-neutral-300/50 bg-transparent focus:ring-2 focus:ring-[#445f21]/50 outline-none transition-all resize-none"
                                 />
                             </div>
                             <button
                                 type="submit"
-                                className="w-full py-4 rounded-xl bg-[#6f6862] text-white font-bold text-lg shadow-xl shadow-[#6f6862]/20 hover:bg-[#827978] transition-all hover:scale-[1.02] flex items-center justify-center gap-3"
+                                className="w-full py-4 rounded-xl bg-[#445f21] text-white font-bold text-lg shadow-xl shadow-[#445f21]/20 hover:bg-[#385119] transition-all hover:scale-[1.02] flex items-center justify-center gap-3"
                             >
                                 Send Message <Send size={20} />
                             </button>

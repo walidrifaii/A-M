@@ -4,14 +4,15 @@ import { useState, useRef, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useSearchParams, useRouter } from "next/navigation";
-import { HeartIcon, ShoppingCart, CreditCard } from "lucide-react";
-import { useGetProductsQuery } from "../store/api/productsApi";
+import { HeartIcon, CreditCard } from "lucide-react";
+import { useGetProductsQuery, type Product as ApiProduct } from "../store/api/productsApi";
 import { useStore } from "../store/StoreContext";
 import QuickAddModal, { QuickProduct } from "../components/products/QuickAddDrawer";
 
 
 export type Product = {
   id: string;
+  _id?: string;
   slug: string;
   name: string;
   price: string;
@@ -50,15 +51,20 @@ export default function ProductsPage() {
   );
 
   const products =
-    data?.map((p: any) => ({
-      id: p._id || p.id,
+    data?.map((p: ApiProduct & { id?: string }) => {
+      const rawId = p._id ?? p.id;
+      const id = rawId != null ? String(rawId).trim() : "";
+      return {
+      id,
+      _id: id || undefined,
       slug: (p.name || "").toLowerCase().replace(/\s+/g, "-"),
       name: p.name,
       price: `$${(p.price || 0).toFixed(2)}`,
       shortDescription: p.description,
       image: p.image,
       sizes: Array.isArray(p.size) ? p.size : [p.size],
-    })) ?? [];
+    };
+    }) ?? [];
 
   // ❤️ Toggle favorite
   const toggleFavorite = (product: Product) => {
@@ -80,6 +86,7 @@ export default function ProductsPage() {
   // 🛒 Quick add modal
   const openQuickAdd = (p: {
     id: string;
+    _id?: string;
     slug: string;
     name: string;
     price: string;
@@ -89,6 +96,7 @@ export default function ProductsPage() {
   }) => {
     setActiveProduct({
       id: p.id,
+      _id: p._id,
       slug: p.slug,
       name: p.name,
       price: p.price,
@@ -117,7 +125,7 @@ export default function ProductsPage() {
       sizes: [size],
       selectedSize: size,
       qty,
-      image: typeof product.image === "string" ? product.image : (product.image as any).src ?? "",
+      image: typeof product.image === "string" ? product.image : product.image.src ?? "",
     });
     setModalOpen(false);
     router.push("/checkout?source=buy_now");
@@ -132,7 +140,7 @@ export default function ProductsPage() {
             key={type}
             onClick={() => setFilter(type as "all" | "men" | "women")}
             className={`px-4 py-2 rounded-full text-sm font-medium transition ${filter === type
-              ? "bg-[#6f6862]  text-white"
+              ? "bg-[#445f21]  text-white"
               : "bg-gray-100 dark:bg-neutral-800 dark:text-white hover:bg-gray-200 dark:hover:bg-neutral-700"
               }`}
           >
@@ -196,7 +204,7 @@ export default function ProductsPage() {
                         </svg>
                       </div>
                     )}
-                    <span className="absolute left-2 top-2 rounded-lg bg-[#827978]/95 px-2.5 py-0.5 text-[10px] font-bold text-white shadow-sm sm:text-xs">
+                    <span className="absolute left-2 top-2 rounded-lg bg-[#385119]/95 px-2.5 py-0.5 text-[10px] font-bold text-white shadow-sm sm:text-xs">
                       {p.price}
                     </span>
                   </Link>
@@ -220,7 +228,7 @@ export default function ProductsPage() {
 
                   <div className="mt-3">
                     <h3 className="text-sm font-semibold tracking-tight sm:text-base">
-                      <span className="bg-gradient-to-r from-[#6f6862] to-[#827978] bg-clip-text text-transparent">
+                      <span className="bg-gradient-to-r from-[#445f21] to-[#385119] bg-clip-text text-transparent">
                         {p.name}
                       </span>
                     </h3>
@@ -235,8 +243,8 @@ export default function ProductsPage() {
                   <button
                     onClick={() => openQuickAdd(p)}
                     className="flex-1 flex items-center justify-center gap-3 text-[16px] w-full mt-2
-                                     font-bold py-2 px-8 rounded-xl bg-[#6f6862] text-white
-                                       transition-all hover:bg-[#827978] hover:-translate-y-1 active:scale-95 "
+                                     font-bold py-2 px-8 rounded-xl bg-[#445f21] text-white
+                                       transition-all hover:bg-[#385119] hover:-translate-y-1 active:scale-95 "
                   >
                     <CreditCard className="h-5 w-5 stroke-[2.5]" />
                     Buy Now

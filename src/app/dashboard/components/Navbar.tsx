@@ -1,7 +1,6 @@
 import { Moon, Sun, LogOut } from 'lucide-react'
 import Link from 'next/link'
 import React, { useEffect, useState } from 'react'
-import { MdShoppingCart } from 'react-icons/md'
 import { RiMenuLine } from 'react-icons/ri'
 import Cookies from 'js-cookie'
 import { useRouter } from 'next/navigation'

@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
-import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import { useGetProductByIdQuery } from '../../store/api/productsApi';
 import { useStore } from '../../store/StoreContext';
@@ -11,7 +10,6 @@ import {
     ShoppingCart,
     ArrowLeft,
     Star,
-    ChevronRight,
     Minus,
     Plus,
     CreditCard
@@ -31,7 +29,8 @@ export default function SingleProductPage() {
     const [quantity, setQuantity] = useState(1);
     const [activeImage, setActiveImage] = useState<string>('');
 
-    const isFavorite = product ? favorites.some((f) => f.id === (product._id || (product as any).id)) : false;
+    const productId = product?._id ?? (product as { id?: string } | undefined)?.id ?? '';
+    const isFavorite = productId ? favorites.some((f) => f.id === productId) : false;
 
     useEffect(() => {
         if (product) {
@@ -47,8 +46,8 @@ export default function SingleProductPage() {
             <div className="min-h-screen flex items-center justify-center ">
                 <div className="flex flex-col items-center gap-4">
                     <div className="relative h-16 w-16">
-                        <div className="absolute inset-0 rounded-full border-4 border-[#827978]/20  animate-ping"></div>
-                        <div className="relative h-16 w-16 rounded-full border-4 border-[#6f6862] border-t-transparent animate-spin"></div>
+                        <div className="absolute inset-0 rounded-full border-4 border-[#385119]/20  animate-ping"></div>
+                        <div className="relative h-16 w-16 rounded-full border-4 border-[#445f21] border-t-transparent animate-spin"></div>
                     </div>
                     <p className="text-gray-500 font-medium animate-pulse">Loading product...</p>
                 </div>
@@ -62,11 +61,11 @@ export default function SingleProductPage() {
                 <div className="max-w-md text-center">
                     <h1 className="text-4xl font-bold   mb-4">Product Not Found</h1>
                     <p className="text-gray-600 mb-8">
-                        We couldn't find the product you're looking for. It may have been removed or the link might be broken.
+                        We couldn t find the product you re looking for. It may have been removed or the link might be broken.
                     </p>
                     <button
                         onClick={() => router.back()}
-                        className="inline-flex items-center gap-2 px-6 py-3 bg-[#6f6862] text-white font-semibold rounded-xl hover:bg-[#827978] transition-colors"
+                        className="inline-flex items-center gap-2 px-6 py-3 bg-[#445f21] text-white font-semibold rounded-xl hover:bg-[#385119] transition-colors"
                     >
                         <ArrowLeft className="h-5 w-5" />
                         Go Back
@@ -84,6 +83,7 @@ export default function SingleProductPage() {
 
         addToCart({
             id: product._id,
+            _id: product._id,
             slug: product.name.toLowerCase().replace(/\s+/g, "-"),
             name: product.name,
             price: product.price.toString(),
@@ -122,7 +122,8 @@ export default function SingleProductPage() {
 
         // Use setBuyNowItem to store temporary checkout item
         setBuyNowItem({
-            id: product._id || (product as any).id,
+            id: productId,
+            _id: product._id,
             slug: product.name.toLowerCase().replace(/\s+/g, "-"),
             name: product.name,
             price: product.price.toString(),
@@ -136,12 +137,11 @@ export default function SingleProductPage() {
     };
 
     const handleToggleFavorite = () => {
-        const prodId = product._id || (product as any).id;
         if (isFavorite) {
-            addFavorite({ id: prodId } as any, "remove");
+            addFavorite({ id: productId, name: product.name, price: product.price.toString(), image: product.image }, "remove");
         } else {
             addFavorite({
-                id: prodId,
+                id: productId,
                 slug: product.name.toLowerCase().replace(/\s+/g, "-"),
                 name: product.name,
                 price: product.price.toString(),
@@ -205,7 +205,7 @@ export default function SingleProductPage() {
                     <div className="flex flex-col justify-center">
                         <div className="mb-8">
                             <div className="flex items-center gap-3 mb-4">
-                                <span className="inline-flex px-4 py-1.5 text-xs font-bold tracking-widest text-[#6f6862] dark:text-[#827978] uppercase bg-[#827978]/10 dark:bg-[#827978]/20 rounded-full">
+                                <span className="inline-flex px-4 py-1.5 text-xs font-bold tracking-widest text-[#445f21] dark:text-[#b4ca96] uppercase bg-[#445f21]/10 dark:bg-[#445f21]/20 rounded-full">
                                     {product.brand || 'Luxury'}
                                 </span>
                                 {product.sex && (
@@ -220,7 +220,7 @@ export default function SingleProductPage() {
                             </h1>
 
                             <div className="flex items-center gap-4 mb-8">
-                                <div className="flex text-[#827978]">
+                                <div className="flex text-[#445f21]">
                                     {[...Array(5)].map((_, i) => (
                                         <Star key={i} className="h-5 w-5 fill-current" />
                                     ))}
@@ -255,8 +255,8 @@ export default function SingleProductPage() {
                                             onClick={() => setSelectedSize(size)}
                                             className={`min-w-[4.5rem] px-4 py-3 rounded-2xl text-sm font-bold transition-all duration-200 border-2
                         ${selectedSize === size
-                                                    ? 'border-[#6f6862] bg-[#6f6862] text-white shadow-lg shadow-[#6f6862]/30 transform scale-105'
-                                                    : 'border-gray-100 dark:border-neutral-800 bg-white dark:bg-neutral-800 text-gray-600 dark:text-gray-400 hover:border-[#827978] dark:hover:border-[#6f6862]'
+                                                    ? 'border-[#445f21] bg-[#445f21] text-white shadow-lg shadow-[#445f21]/30 transform scale-105'
+                                                    : 'border-gray-100 dark:border-neutral-800 bg-white dark:bg-neutral-800 text-gray-600 dark:text-gray-400 hover:border-[#385119] dark:hover:border-[#445f21]'
                                                 }`}
                                         >
                                             {size}
@@ -289,8 +289,8 @@ export default function SingleProductPage() {
                             <button
                                 onClick={handleAddToCart}
                                 className="flex-1 flex items-center justify-center gap-3
-                                   font-bold py-2 px-8 rounded-2xl shadow-xl bg-[#6f6862] text-white
-                                    shadow-[#6f6862]/20 transition-all hover:bg-[#827978] hover:-translate-y-1 active:scale-95 text-[16px]"
+                                   font-bold py-2 px-8 rounded-2xl shadow-xl bg-[#445f21] text-white
+                                    shadow-[#445f21]/20 transition-all hover:bg-[#385119] hover:-translate-y-1 active:scale-95 text-[16px]"
                             >
                                 <ShoppingCart className="h-5 w-5 stroke-[2.5]" />
                                 Add to Cart
@@ -299,8 +299,8 @@ export default function SingleProductPage() {
                             <button
                                 onClick={handleBuyNow}
                                 className="flex-1 flex items-center justify-center gap-3 text-[16px]
-                                   font-bold py-2 px-8 rounded-2xl border-2 border-[#6f6862] dark:border-[#827978] text-[#6f6862] dark:text-[#d8cec7]
-                                     transition-all hover:bg-[#6f6862]/5 dark:hover:bg-[#827978]/10 hover:-translate-y-1 active:scale-95 "
+                                   font-bold py-2 px-8 rounded-2xl border-2 border-[#445f21] dark:border-[#7d9654] text-[#445f21] dark:text-[#e8eedd]
+                                     transition-all hover:bg-[#445f21]/5 dark:hover:bg-[#445f21]/10 hover:-translate-y-1 active:scale-95 "
                             >
                                 <CreditCard className="h-5 w-5 stroke-[2.5]" />
                                 Buy Now

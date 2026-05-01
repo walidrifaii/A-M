@@ -4,15 +4,15 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { useGetProductsQuery } from "../store/api/productsApi";
+import { useGetProductsQuery, type Product as ApiProduct } from "../store/api/productsApi";
 import QuickAddModal, { QuickProduct } from "../components/products/QuickAddDrawer";
 import { useStore } from "../store/StoreContext";
 import PageSkeleton from "../components/loading/PageSkeleton";
 import { CreditCard } from "lucide-react";
-import toast from "react-hot-toast";
 
 export type Product = {
   id: string;
+  _id?: string;
   slug: string;
   name: string;
   price: string;
@@ -37,8 +37,12 @@ export default function FeaturedProducts({ title = "Featured Perfumes" }: Featur
 
   const { data, isLoading } = useGetProductsQuery();
   const products: Product[] =
-    data?.map((p: any) => ({
-      id: p._id || p.id,
+    data?.map((p: ApiProduct & { id?: string }) => {
+      const rawId = p._id ?? p.id;
+      const id = rawId != null ? String(rawId).trim() : "";
+      return {
+      id,
+      _id: id || undefined,
       slug: (p.name || "").toLowerCase().replace(/\s+/g, "-"),
       name: p.name,
       price: `$${(p.price || 0).toFixed(2)}`,
@@ -46,7 +50,8 @@ export default function FeaturedProducts({ title = "Featured Perfumes" }: Featur
       longDescription: p.description,
       image: p.image,
       sizes: Array.isArray(p.size) ? p.size : [p.size],
-    })) ?? [];
+    };
+    }) ?? [];
 
   // ✅ Use global favorite handler
   const toggleFavorite = (product: Product) => {
@@ -68,6 +73,7 @@ export default function FeaturedProducts({ title = "Featured Perfumes" }: Featur
   const openQuickAdd = (p: Product) => {
     setActiveProduct({
       id: p.id,
+      _id: p._id,
       slug: p.slug,
       name: p.name,
       price: p.price,
@@ -102,7 +108,7 @@ export default function FeaturedProducts({ title = "Featured Perfumes" }: Featur
       image:
         typeof product.image === "string"
           ? product.image
-          : (product.image as any).src ?? "",
+          : product.image.src ?? "",
     });
     setModalOpen(false);
     router.push("/checkout?source=buy_now");
@@ -132,12 +138,14 @@ export default function FeaturedProducts({ title = "Featured Perfumes" }: Featur
                   className="relative mx-auto block aspect-square w-full max-w-[240px]
                    overflow-hidden rounded-2xl  "
                 >
-                  {p.image && typeof p.image === "string" && p.image.trim() !== '' ? (
-                    <img
+                  {p.image && typeof p.image === "string" && p.image.trim() !== "" ? (
+                    <Image
                       src={p.image}
                       alt={p.name}
-                      className="h-full w-full object-contain transition-transform duration-300 group-hover:scale-[1.04]"
-                      loading="lazy"
+                      fill
+                      sizes="(min-width: 1024px) 320px, (min-width: 640px) 45vw, 90vw"
+                      className="object-contain transition-transform duration-300 group-hover:scale-[1.04]"
+                      priority={idx < 3}
                     />
                   ) : (
                     <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-neutral-200 to-neutral-300 dark:from-neutral-700 dark:to-neutral-800">
@@ -156,7 +164,7 @@ export default function FeaturedProducts({ title = "Featured Perfumes" }: Featur
                       </svg>
                     </div>
                   )}
-                  <span className="absolute left-2 top-2 rounded-lg bg-[#827978]/95 px-2.5 py-0.5 text-[10px] font-bold text-white shadow-sm sm:text-xs">
+                  <span className="absolute left-2 top-2 rounded-lg bg-[#385119]/95 px-2.5 py-0.5 text-[10px] font-bold text-white shadow-sm sm:text-xs">
                     {p.price}
                   </span>
                 </Link>
@@ -179,7 +187,7 @@ export default function FeaturedProducts({ title = "Featured Perfumes" }: Featur
 
                 <div className="mt-3">
                   <h3 className="text-sm font-semibold tracking-tight sm:text-base">
-                    <span className="bg-gradient-to-r from-[#6f6862] to-[#827978] bg-clip-text text-transparent">{p.name}</span>
+                    <span className="bg-gradient-to-r from-[#445f21] to-[#385119] bg-clip-text text-transparent">{p.name}</span>
                   </h3>
                   <p className="mt-1.5 text-xs  text-[var(--foreground)]" style={{ minHeight: 36 }}>
                     {p.shortDescription}
@@ -188,8 +196,8 @@ export default function FeaturedProducts({ title = "Featured Perfumes" }: Featur
                 <button
                   onClick={() => openQuickAdd(p)}
                   className="flex-1 flex items-center justify-center gap-3 text-[16px] w-full mt-2
-                                   font-bold py-2 px-8 rounded-xl bg-[#6f6862] text-white
-                                     transition-all hover:bg-[#827978] hover:-translate-y-1 active:scale-95 "
+                                   font-bold py-2 px-8 rounded-xl bg-[#445f21] text-white
+                                     transition-all hover:bg-[#385119] hover:-translate-y-1 active:scale-95 "
                 >
                   <CreditCard className="h-5 w-5 stroke-[2.5]" />
                   Buy Now
@@ -217,10 +225,5 @@ export default function FeaturedProducts({ title = "Featured Perfumes" }: Featur
 function HeartIcon({ filled }: { filled?: boolean }) {
   return (
     <svg viewBox="0 0 24 24" width="16" height="16" className={filled ? "fill-current" : ""}> <path fill="currentColor" d="M12 21s-6.716-4.434-9.066-7.226C.9 10.376 2.28 6.6 5.734 5.39A5.002 5.002 0 0 1 12 7a5.002 5.002 0 0 1 6.266-1.61c3.454 1.21 4.835 4.986 2.8 8.384C18.716 16.566 12 21 12 21z" /> </svg>
-  );
-}
-
-function CartIcon() {
-  return (<svg viewBox="0 0 24 24" width="16" height="16"> <path fill="currentColor" d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zm10 0c-1.1 0-1.99.9-1.99 2S15.9 22 17 22s2-.9 2-2-.9-2-2-2zM7.16 14h9.41c.75 0 1.41-.41 1.75-1.03l3.58-6.49A1 1 0 0 0 21 5H6.21l-.94-2H2v2h2l3.6 7.59L5.25 14.04c-.41.37-.66.9-.66 1.48 0 1.1.9 1.98 2.01 1.98H19v-2H7.42c-.14 0-.25-.11-.25-.25 0-.09.04-.16.09-.21L7.16 14z" /> </svg>
   );
 }

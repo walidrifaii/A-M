@@ -11,7 +11,18 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import toast from "react-hot-toast";
 import Navbar from "../ui/NavBar";
 import Footer from "../ui/Footer";
-import { useStore } from "../store/StoreContext";
+import { useStore, type QuickProduct } from "../store/StoreContext";
+
+/** Checkout API requires non-empty string `productId`. Lines may store `id` and/or `_id`. */
+function resolveCheckoutProductId(item: QuickProduct): string {
+  const candidates = [item.id, item._id];
+  for (const v of candidates) {
+    if (v == null) continue;
+    const s = String(v).trim();
+    if (s.length > 0) return s;
+  }
+  return "";
+}
 
 // notes is required but can be empty string
 interface CheckoutFormValues {
@@ -92,6 +103,21 @@ function CheckoutForm() {
       return;
     }
 
+    const itemsWithIds = displayItems.map((item) => ({
+      productId: resolveCheckoutProductId(item),
+      quantity: item.qty || 1,
+      size: item.selectedSize || "Standard",
+      label: item.name,
+    }));
+
+    const invalidLine = itemsWithIds.find((row) => !row.productId);
+    if (invalidLine) {
+      toast.error(
+        `Cannot place order: "${invalidLine.label ?? "An item"}" has no product id. Remove it from your cart and add it again from the shop.`,
+      );
+      return;
+    }
+
     const payload = {
       customerName: data.fullName,
       customerEmail: data.email,
@@ -101,10 +127,10 @@ function CheckoutForm() {
       city: data.city,
       notes: data.notes,
       paymentMethod: "COD",
-      items: displayItems.map((item) => ({
-        productId: item.id,
-        quantity: item.qty || 1,
-        size: item.selectedSize || "Standard"
+      items: itemsWithIds.map(({ productId, quantity, size }) => ({
+        productId,
+        quantity,
+        size,
       })),
     };
 
@@ -167,7 +193,7 @@ function CheckoutForm() {
                     placeholder={field.placeholder}
                     maxLength={field.max}
                     {...register(field.name as keyof CheckoutFormValues)}
-                    className="border border-neutral-300/50 rounded-xl p-3 w-full bg-transparent focus:ring-1 focus:ring-[#827978]"
+                    className="border border-neutral-300/50 rounded-xl p-3 w-full bg-transparent focus:ring-1 focus:ring-[#445f21]"
                     style={{ color: "var(--foreground)" }}
                   />
                   {errors[field.name as keyof CheckoutFormValues] && (
@@ -183,7 +209,7 @@ function CheckoutForm() {
                   type="text"
                   placeholder="Address Line 1"
                   {...register("address")}
-                  className="border border-neutral-300/50 rounded-xl p-3 w-full bg-transparent focus:ring-1 focus:ring-[#827978]"
+                  className="border border-neutral-300/50 rounded-xl p-3 w-full bg-transparent focus:ring-1 focus:ring-[#445f21]"
                   style={{ color: "var(--foreground)" }}
                 />
                 {errors.address && (
@@ -196,7 +222,7 @@ function CheckoutForm() {
                   type="text"
                   placeholder="Address Line 2 (Optional)"
                   {...register("addressLine2")}
-                  className="border border-neutral-300/50 rounded-xl p-3 w-full bg-transparent focus:ring-1 focus:ring-[#827978]"
+                  className="border border-neutral-300/50 rounded-xl p-3 w-full bg-transparent focus:ring-1 focus:ring-[#445f21]"
                   style={{ color: "var(--foreground)" }}
                 />
                 {errors.addressLine2 && (
@@ -209,7 +235,7 @@ function CheckoutForm() {
                   placeholder="Order Notes (optional)"
                   rows={3}
                   {...register("notes")}
-                  className="border border-neutral-300/50 rounded-xl p-3 w-full bg-transparent focus:ring-1 focus:ring-[#827978]"
+                  className="border border-neutral-300/50 rounded-xl p-3 w-full bg-transparent focus:ring-1 focus:ring-[#445f21]"
                   style={{ color: "var(--foreground)" }}
                 />
                 {errors.notes && (
@@ -222,9 +248,9 @@ function CheckoutForm() {
                 style={{ backgroundColor: "var(--background)", color: "var(--foreground)" }}
               >
                 <h2 className="text-lg font-semibold mb-4">Payment Method</h2>
-                <label className="flex items-center justify-between border border-[#827978] rounded-xl p-3 bg-transparent">
+                <label className="flex items-center justify-between border border-[#445f21] rounded-xl p-3 bg-transparent">
                   <span>Cash on Delivery</span>
-                  <input type="radio" name="payment" value="cash" defaultChecked className="accent-[#827978]" />
+                  <input type="radio" name="payment" value="cash" defaultChecked className="accent-[#445f21]" />
                 </label>
               </div>
             </form>
@@ -241,12 +267,13 @@ function CheckoutForm() {
           {displayItems.length > 0 ? (
             <>
               <div className="space-y-3 mb-4">
-                {displayItems.map((item) => {
+                {displayItems.map((item, idx) => {
                   const p = item.price;
                   const priceNumber = typeof p === "string" ? parseFloat(p.replace("$", "")) : Number(p);
+                  const lineKey = `${item.id}-${item.selectedSize ?? "default"}-${idx}`;
                   return (
                     <div
-                      key={item.id}
+                      key={lineKey}
                       className="flex items-center justify-between gap-3 border-b border-neutral-300/40 pb-3"
                     >
                       <div className="flex items-center gap-3">
@@ -297,7 +324,7 @@ function CheckoutForm() {
               <button
                 onClick={handleSubmit(onSubmit)}
                 disabled={loading}
-                className="mt-6 block w-full bg-[#827978] hover:bg-[#6f6862] text-white text-center font-semibold py-3 rounded-xl transition-colors disabled:opacity-50"
+                className="mt-6 block w-full bg-[#445f21] hover:bg-[#385119] text-white text-center font-semibold py-3 rounded-xl transition-colors disabled:opacity-50"
               >
                 {loading ? "Placing Order..." : "Place Order"}
               </button>
@@ -307,7 +334,7 @@ function CheckoutForm() {
               <p className="text-sm opacity-70">Your cart is empty.</p>
               <Link
                 href="/"
-                className="inline-block bg-[#827978] hover:bg-[#6f6862] text-white font-semibold px-6 py-3 rounded-xl"
+                className="inline-block bg-[#445f21] hover:bg-[#385119] text-white font-semibold px-6 py-3 rounded-xl"
               >
                 Continue Shopping
               </Link>
@@ -346,7 +373,7 @@ function CheckoutForm() {
             </p>
             <Link
               href="/"
-              className="block w-full bg-[#827978] hover:bg-[#6f6862] text-white font-semibold py-4 rounded-2xl transition-all hover:scale-[1.02] active:scale-95 shadow-lg shadow-[#827978]/20"
+              className="block w-full bg-[#445f21] hover:bg-[#385119] text-white font-semibold py-4 rounded-2xl transition-all hover:scale-[1.02] active:scale-95 shadow-lg shadow-[#445f21]/20"
             >
               Go to Home Page
             </Link>

@@ -12,7 +12,7 @@ export default function HeroShowcase() {
       <div className="grid grid-cols-1 gap-4 sm:gap-6 lg:grid-cols-3">
         {/* Left large card */}
         {/* Left large card */}
-        <div className="relative overflow-hidden rounded-3xl lg:col-span-2 min-h-[300px] sm:min-h-[400px] lg:min-h-[520px] bg-[#827978] dark:bg-[#6e6761] flex flex-col sm:flex-row items-center justify-between px-6 sm:px-10">
+        <div className="relative overflow-hidden rounded-3xl lg:col-span-2 min-h-[300px] sm:min-h-[400px] lg:min-h-[520px] bg-[#445f21] dark:bg-[#2d4215] flex flex-col sm:flex-row items-center justify-between px-6 sm:px-10">
 
           {/* Text Content */}
           <div className="relative z-10 flex flex-col gap-3 text-left max-w-sm sm:max-w-md pt-10 sm:pt-16 lg:pt-20">

@@ -3,17 +3,9 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, Grid2X2, Heart, ShoppingCart, Sun, Moon, Info, MessageCircle } from "lucide-react";
+import { Home, Info, MessageCircle } from "lucide-react";
 
-export default function MobileBubbleNav({
-  initialActiveId = "home",
-  cartCount = 0,
-  favCount = 0,
-  onOpenCart,
-  onOpenFav,
-  onToggleTheme,
-  isDark = false,
-}: {
+type MobileBubbleNavProps = {
   initialActiveId?: string;
   cartCount?: number;
   favCount?: number;
@@ -21,7 +13,11 @@ export default function MobileBubbleNav({
   onOpenFav?: () => void;
   onToggleTheme?: () => void;
   isDark?: boolean;
-}) {
+};
+
+export default function MobileBubbleNav({
+  initialActiveId = "home",
+}: MobileBubbleNavProps) {
   const pathname = usePathname();
   const [active, setActive] = useState(initialActiveId);
   const [isVisible, setIsVisible] = useState(true);
@@ -52,7 +48,7 @@ export default function MobileBubbleNav({
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  const ACTIVE_COLOR = "#2f3020";
+  const ACTIVE_COLOR = "#445f21";
   const bubbleBase =
     "relative h-11 flex items-center justify-center transition-all duration-300 shadow-sm active:scale-[0.97] rounded-full overflow-hidden whitespace-nowrap px-4 gap-2";
   const activeStyle = { backgroundColor: ACTIVE_COLOR, color: "#ffffff", width: "auto", minWidth: "100px" };

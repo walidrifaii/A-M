@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Plus, Filter, Search, Pencil, Trash2, Loader2 } from 'lucide-react';
+import { Plus, Search, Pencil } from 'lucide-react';
 import axios from 'axios';
 import Cookies from 'js-cookie';
 import toast from 'react-hot-toast';
@@ -187,7 +187,7 @@ export default function ProductsPage() {
             </div>
             <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-3">No products found</h3>
             <p className="text-gray-500 dark:text-gray-400 mb-10 max-w-md mx-auto leading-relaxed">
-              We couldn't find any products matching your search criteria. Try adjusting your search terms or add a new product to your inventory.
+              We couldn&apos;t find any products matching your search criteria. Try adjusting your search terms or add a new product to your inventory.
             </p>
             <Link
               href="/dashboard/products/add"
