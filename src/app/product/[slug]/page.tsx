@@ -269,8 +269,8 @@ export default function SingleProductPage() {
                         </div>
 
                         {/* Actions */}
-                        <div className="flex flex-col sm:flex-row gap-4 pt-8 border-t bg-white border-gray-100 dark:border-neutral-800">
-                            <div className="flex items-center justify-between rounded-2xl border-2 border-gray-200 dark:border-neutral-700">
+                        <div className="flex flex-col sm:flex-row gap-4 pt-8 border-t border-gray-100 dark:border-neutral-800 bg-transparent">
+                            <div className="flex items-center justify-between rounded-2xl border-2 border-gray-200 dark:border-neutral-700 bg-[var(--background)]">
                                 <button
                                     onClick={() => setQuantity(Math.max(1, quantity - 1))}
                                     className="p-3.5  rounded-xl "
@@ -299,8 +299,8 @@ export default function SingleProductPage() {
                             <button
                                 onClick={handleBuyNow}
                                 className="flex-1 flex items-center justify-center gap-3 text-[16px]
-                                   font-bold py-2 px-8 rounded-2xl border-2 border-[#6f6862] text-[#6f6862]
-                                     transition-all hover:bg-[#6f6862]/5 hover:-translate-y-1 active:scale-95 "
+                                   font-bold py-2 px-8 rounded-2xl border-2 border-[#6f6862] dark:border-[#827978] text-[#6f6862] dark:text-[#d8cec7]
+                                     transition-all hover:bg-[#6f6862]/5 dark:hover:bg-[#827978]/10 hover:-translate-y-1 active:scale-95 "
                             >
                                 <CreditCard className="h-5 w-5 stroke-[2.5]" />
                                 Buy Now

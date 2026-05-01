@@ -341,7 +341,7 @@ function CheckoutForm() {
               </svg>
             </div>
             <h2 className="text-2xl font-bold mb-2">Order Placed!</h2>
-            <p className="text-neutral-500 mb-8 leading-relaxed">
+            <p className="text-[var(--foreground)]/70 mb-8 leading-relaxed">
               Thank you for your purchase. We have received your order and will contact you shortly for confirmation.
             </p>
             <Link

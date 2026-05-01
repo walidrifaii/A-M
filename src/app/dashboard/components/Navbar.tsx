@@ -21,7 +21,7 @@ const NavbarDashboard = ({ isSidebarOpen, setIsSidebarOpen }: NavbarProps) => {
         const root = document.documentElement;
         root.classList.remove("theme-dark", "theme-light", "dark", "light");
         root.classList.add(mode === "dark" ? "theme-dark" : "theme-light");
-        if (mode === "dark") root.classList.add("dark");
+        root.classList.add(mode === "dark" ? "dark" : "light");
     }
 
     // Load theme

@@ -85,7 +85,7 @@ const Sidebar = ({ isOpen, setIsOpen}: SidebarProps) => {
       >
         {/* Header Section */}
         <div className="flex-shrink-0 lg:pt-6">
-          <h1 className="hidden lg:block text-2xl lg:text-3xl text-gray-500 mb-8 font-semibold">
+          <h1 className="hidden lg:block text-2xl lg:text-3xl text-[var(--foreground)]/70 mb-8 font-semibold">
             Manage
           </h1>
           <Link 
@@ -115,8 +115,8 @@ const Sidebar = ({ isOpen, setIsOpen}: SidebarProps) => {
                 className={`
                   flex items-center gap-3 px-4  py-3 lg:py-4  w-full  rounded-lg transition-all duration-200
                   ${isActive
-                    ? 'bg-[#fcebc0] text-amber-600 font-semibold'
-                    : ' hover:bg-gray-100'
+                    ? 'bg-[#fcebc0] dark:bg-amber-500/20 text-amber-600 dark:text-amber-300 font-semibold'
+                    : 'hover:bg-gray-100 dark:hover:bg-white/10'
                   }
                   active:scale-95 lg:active:scale-100
                 `}
@@ -133,11 +133,11 @@ const Sidebar = ({ isOpen, setIsOpen}: SidebarProps) => {
         </nav>
 
         {/* ====== Logout Button ====== */}
-        <div className="flex-shrink-0 pt-4 pb-6 lg:pb-6 border-t border-gray-200 lg:border-t-0 mt-auto">
+        <div className="flex-shrink-0 pt-4 pb-6 lg:pb-6 border-t border-gray-200 dark:border-white/10 lg:border-t-0 mt-auto">
           <button
             onClick={handleLogout}
             className="group w-full lg:w-fit border border-red-400 flex items-center gap-3 px-10 py-3 lg:py-4 
-            rounded-lg   transition-all duration-200 text-gray-700 hover:bg-red-50 hover:text-red-600 active:scale-95 lg:active:scale-100"
+            rounded-lg transition-all duration-200 text-[var(--foreground)] hover:bg-red-50 dark:hover:bg-red-500/10 hover:text-red-600 active:scale-95 lg:active:scale-100"
           >
             <div className="  text-red-600 transition-colors">
               <LogOut className="h-5 w-5 lg:h-6 lg:w-6" />

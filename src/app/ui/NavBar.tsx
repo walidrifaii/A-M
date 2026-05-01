@@ -44,8 +44,9 @@ export default function Navbar() {
 
   function applyThemeClass(mode: "dark" | "light") {
     const root = document.documentElement;
-    root.classList.remove("theme-dark", "theme-light");
+    root.classList.remove("theme-dark", "theme-light", "dark", "light");
     root.classList.add(mode === "dark" ? "theme-dark" : "theme-light");
+    root.classList.add(mode === "dark" ? "dark" : "light");
   }
 
   return (

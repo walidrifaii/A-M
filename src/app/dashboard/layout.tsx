@@ -3,7 +3,6 @@ import React, { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Cookies from 'js-cookie'
 import NavbarDashboard from './components/Navbar'
-import Sidebar from './components/Sidebar'
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
@@ -30,7 +29,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
       <div className='min-h-screen flex items-center justify-center'>
         <div className='text-center'>
           <div className='inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-brand-500 border-r-transparent'></div>
-          <p className='mt-4 text-gray-600'>Loading...</p>
+          <p className='mt-4 text-[var(--foreground)]/70'>Loading...</p>
         </div>
       </div>
     )
@@ -46,7 +45,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
       <NavbarDashboard isSidebarOpen={isSidebarOpen} setIsSidebarOpen={setIsSidebarOpen} />
        <div className="min-h-screen pt-20 sm:pt-24 lg:pt-28  py-4 sm:py-6 lg:py-10 px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16">
          <div className='min-h-[70vh] '>
-           <main className={`bg-secondary-foreground rounded-xl sm:rounded-2xl
+          <main className={`bg-[var(--background)] rounded-xl sm:rounded-2xl
             lg:rounded-[52px] lg:min-h-[80vh]
        py-4 sm:py-6 lg:py-10 mb-10 sm:mb-16 lg:mb-20  z-50 `}>
              {children}

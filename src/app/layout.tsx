@@ -43,7 +43,7 @@ export default function RootLayout({
         {/* Prevent theme flash by setting class before paint */}
         <script
           dangerouslySetInnerHTML={{
-            __html: `(()=>{try{const t=localStorage.getItem("theme");const m=window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches;const dark=t?t==="dark":m;const r=document.documentElement;r.classList.remove("theme-dark","theme-light","dark","light");r.classList.add(dark?"theme-dark":"theme-light");if(dark)r.classList.add("dark");}catch{}})();`,
+            __html: `(()=>{try{const t=localStorage.getItem("theme");const m=window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches;const dark=t?t==="dark":m;const r=document.documentElement;r.classList.remove("theme-dark","theme-light","dark","light");r.classList.add(dark?"theme-dark":"theme-light");r.classList.add(dark?"dark":"light");}catch{}})();`,
           }}
         />
         <ReduxProvider>
