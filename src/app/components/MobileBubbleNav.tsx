@@ -52,10 +52,10 @@ export default function MobileBubbleNav({
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  const ACTIVE_COLOR = "#f0b100";
+  const ACTIVE_COLOR = "#2f3020";
   const bubbleBase =
     "relative h-11 flex items-center justify-center transition-all duration-300 shadow-sm active:scale-[0.97] rounded-full overflow-hidden whitespace-nowrap px-4 gap-2";
-  const activeStyle = { backgroundColor: ACTIVE_COLOR, color: "#111111", width: "auto", minWidth: "100px" };
+  const activeStyle = { backgroundColor: ACTIVE_COLOR, color: "#ffffff", width: "auto", minWidth: "100px" };
   const inactiveStyle = { width: "44px", padding: "0" };
 
   // ✅ Hide visually instead of returning null (keeps hooks consistent)

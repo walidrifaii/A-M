@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Moon, Sun, ShoppingCart, Heart, Trash2 } from "lucide-react";
 import { useStore } from "../store/StoreContext";
+import logo2 from "../../assets/logo2.png";
 import Image from "next/image";
 
 export default function Navbar() {
@@ -52,16 +53,11 @@ export default function Navbar() {
       {/* Header */}
       <header className="sticky top-0 z-50 bg-[var(--background)] text-[var(--foreground)] transition-colors 
       duration-300">
-        <nav className="mx-auto  px-4 sm:px-6 lg:px-32">
+        <nav className="mx-auto  px-4 sm:px-6 lg:px-32 py-4">
           <div className="flex h-16 items-center justify-between">
             {/* Brand */}
             <Link href="/" className="flex items-center gap-2">
-              <span className="inline-flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-to-br from-yellow-500 to-yellow-300 text-white shadow">
-                <svg viewBox="0 0 24 24" aria-hidden="true" className="h-5 w-5">
-                  <path fill="currentColor" d="M12 3l9 7-3 11H6L3 10l9-7z" />
-                </svg>
-              </span>
-              <span className="text-lg font-semibold tracking-tight">M&A</span>
+              <Image src={logo2} alt="Logo" width={250} height={250} />
             </Link>
 
             {/* Desktop Nav */}
@@ -159,9 +155,9 @@ export default function Navbar() {
 
 function NavLink({ href, label, pathname }: { href: string; label: string; pathname: string }) {
   const active = pathname === href;
-  const base = "rounded-xl px-3 py-2 text-sm font-medium transition focus:outline-none focus:ring-2 focus:ring-yellow-400/50";
-  const activeStyle = "bg-yellow-500 text-white shadow";
-  const hover = "hover:bg-yellow-400/20";
+  const base = "rounded-xl px-3 py-2 text-sm font-medium transition focus:outline-none focus:ring-2 focus:ring-[#6f6862]";
+  const activeStyle = "bg-[#6f6862] text-white shadow";
+  const hover = "hover:bg-[#6f6862]/20";
   return <Link href={href} className={`${base} ${active ? activeStyle : hover}`}>{label}</Link>;
 }
 

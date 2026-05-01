@@ -14,7 +14,7 @@ export interface Product {
 
 export const productsApi = createApi({
   reducerPath: "productsApi",
-  baseQuery: fetchBaseQuery({ baseUrl: "https://api-perfuim.onrender.com/user" }),
+  baseQuery: fetchBaseQuery({ baseUrl: "https://api-perfuim-production.up.railway.app/user" }),
   tagTypes: ["Products"],
   endpoints: (builder) => ({
     // ✅ accept optional filter params
@@ -30,7 +30,12 @@ export const productsApi = createApi({
       },
       providesTags: ["Products"],
     }),
+
+    getProductById: builder.query<Product, string>({
+      query: (id) => `/products/${id}`,
+      providesTags: (result, error, id) => [{ type: "Products", id }],
+    }),
   }),
 });
 
-export const { useGetProductsQuery } = productsApi;
+export const { useGetProductsQuery, useGetProductByIdQuery } = productsApi;

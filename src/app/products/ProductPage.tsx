@@ -32,7 +32,7 @@ export default function ProductsPage() {
   const [activeProduct, setActiveProduct] = useState<QuickProduct | null>(null);
 
   // 🛍️ Global store
-  const { addToCart, addFavorite, favorites, setBuyNowItem } = useStore();
+  const { addToCart, addFavorite, favorites, setBuyNowItem, removeFavItem } = useStore();
   const router = useRouter();
 
   // 🟢 Sync URL param to filter
@@ -50,11 +50,11 @@ export default function ProductsPage() {
   );
 
   const products =
-    data?.map((p) => ({
-      id: p._id,
-      slug: p.name.toLowerCase().replace(/\s+/g, "-"),
+    data?.map((p: any) => ({
+      id: p._id || p.id,
+      slug: (p.name || "").toLowerCase().replace(/\s+/g, "-"),
       name: p.name,
-      price: `$${p.price.toFixed(2)}`,
+      price: `$${(p.price || 0).toFixed(2)}`,
       shortDescription: p.description,
       image: p.image,
       sizes: Array.isArray(p.size) ? p.size : [p.size],
@@ -64,7 +64,7 @@ export default function ProductsPage() {
   const toggleFavorite = (product: Product) => {
     const alreadyFav = favorites.some((f) => f.id === product.id);
     if (alreadyFav) {
-      addFavorite(product, "remove");
+      removeFavItem(product.id);
     } else {
       addFavorite({
         id: product.id,
@@ -132,7 +132,7 @@ export default function ProductsPage() {
             key={type}
             onClick={() => setFilter(type as "all" | "men" | "women")}
             className={`px-4 py-2 rounded-full text-sm font-medium transition ${filter === type
-              ? "bg-yellow-500 text-white"
+              ? "bg-[#6f6862]  text-white"
               : "bg-gray-100 dark:bg-neutral-800 dark:text-white hover:bg-gray-200 dark:hover:bg-neutral-700"
               }`}
           >
@@ -167,7 +167,7 @@ export default function ProductsPage() {
               >
                 <div className="rounded-3xl p-3 shadow-md">
                   <Link
-                    href={`/product/${p.slug}`}
+                    href={`/product/${p.id}`}
                     className="relative mx-auto block aspect-square w-full max-w-[240px] overflow-hidden rounded-2xl"
                   >
                     {p.image && p.image.trim() !== "" ? (
@@ -196,7 +196,7 @@ export default function ProductsPage() {
                         </svg>
                       </div>
                     )}
-                    <span className="absolute left-2 top-2 rounded-lg bg-yellow-500/95 px-2.5 py-0.5 text-[10px] font-bold text-white shadow-sm sm:text-xs">
+                    <span className="absolute left-2 top-2 rounded-lg bg-[#827978]/95 px-2.5 py-0.5 text-[10px] font-bold text-white shadow-sm sm:text-xs">
                       {p.price}
                     </span>
                   </Link>
@@ -205,7 +205,7 @@ export default function ProductsPage() {
                   <div className="pointer-events-none absolute right-3 top-3 flex gap-2">
                     <button
                       className={`pointer-events-auto rounded-lg p-2 shadow-sm transition ${wished
-                        ? "bg-rose-500 text-white"
+                        ? "bg-red-500 text-white"
                         : "bg-white/90 dark:bg-neutral-800/90 text-black dark:text-white hover:bg-white dark:hover:bg-neutral-800"
                         }`}
                       onClick={(e) => {
@@ -220,7 +220,7 @@ export default function ProductsPage() {
 
                   <div className="mt-3">
                     <h3 className="text-sm font-semibold tracking-tight sm:text-base">
-                      <span className="bg-gradient-to-r from-yellow-500 to-yellow-300 bg-clip-text text-transparent">
+                      <span className="bg-gradient-to-r from-[#6f6862] to-[#827978] bg-clip-text text-transparent">
                         {p.name}
                       </span>
                     </h3>
@@ -235,8 +235,8 @@ export default function ProductsPage() {
                   <button
                     onClick={() => openQuickAdd(p)}
                     className="flex-1 flex items-center justify-center gap-3 text-[16px] w-full mt-2
-                                     font-bold py-2 px-8 rounded-xl bg-yellow-500 text-white
-                                       transition-all hover:-translate-y-1 active:scale-95 "
+                                     font-bold py-2 px-8 rounded-xl bg-[#6f6862] text-white
+                                       transition-all hover:bg-[#827978] hover:-translate-y-1 active:scale-95 "
                   >
                     <CreditCard className="h-5 w-5 stroke-[2.5]" />
                     Buy Now

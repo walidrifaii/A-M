@@ -47,7 +47,7 @@ export default function LoginPage() {
   const onSubmit: SubmitHandler<LoginFormValues> = async (data) => {
     try {
       const response = await axios.post(
-        'https://api-perfuim.onrender.com/auth/login',
+        'https://api-perfuim-production.up.railway.app/auth/login',
         {
           email: data.email,
           password: data.password,
@@ -111,7 +111,7 @@ export default function LoginPage() {
         {/* Logo/Brand */}
         <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center gap-2 mb-4">
-            <span className="inline-flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-yellow-500 to-yellow-300 text-white shadow-lg">
+            <span className="inline-flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-brand-500 to-brand-300 text-white shadow-lg">
               <svg viewBox="0 0 24 24" aria-hidden="true" className="h-6 w-6">
                 <path fill="currentColor" d="M12 3l9 7-3 11H6L3 10l9-7z" />
               </svg>
@@ -139,7 +139,7 @@ export default function LoginPage() {
                   {...register('email')}
                   className={`w-full pl-11 pr-4 py-3 rounded-xl border ${
                     errors.email ? 'border-red-300' : 'border-neutral-200/70'
-                  } focus:outline-none focus:border-yellow-400 bg-[var(--background)] text-[var(--foreground)] transition`}
+                  } focus:outline-none focus:border-brand-400 bg-[var(--background)] text-[var(--foreground)] transition`}
                   placeholder="you@example.com"
                 />
               </div>
@@ -163,7 +163,7 @@ export default function LoginPage() {
                   {...register('password')}
                   className={`w-full pl-11 pr-12 py-3 rounded-xl border ${
                     errors.password ? 'border-red-300' : 'border-neutral-200/70'
-                  } focus:outline-none focus:border-yellow-400 bg-[var(--background)] text-[var(--foreground)] transition`}
+                  } focus:outline-none focus:border-brand-400 bg-[var(--background)] text-[var(--foreground)] transition`}
                   placeholder="Enter your password"
                 />
                 <button
@@ -183,7 +183,7 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={isSubmitting}
-              className="w-full bg-gradient-to-r from-yellow-500 to-yellow-400 hover:from-yellow-600 hover:to-yellow-500 text-white font-semibold py-3 px-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 ease-linear disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              className="w-full bg-gradient-to-r from-brand-500 to-brand-400 hover:from-brand-600 hover:to-brand-500 text-white font-semibold py-3 px-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 ease-linear disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
               {isSubmitting ? (
                 <>

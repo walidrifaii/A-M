@@ -93,7 +93,7 @@ const Sidebar = ({ isOpen, setIsOpen}: SidebarProps) => {
             className="flex items-center gap-2 lg:hidden mb-6 px-2"
             onClick={() => setIsOpen(false)}
           >
-            <span className="inline-flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-xl bg-gradient-to-br from-yellow-500 to-yellow-300 text-white shadow-lg">
+            <span className="inline-flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-xl bg-gradient-to-br from-brand-500 to-brand-300 text-white shadow-lg">
               <svg viewBox="0 0 24 24" aria-hidden="true" className="h-5 w-5 sm:h-6 sm:w-6">
                 <path fill="currentColor" d="M12 3l9 7-3 11H6L3 10l9-7z" />
               </svg>

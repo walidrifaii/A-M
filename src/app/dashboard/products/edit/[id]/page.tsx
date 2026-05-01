@@ -68,7 +68,7 @@ export default function EditProductPage() {
       const token = Cookies.get('access_token');
       
       const response = await axios.get(
-        `https://api-perfuim.onrender.com/user/products/${productId}`,
+        `https://api-perfuim-production.up.railway.app/user/products/${productId}`,
         {
           headers: {
             'Content-Type': 'application/json',
@@ -175,7 +175,7 @@ export default function EditProductPage() {
       }
 
       const response = await axios.put(
-        `https://api-perfuim.onrender.com/products/${productId}`,
+        `https://api-perfuim-production.up.railway.app/products/${productId}`,
         formData,
         {
           headers: {
@@ -206,7 +206,7 @@ export default function EditProductPage() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
-        <Loader2 className="h-12 w-12 text-yellow-500 animate-spin" />
+        <Loader2 className="h-12 w-12 text-brand-500 animate-spin" />
       </div>
     );
   }
@@ -218,7 +218,7 @@ export default function EditProductPage() {
       {/* Back Button */}
       <Link
         href="/dashboard"
-        className="inline-flex items-center gap-2 text-sm  hover:text-yellow-600 mb-6 transition-colors"
+        className="inline-flex items-center gap-2 text-sm  hover:text-brand-600 mb-6 transition-colors"
       >
         <ArrowLeft className="h-4 w-4" />
         Back to Products
@@ -241,7 +241,7 @@ export default function EditProductPage() {
               type="text"
               id="name"
               {...register('name')}
-              className={`w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-yellow-400/50 focus:border-yellow-400 transition ${
+              className={`w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-400/50 focus:border-brand-400 transition ${
                 errors.name ? 'border-red-300' : 'border-gray-300'
               }`}
               placeholder="Enter product name"
@@ -261,7 +261,7 @@ export default function EditProductPage() {
                 type="text"
                 id="brand"
                 {...register('brand')}
-                className={`w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-yellow-400/50 focus:border-yellow-400 transition ${
+                className={`w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-400/50 focus:border-brand-400 transition ${
                   errors.brand ? 'border-red-300' : 'border-gray-300'
                 }`}
                 placeholder="Enter brand name"
@@ -278,7 +278,7 @@ export default function EditProductPage() {
               <select
                 id="sex"
                 {...register('sex')}
-                className={`w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-yellow-400/50 focus:border-yellow-400 transition ${
+                className={`w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-400/50 focus:border-brand-400 transition ${
                   errors.sex ? 'border-red-300' : 'border-gray-300'
                 }`}
               >
@@ -304,7 +304,7 @@ export default function EditProductPage() {
               {...register('price', { valueAsNumber: true })}
               min="0"
               step="0.01"
-              className={`w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-yellow-400/50 focus:border-yellow-400 transition ${
+              className={`w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-400/50 focus:border-brand-400 transition ${
                 errors.price ? 'border-red-300' : 'border-gray-300'
               }`}
               placeholder="0.00"
@@ -326,7 +326,7 @@ export default function EditProductPage() {
                     type="text"
                     value={size}
                     onChange={(e) => handleSizeChange(index, e.target.value)}
-                    className="flex-1 px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-yellow-400/50 focus:border-yellow-400 transition"
+                    className="flex-1 px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-400/50 focus:border-brand-400 transition"
                     placeholder={`Size ${index + 1} (e.g., 50ml)`}
                   />
                   {sizes.length > 1 && (
@@ -343,7 +343,7 @@ export default function EditProductPage() {
               <button
                 type="button"
                 onClick={addSizeField}
-                className="text-sm text-yellow-600 hover:text-yellow-700 font-medium"
+                className="text-sm text-brand-600 hover:text-brand-700 font-medium"
               >
                 + Add Size
               </button>
@@ -362,7 +362,7 @@ export default function EditProductPage() {
               id="description"
               {...register('description')}
               rows={4}
-              className={`w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-yellow-400/50 focus:border-yellow-400 transition ${
+              className={`w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-400/50 focus:border-brand-400 transition ${
                 errors.description ? 'border-red-300' : 'border-gray-300'
               }`}
               placeholder="Enter product description"
@@ -392,7 +392,7 @@ export default function EditProductPage() {
                 type="file"
                 accept="image/*"
                 onChange={handleImageChange}
-                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-yellow-400/50 focus:border-yellow-400 transition"
+                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-400/50 focus:border-brand-400 transition"
               />
             </div>
           </div>
@@ -408,7 +408,7 @@ export default function EditProductPage() {
                     type="checkbox"
                     checked={field.value}
                     onChange={field.onChange}
-                    className="w-5 h-5 text-yellow-600 border-gray-300 rounded focus:ring-yellow-500"
+                    className="w-5 h-5 text-brand-600 border-gray-300 rounded focus:ring-brand-500"
                   />
                   <span className="text-sm font-medium duration-300">Product is active</span>
                 </label>
@@ -421,7 +421,7 @@ export default function EditProductPage() {
             <button
               type="submit"
               disabled={isSubmitting}
-              className="flex-1 px-4 sm:px-6 py-2.5 sm:py-3 bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-600 hover:to-yellow-700 text-white text-sm sm:text-base font-semibold rounded-xl transition-all duration-200 disabled:opacity-50 shadow-lg hover:shadow-xl flex items-center justify-center gap-2"
+              className="flex-1 px-4 sm:px-6 py-2.5 sm:py-3 bg-gradient-to-r from-brand-500 to-brand-600 hover:from-brand-600 hover:to-brand-700 text-white text-sm sm:text-base font-semibold rounded-xl transition-all duration-200 disabled:opacity-50 shadow-lg hover:shadow-xl flex items-center justify-center gap-2"
             >
               {isSubmitting ? (
                 <>

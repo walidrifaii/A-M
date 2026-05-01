@@ -57,7 +57,7 @@ const NavbarDashboard = ({ isSidebarOpen, setIsSidebarOpen }: NavbarProps) => {
                 <div className='flex items-center gap-4'>
                     {/* Brand */}
                     <Link href="/" className="flex items-center gap-2">
-                        <span className="inline-flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-to-br from-yellow-500 to-yellow-300 text-white shadow">
+                        <span className="inline-flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-to-br from-brand-500 to-brand-300 text-white shadow">
                             <svg viewBox="0 0 24 24" aria-hidden="true" className="h-5 w-5">
                                 <path fill="currentColor" d="M12 3l9 7-3 11H6L3 10l9-7z" />
                             </svg>
@@ -88,9 +88,9 @@ const NavbarDashboard = ({ isSidebarOpen, setIsSidebarOpen }: NavbarProps) => {
                     {/* Theme Toggle */}
                     <button
                         onClick={() => setIsDark((v) => !v)}
-                        className="rounded-xl p-2 text-[var(--foreground)] hover:bg-yellow-400/20
-                         dark:hover:bg-yellow-400/10 focus:outline-none ring-2
-                          ring-yellow-400/60 transition-colors"
+                        className="rounded-xl p-2 text-[var(--foreground)] hover:bg-brand-400/20
+                         dark:hover:bg-brand-400/10 focus:outline-none ring-2
+                          ring-brand-400/60 transition-colors"
                         aria-label="Toggle theme"
                     >
                         {isDark ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}

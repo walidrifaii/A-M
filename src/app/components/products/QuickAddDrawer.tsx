@@ -97,14 +97,17 @@ export default function QuickAddModal({
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-6 sm:p-8">
             {/* Image */}
             <div className="relative rounded-2xl bg-neutral-100 dark:bg-neutral-900 overflow-hidden aspect-square">
-              <Image
-                src={product.image}
-                alt={product.name}
-                fill
-                className="object-contain"
-                sizes="(min-width: 768px) 480px, 92vw"
-                priority
-              />
+              {product.image && (
+                <Image
+                  src={product.image}
+                  alt={product.name}
+                  fill
+                  unoptimized={true}
+                  className="object-contain"
+                  sizes="(min-width: 768px) 480px, 92vw"
+                  priority
+                />
+              )}
             </div>
 
             {/* Info */}
@@ -147,7 +150,7 @@ export default function QuickAddModal({
                   BUY IT NOW
                 </button>
                 <Link
-                  href={`/product/${product.slug}`}
+                  href={`/product/${product.id}`}
                   className="text-sm underline inline-block"
                   onClick={onClose}
                 >
@@ -182,14 +185,17 @@ export default function QuickAddModal({
         {/* Header image */}
         <div className="relative w-full bg-neutral-100 dark:bg-neutral-900">
           <div className="relative mx-auto max-w-[560px] w-full aspect-[4/3]">
-            <Image
-              src={product.image}
-              alt={product.name}
-              fill
-              className="object-contain"
-              sizes="92vw"
-              priority
-            />
+            {product.image && (
+              <Image
+                src={product.image}
+                alt={product.name}
+                fill
+                unoptimized={true}
+                className="object-contain"
+                sizes="92vw"
+                priority
+              />
+            )}
             <button
               onClick={onClose}
               aria-label="Close"
@@ -267,7 +273,7 @@ function TitlePrice({
     <>
       <h2 className="text-xl sm:text-2xl font-semibold tracking-tight">{name}</h2>
       <div className="mt-2 flex items-center gap-3">
-        <span className="text-lg font-semibold text-rose-600">{price}</span>
+        <span className="text-lg font-semibold text-[#6f6862]">{price}</span>
         {compareAtPrice && <span className="text-sm line-through opacity-60">{compareAtPrice}</span>}
       </div>
       {short && <p className="mt-2 text-sm text-black/80 dark:text-white/80">{short}</p>}

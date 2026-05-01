@@ -37,7 +37,7 @@ export default function TopMarketSlider({
     <section className="w-full py-10 sm:py-14" style={{ color: "var(--foreground)" }}>
       {/* Header */}
       <header className="mb-6 flex items-center gap-3 ">
-        <span className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-yellow-500 to-yellow-300 text-white shadow-md">
+        <span className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-brand-500 to-brand-300 text-white shadow-md">
           {logoSvg}
         </span>
         <h3 className="text-lg sm:text-2xl font-semibold tracking-tight">{title}</h3>
@@ -78,7 +78,7 @@ export default function TopMarketSlider({
               {/* Button */}
               <Link
                 href="#"
-                className="inline-flex items-center rounded-xl px-4 py-2 text-sm sm:text-base font-semibold text-yellow-700 bg-yellow-100 hover:bg-yellow-200 transition"
+                className="inline-flex items-center rounded-xl px-4 py-2 text-sm sm:text-base font-semibold text-brand-700 bg-brand-100 hover:bg-brand-200 transition"
               >
                 View
               </Link>

@@ -30,7 +30,7 @@ export default function RootLayout({
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const timer = setTimeout(() => setLoading(false), 1800); // adjust duration
+    const timer = setTimeout(() => setLoading(false), 3000); // Show splash screen for 3 seconds
     return () => clearTimeout(timer);
   }, []);
 
@@ -48,13 +48,14 @@ export default function RootLayout({
         />
         <ReduxProvider>
           <StoreProvider>
-            
-
-
-
-            <Toaster position="top-right" />
-            {children}
-
+            {loading ? (
+              <IntroLoader />
+            ) : (
+              <>
+                <Toaster position="top-right" />
+                {children}
+              </>
+            )}
           </StoreProvider>
         </ReduxProvider>
       </body>

@@ -13,7 +13,7 @@ export default function Page() {
 
       <main className="mx-auto px-4 sm:px-6 lg:px-32 py-12">
         <header className="mb-10 text-center">
-          <h1 className="text-5xl md:text-7xl font-black tracking-tighter bg-gradient-to-r from-yellow-500 to-yellow-300 bg-clip-text text-transparent">
+          <h1 className="text-5xl md:text-7xl font-black tracking-tighter bg-gradient-to-r from-[#6f6862] to-[#827978] bg-clip-text text-transparent">
             Our Collections
           </h1>
           <p className="mt-4 text-lg opacity-60 max-w-2xl mx-auto leading-relaxed">

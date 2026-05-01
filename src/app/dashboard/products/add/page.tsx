@@ -123,7 +123,7 @@ export default function AddProductPage() {
       }
 
       const response = await axios.post(
-        'https://api-perfuim.onrender.com/products',
+        'https://api-perfuim-production.up.railway.app/products',
         formData,
         {
           headers: {
@@ -158,7 +158,7 @@ export default function AddProductPage() {
       {/* Back Button */}
       <Link
         href="/dashboard"
-        className="inline-flex items-center gap-2 text-sm  hover:text-yellow-600 mb-6 transition-colors"
+        className="inline-flex items-center gap-2 text-sm  hover:text-brand-600 mb-6 transition-colors"
       >
         <ArrowLeft className="h-4 w-4" />
         Back to Products
@@ -167,7 +167,7 @@ export default function AddProductPage() {
       {/* Form */}
       <div className="rounded-xl sm:rounded-2xl shadow-xl border border-gray-100 p-4 sm:p-6 lg:p-8">
         <div className="mb-6 sm:mb-8">
-          <div className="h-10 w-10 sm:h-12 sm:w-12 rounded-xl bg-gradient-to-br from-yellow-500 to-yellow-400 flex items-center justify-center mb-3 sm:mb-4 shadow-lg">
+          <div className="h-10 w-10 sm:h-12 sm:w-12 rounded-xl bg-gradient-to-br from-brand-500 to-brand-400 flex items-center justify-center mb-3 sm:mb-4 shadow-lg">
             <Plus className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
           </div>
           <h1 className="text-2xl sm:text-3xl font-bold ">Add New Product</h1>
@@ -184,7 +184,7 @@ export default function AddProductPage() {
               type="text"
               id="name"
               {...register('name')}
-              className={`w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-yellow-400/50 focus:border-yellow-400 transition ${errors.name ? 'border-red-300' : 'border-gray-300'
+              className={`w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-400/50 focus:border-brand-400 transition ${errors.name ? 'border-red-300' : 'border-gray-300'
                 }`}
               placeholder="Enter product name"
             />
@@ -203,7 +203,7 @@ export default function AddProductPage() {
                 type="text"
                 id="brand"
                 {...register('brand')}
-                className={`w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-yellow-400/50 focus:border-yellow-400 transition ${errors.brand ? 'border-red-300' : 'border-gray-300'
+                className={`w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-400/50 focus:border-brand-400 transition ${errors.brand ? 'border-red-300' : 'border-gray-300'
                   }`}
                 placeholder="Enter brand name"
               />
@@ -219,7 +219,7 @@ export default function AddProductPage() {
               <select
                 id="sex"
                 {...register('sex')}
-                className={`w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-yellow-400/50 focus:border-yellow-400 transition ${errors.sex ? 'border-red-300' : 'border-gray-300'
+                className={`w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-400/50 focus:border-brand-400 transition ${errors.sex ? 'border-red-300' : 'border-gray-300'
                   }`}
               >
                 <option value="">Select category</option>
@@ -245,7 +245,7 @@ export default function AddProductPage() {
                 {...register('price', { valueAsNumber: true })}
                 min="0"
                 step="0.01"
-                className={`w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-yellow-400/50 focus:border-yellow-400 transition ${errors.price ? 'border-red-300' : 'border-gray-300'
+                className={`w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-400/50 focus:border-brand-400 transition ${errors.price ? 'border-red-300' : 'border-gray-300'
                   }`}
                 placeholder="0.00"
               />
@@ -263,7 +263,7 @@ export default function AddProductPage() {
                 id="quantity"
                 {...register('quantity', { valueAsNumber: true })}
                 min="0"
-                className={`w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-yellow-400/50 focus:border-yellow-400 transition ${errors.quantity ? 'border-red-300' : 'border-gray-300'
+                className={`w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-400/50 focus:border-brand-400 transition ${errors.quantity ? 'border-red-300' : 'border-gray-300'
                   }`}
                 placeholder="Optional"
               />
@@ -285,7 +285,7 @@ export default function AddProductPage() {
                     type="text"
                     value={size}
                     onChange={(e) => handleSizeChange(index, e.target.value)}
-                    className="flex-1 px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-yellow-400/50 focus:border-yellow-400 transition"
+                    className="flex-1 px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-400/50 focus:border-brand-400 transition"
                     placeholder={`Size ${index + 1} (e.g., 50ml)`}
                   />
                   {sizes.length > 1 && (
@@ -302,7 +302,7 @@ export default function AddProductPage() {
               <button
                 type="button"
                 onClick={addSizeField}
-                className="text-sm text-yellow-600 hover:text-yellow-700 font-medium"
+                className="text-sm text-brand-600 hover:text-brand-700 font-medium"
               >
                 + Add Size
               </button>
@@ -321,7 +321,7 @@ export default function AddProductPage() {
               id="description"
               {...register('description')}
               rows={4}
-              className={`w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-yellow-400/50 focus:border-yellow-400 transition ${errors.description ? 'border-red-300' : 'border-gray-300'
+              className={`w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-400/50 focus:border-brand-400 transition ${errors.description ? 'border-red-300' : 'border-gray-300'
                 }`}
               placeholder="Enter product description (optional)"
             />
@@ -350,7 +350,7 @@ export default function AddProductPage() {
                 type="file"
                 accept="image/*"
                 onChange={handleImageChange}
-                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-yellow-400/50 focus:border-yellow-400 transition"
+                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-400/50 focus:border-brand-400 transition"
               />
             </div>
           </div>
@@ -366,7 +366,7 @@ export default function AddProductPage() {
                     type="checkbox"
                     checked={field.value}
                     onChange={field.onChange}
-                    className="w-5 h-5 text-yellow-600 border-gray-300 rounded focus:ring-yellow-500"
+                    className="w-5 h-5 text-brand-600 border-gray-300 rounded focus:ring-brand-500"
                   />
                   <span className="text-sm font-medium ">Product is active</span>
                 </label>
@@ -379,7 +379,7 @@ export default function AddProductPage() {
             <button
               type="submit"
               disabled={isSubmitting}
-              className="flex-1 px-4 sm:px-6 py-2.5 sm:py-3 bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-600 hover:to-yellow-700 text-white text-sm sm:text-base font-semibold rounded-xl transition-all duration-200 disabled:opacity-50 shadow-lg hover:shadow-xl flex items-center justify-center gap-2"
+              className="flex-1 px-4 sm:px-6 py-2.5 sm:py-3 bg-gradient-to-r from-brand-500 to-brand-600 hover:from-brand-600 hover:to-brand-700 text-white text-sm sm:text-base font-semibold rounded-xl transition-all duration-200 disabled:opacity-50 shadow-lg hover:shadow-xl flex items-center justify-center gap-2"
             >
               {isSubmitting ? (
                 <>

@@ -15,7 +15,7 @@ export default function AboutPage() {
             <div className="mx-auto px-4 sm:px-6 lg:px-32 py-12 lg:py-24">
                 {/* Hero Section */}
                 <section className="mb-20 text-center">
-                    <h1 className="text-5xl lg:text-7xl font-black tracking-tighter mb-6 bg-gradient-to-r from-yellow-500 to-yellow-300 bg-clip-text text-transparent">
+                    <h1 className="text-5xl lg:text-7xl font-black tracking-tighter mb-6  text-[#6f6862]">
                         Crafting Elegance
                     </h1>
                     <p className="max-w-2xl mx-auto text-lg opacity-80 leading-relaxed">
@@ -51,10 +51,10 @@ export default function AboutPage() {
                 {/* Values section */}
                 <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 py-16 border-y border-neutral-300/40">
                     {[
-                        { icon: <Star className="h-6 w-6 text-yellow-500" />, title: "Premium Quality", desc: "Finest ingredients sourced globally." },
-                        { icon: <Shield className="h-6 w-6 text-yellow-500" />, title: "Longevity", desc: "Formulated for lasting intensity." },
-                        { icon: <Zap className="h-6 w-6 text-yellow-500" />, title: "Precision", desc: "Scientific approach to scent matching." },
-                        { icon: <Heart className="h-6 w-6 text-yellow-500" />, title: "Ethical", desc: "Vegan-friendly and cruelty-free." }
+                        { icon: <Star className="h-6 w-6 text-brand-500" />, title: "Premium Quality", desc: "Finest ingredients sourced globally." },
+                        { icon: <Shield className="h-6 w-6 text-brand-500" />, title: "Longevity", desc: "Formulated for lasting intensity." },
+                        { icon: <Zap className="h-6 w-6 text-brand-500" />, title: "Precision", desc: "Scientific approach to scent matching." },
+                        { icon: <Heart className="h-6 w-6 text-brand-500" />, title: "Ethical", desc: "Vegan-friendly and cruelty-free." }
                     ].map((val, idx) => (
                         <div key={idx} className="flex flex-col items-center text-center p-6">
                             <div className="mb-4">{val.icon}</div>

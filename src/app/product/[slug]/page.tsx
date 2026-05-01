@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
-import { useGetProductsQuery } from '../../store/api/productsApi';
+import { useGetProductByIdQuery } from '../../store/api/productsApi';
 import { useStore } from '../../store/StoreContext';
 import {
     Heart,
@@ -23,20 +23,15 @@ import Footer from '../../ui/Footer';
 export default function SingleProductPage() {
     const params = useParams();
     const router = useRouter();
-    const { slug } = params;
-    const { data: products, isLoading } = useGetProductsQuery();
+    const { slug } = params; // slug is actually the product ID (UUID) now
+    const { data: product, isLoading } = useGetProductByIdQuery(slug as string);
     const { addToCart, addFavorite, favorites, setBuyNowItem } = useStore();
 
     const [selectedSize, setSelectedSize] = useState<string | null>(null);
     const [quantity, setQuantity] = useState(1);
     const [activeImage, setActiveImage] = useState<string>('');
 
-    // Find product by slug
-    const product = products?.find(
-        (p) => p.name.toLowerCase().replace(/\s+/g, "-") === slug
-    );
-
-    const isFavorite = product ? favorites.some((f) => f.id === product._id) : false;
+    const isFavorite = product ? favorites.some((f) => f.id === (product._id || (product as any).id)) : false;
 
     useEffect(() => {
         if (product) {
@@ -52,8 +47,8 @@ export default function SingleProductPage() {
             <div className="min-h-screen flex items-center justify-center ">
                 <div className="flex flex-col items-center gap-4">
                     <div className="relative h-16 w-16">
-                        <div className="absolute inset-0 rounded-full border-4 border-yellow-200  animate-ping"></div>
-                        <div className="relative h-16 w-16 rounded-full border-4 border-yellow-500 border-t-transparent animate-spin"></div>
+                        <div className="absolute inset-0 rounded-full border-4 border-[#827978]/20  animate-ping"></div>
+                        <div className="relative h-16 w-16 rounded-full border-4 border-[#6f6862] border-t-transparent animate-spin"></div>
                     </div>
                     <p className="text-gray-500 font-medium animate-pulse">Loading product...</p>
                 </div>
@@ -71,7 +66,7 @@ export default function SingleProductPage() {
                     </p>
                     <button
                         onClick={() => router.back()}
-                        className="inline-flex items-center gap-2 px-6 py-3 bg-yellow-500 text-white font-semibold rounded-xl hover:bg-yellow-600 transition-colors"
+                        className="inline-flex items-center gap-2 px-6 py-3 bg-[#6f6862] text-white font-semibold rounded-xl hover:bg-[#827978] transition-colors"
                     >
                         <ArrowLeft className="h-5 w-5" />
                         Go Back
@@ -99,12 +94,12 @@ export default function SingleProductPage() {
         });
 
         toast.custom((t) => (
-            <div className={`${t.visible ? 'animate-enter' : 'animate-leave'} max-w-md w-full  shadow-lg rounded-lg pointer-events-auto flex ring-1 ring-black ring-opacity-5`}>
+            <div className={`${t.visible ? 'animate-enter' : 'animate-leave'} bg-white max-w-md w-full  shadow-lg rounded-lg pointer-events-auto flex ring-1 ring-black ring-opacity-5`}>
                 <div className="flex-1 w-0 p-4">
                     <div className="flex items-start">
                         <div className="flex-shrink-0 pt-0.5">
                             <div className="h-10 w-10 relative rounded-lg overflow-hidden">
-                                <Image src={product.image} alt="" fill className="object-cover" />
+                                {product.image && <Image src={product.image} alt="" fill unoptimized={true} className="object-cover" />}
                             </div>
                         </div>
                         <div className="ml-3 flex-1">
@@ -127,7 +122,7 @@ export default function SingleProductPage() {
 
         // Use setBuyNowItem to store temporary checkout item
         setBuyNowItem({
-            id: product._id,
+            id: product._id || (product as any).id,
             slug: product.name.toLowerCase().replace(/\s+/g, "-"),
             name: product.name,
             price: product.price.toString(),
@@ -141,11 +136,12 @@ export default function SingleProductPage() {
     };
 
     const handleToggleFavorite = () => {
+        const prodId = product._id || (product as any).id;
         if (isFavorite) {
-            addFavorite({ id: product._id } as any, "remove");
+            addFavorite({ id: prodId } as any, "remove");
         } else {
             addFavorite({
-                id: product._id,
+                id: prodId,
                 slug: product.name.toLowerCase().replace(/\s+/g, "-"),
                 name: product.name,
                 price: product.price.toString(),
@@ -179,14 +175,15 @@ export default function SingleProductPage() {
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20">
                     {/* Left Column: Images */}
                     <div className="space-y-6">
-                        <div className=" aspect-square mx-auto  relative rounded-[2rem] overflow-hidden ">
+                        <div className="aspect-square mx-auto relative rounded-[2rem] overflow-hidden ">
                             {product.image ? (
                                 <Image
                                     src={activeImage || product.image}
                                     alt={product.name}
                                     fill
-                                    className="object-contain"
-                                    priority
+                                    className="w-full h-full object-contain transition-opacity duration-300"
+                                    onLoad={(e) => (e.currentTarget.style.opacity = '1')}
+                                    style={{ opacity: 0 }}
                                 />
                             ) : (
                                 <div className="w-full h-full flex items-center justify-center text-gray-300">
@@ -197,7 +194,7 @@ export default function SingleProductPage() {
                             <button
                                 onClick={handleToggleFavorite}
                                 className={`absolute top-6 right-6 p-4 rounded-full backdrop-blur-md shadow-xl transition-all duration-300 hover:scale-110 hover:-rotate-12
-                ${isFavorite ? 'bg-rose-500 text-white' : 'bg-white/90 dark:bg-black/40 text-gray-600 dark:text-white hover:bg-white dark:hover:bg-black/60'}`}
+                ${isFavorite ? 'bg-red-500 text-white' : 'bg-white/90 dark:bg-black/40 text-gray-600 dark:text-white hover:bg-white dark:hover:bg-black/60'}`}
                             >
                                 <Heart className={`h-6 w-6 ${isFavorite ? 'fill-current' : ''}`} />
                             </button>
@@ -208,7 +205,7 @@ export default function SingleProductPage() {
                     <div className="flex flex-col justify-center">
                         <div className="mb-8">
                             <div className="flex items-center gap-3 mb-4">
-                                <span className="inline-flex px-4 py-1.5 text-xs font-bold tracking-widest text-yellow-700 dark:text-yellow-300 uppercase bg-yellow-100 dark:bg-yellow-900/40 rounded-full">
+                                <span className="inline-flex px-4 py-1.5 text-xs font-bold tracking-widest text-[#6f6862] dark:text-[#827978] uppercase bg-[#827978]/10 dark:bg-[#827978]/20 rounded-full">
                                     {product.brand || 'Luxury'}
                                 </span>
                                 {product.sex && (
@@ -223,7 +220,7 @@ export default function SingleProductPage() {
                             </h1>
 
                             <div className="flex items-center gap-4 mb-8">
-                                <div className="flex text-yellow-400">
+                                <div className="flex text-[#827978]">
                                     {[...Array(5)].map((_, i) => (
                                         <Star key={i} className="h-5 w-5 fill-current" />
                                     ))}
@@ -258,8 +255,8 @@ export default function SingleProductPage() {
                                             onClick={() => setSelectedSize(size)}
                                             className={`min-w-[4.5rem] px-4 py-3 rounded-2xl text-sm font-bold transition-all duration-200 border-2
                         ${selectedSize === size
-                                                    ? 'border-yellow-500 bg-yellow-500 text-white shadow-lg shadow-yellow-500/30 transform scale-105'
-                                                    : 'border-gray-100 dark:border-neutral-800 bg-white dark:bg-neutral-800 text-gray-600 dark:text-gray-400 hover:border-yellow-400 dark:hover:border-yellow-600'
+                                                    ? 'border-[#6f6862] bg-[#6f6862] text-white shadow-lg shadow-[#6f6862]/30 transform scale-105'
+                                                    : 'border-gray-100 dark:border-neutral-800 bg-white dark:bg-neutral-800 text-gray-600 dark:text-gray-400 hover:border-[#827978] dark:hover:border-[#6f6862]'
                                                 }`}
                                         >
                                             {size}
@@ -272,7 +269,7 @@ export default function SingleProductPage() {
                         </div>
 
                         {/* Actions */}
-                        <div className="flex flex-col sm:flex-row gap-4 pt-8 border-t border-gray-100 dark:border-neutral-800">
+                        <div className="flex flex-col sm:flex-row gap-4 pt-8 border-t bg-white border-gray-100 dark:border-neutral-800">
                             <div className="flex items-center justify-between rounded-2xl border-2 border-gray-200 dark:border-neutral-700">
                                 <button
                                     onClick={() => setQuantity(Math.max(1, quantity - 1))}
@@ -292,8 +289,8 @@ export default function SingleProductPage() {
                             <button
                                 onClick={handleAddToCart}
                                 className="flex-1 flex items-center justify-center gap-3
-                                   font-bold py-2 px-8 rounded-2xl shadow-xl bg-yellow-500 text-white
-                                    shadow-yellow-500/20 transition-all hover:-translate-y-1 active:scale-95 text-[16px]"
+                                   font-bold py-2 px-8 rounded-2xl shadow-xl bg-[#6f6862] text-white
+                                    shadow-[#6f6862]/20 transition-all hover:bg-[#827978] hover:-translate-y-1 active:scale-95 text-[16px]"
                             >
                                 <ShoppingCart className="h-5 w-5 stroke-[2.5]" />
                                 Add to Cart
@@ -302,8 +299,8 @@ export default function SingleProductPage() {
                             <button
                                 onClick={handleBuyNow}
                                 className="flex-1 flex items-center justify-center gap-3 text-[16px]
-                                   font-bold py-2 px-8 rounded-2xl border-2 border-yellow-500
-                                     transition-all hover:-translate-y-1 active:scale-95 "
+                                   font-bold py-2 px-8 rounded-2xl border-2 border-[#6f6862] text-[#6f6862]
+                                     transition-all hover:bg-[#6f6862]/5 hover:-translate-y-1 active:scale-95 "
                             >
                                 <CreditCard className="h-5 w-5 stroke-[2.5]" />
                                 Buy Now

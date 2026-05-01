@@ -37,11 +37,11 @@ export default function FeaturedProducts({ title = "Featured Perfumes" }: Featur
 
   const { data, isLoading } = useGetProductsQuery();
   const products: Product[] =
-    data?.map((p) => ({
-      id: p._id,
-      slug: p.name.toLowerCase().replace(/\s+/g, "-"),
+    data?.map((p: any) => ({
+      id: p._id || p.id,
+      slug: (p.name || "").toLowerCase().replace(/\s+/g, "-"),
       name: p.name,
-      price: `$${p.price.toFixed(2)}`,
+      price: `$${(p.price || 0).toFixed(2)}`,
       shortDescription: p.description,
       longDescription: p.description,
       image: p.image,
@@ -128,18 +128,16 @@ export default function FeaturedProducts({ title = "Featured Perfumes" }: Featur
             >
               <div className="rounded-3xl p-3 shadow-md ">
                 <Link
-                  href={`/product/${p.slug}`}
+                  href={`/product/${p.id}`}
                   className="relative mx-auto block aspect-square w-full max-w-[240px]
                    overflow-hidden rounded-2xl  "
                 >
-                  {p.image && p.image.trim() !== '' ? (
-                    <Image
+                  {p.image && typeof p.image === "string" && p.image.trim() !== '' ? (
+                    <img
                       src={p.image}
                       alt={p.name}
-                      fill
-                      sizes="(min-width: 1024px) 320px, (min-width: 640px) 45vw, 90vw"
-                      className="object-contain transition-transform duration-300 group-hover:scale-[1.04]"
-                      priority={idx < 3}
+                      className="h-full w-full object-contain transition-transform duration-300 group-hover:scale-[1.04]"
+                      loading="lazy"
                     />
                   ) : (
                     <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-neutral-200 to-neutral-300 dark:from-neutral-700 dark:to-neutral-800">
@@ -158,14 +156,14 @@ export default function FeaturedProducts({ title = "Featured Perfumes" }: Featur
                       </svg>
                     </div>
                   )}
-                  <span className="absolute left-2 top-2 rounded-lg bg-yellow-500/95 px-2.5 py-0.5 text-[10px] font-bold text-white shadow-sm sm:text-xs">
+                  <span className="absolute left-2 top-2 rounded-lg bg-[#827978]/95 px-2.5 py-0.5 text-[10px] font-bold text-white shadow-sm sm:text-xs">
                     {p.price}
                   </span>
                 </Link>
 
                 <div className="pointer-events-none absolute right-3 top-3 flex gap-2">
                   <button
-                    className={`pointer-events-auto rounded-lg p-2 shadow-sm transition ${wished ? "bg-rose-500 text-white" : "bg-white/90 dark:bg-neutral-800/90 text-black dark:text-white hover:bg-white dark:hover:bg-neutral-800"}`}
+                    className={`pointer-events-auto rounded-lg p-2 shadow-sm transition ${wished ? "bg-red-500 text-white" : "bg-white/90 dark:bg-neutral-800/90 text-black dark:text-white hover:bg-white dark:hover:bg-neutral-800"}`}
                     onClick={(e) => {
                       e.preventDefault();
                       e.stopPropagation();
@@ -181,7 +179,7 @@ export default function FeaturedProducts({ title = "Featured Perfumes" }: Featur
 
                 <div className="mt-3">
                   <h3 className="text-sm font-semibold tracking-tight sm:text-base">
-                    <span className="bg-gradient-to-r from-yellow-500 to-yellow-300 bg-clip-text text-transparent">{p.name}</span>
+                    <span className="bg-gradient-to-r from-[#6f6862] to-[#827978] bg-clip-text text-transparent">{p.name}</span>
                   </h3>
                   <p className="mt-1.5 text-xs  text-[var(--foreground)]" style={{ minHeight: 36 }}>
                     {p.shortDescription}
@@ -190,8 +188,8 @@ export default function FeaturedProducts({ title = "Featured Perfumes" }: Featur
                 <button
                   onClick={() => openQuickAdd(p)}
                   className="flex-1 flex items-center justify-center gap-3 text-[16px] w-full mt-2
-                                   font-bold py-2 px-8 rounded-xl bg-yellow-500 text-white
-                                     transition-all hover:-translate-y-1 active:scale-95 "
+                                   font-bold py-2 px-8 rounded-xl bg-[#6f6862] text-white
+                                     transition-all hover:bg-[#827978] hover:-translate-y-1 active:scale-95 "
                 >
                   <CreditCard className="h-5 w-5 stroke-[2.5]" />
                   Buy Now

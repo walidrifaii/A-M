@@ -45,7 +45,7 @@ export interface CheckoutResponse {
 
 export const checkoutApi = createApi({
   reducerPath: 'checkoutApi',
-  baseQuery: fetchBaseQuery({ baseUrl: 'https://api-perfuim.onrender.com/user' }),
+  baseQuery: fetchBaseQuery({ baseUrl: 'https://api-perfuim-production.up.railway.app/user' }),
   endpoints: (builder) => ({
     placeOrder: builder.mutation<CheckoutResponse, CheckoutRequest>({
       query: (body) => ({

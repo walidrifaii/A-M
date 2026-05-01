@@ -15,9 +15,7 @@ export default function Home() {
       <div className="mx-auto  px-4 sm:px-6 lg:px-32">
         <HeroShowcase />
         <FeaturedProducts />
-        <section className=" py-10">
-          <TopMarketSlider />
-        </section>
+       
         <AboutRecreatePerfume />
       </div>
       <Footer />

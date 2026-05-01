@@ -38,7 +38,7 @@ export default function ProductsPage() {
 
       const token = Cookies.get('access_token');
       const response = await axios.get(
-        'https://api-perfuim.onrender.com/user/products',
+        'https://api-perfuim-production.up.railway.app/user/products',
         {
           headers: {
             'Content-Type': 'application/json',
@@ -132,20 +132,20 @@ export default function ProductsPage() {
           <div className="flex flex-col sm:flex-row gap-4 bg-white dark:bg-gray-800 p-2 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700/50">
             <div className="relative flex-1 group">
               <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                <Search className="h-5 w-5 text-gray-400 group-focus-within:text-yellow-500 transition-colors" />
+                <Search className="h-5 w-5 text-gray-400 group-focus-within:text-brand-500 transition-colors" />
               </div>
               <input
                 type="text"
                 placeholder="Search products by name, brand..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="block w-full pl-11 pr-4 py-3 bg-gray-50 dark:bg-gray-900/50 border-0 rounded-xl text-gray-900 dark:text-white placeholder:text-gray-400 focus:ring-2 focus:ring-yellow-500/20 focus:bg-white dark:focus:bg-gray-900 transition-all duration-300 sm:text-sm"
+                className="block w-full pl-11 pr-4 py-3 bg-gray-50 dark:bg-gray-900/50 border-0 rounded-xl text-gray-900 dark:text-white placeholder:text-gray-400 focus:ring-2 focus:ring-brand-500/20 focus:bg-white dark:focus:bg-gray-900 transition-all duration-300 sm:text-sm"
               />
             </div>
 
             <Link
               href="/dashboard/products/add"
-              className="flex items-center justify-center gap-2 px-8 py-3 bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-400 hover:to-yellow-500 text-white font-semibold rounded-xl transition-all duration-300 shadow-lg shadow-yellow-500/20 hover:shadow-yellow-500/40 active:scale-95 whitespace-nowrap"
+              className="flex items-center justify-center gap-2 px-8 py-3 bg-gradient-to-r from-brand-500 to-brand-600 hover:from-brand-400 hover:to-brand-500 text-white font-semibold rounded-xl transition-all duration-300 shadow-lg shadow-brand-500/20 hover:shadow-brand-500/40 active:scale-95 whitespace-nowrap"
             >
               <Plus className="h-5 w-5 stroke-[2.5]" />
               <span>Add Product</span>
@@ -159,8 +159,8 @@ export default function ProductsPage() {
         {isLoading ? (
           <div className="p-32 text-center">
             <div className="relative inline-flex mb-6">
-              <div className="w-16 h-16 border-4 border-yellow-100 dark:border-yellow-900/30 rounded-full animate-ping absolute"></div>
-              <div className="w-16 h-16 border-4 border-yellow-500 border-t-transparent rounded-full animate-spin relative z-10"></div>
+              <div className="w-16 h-16 border-4 border-brand-100 dark:border-brand-900/30 rounded-full animate-ping absolute"></div>
+              <div className="w-16 h-16 border-4 border-brand-500 border-t-transparent rounded-full animate-spin relative z-10"></div>
             </div>
             <p className="text-gray-500 dark:text-gray-400 font-medium animate-pulse">Loading directory...</p>
           </div>
@@ -182,8 +182,8 @@ export default function ProductsPage() {
           </div>
         ) : filteredProducts.length === 0 ? (
           <div className="p-24 text-center">
-            <div className="inline-flex items-center justify-center w-24 h-24 rounded-full bg-yellow-50 dark:bg-yellow-900/20 mb-8 ring-8 ring-yellow-50/50 dark:ring-yellow-900/10">
-              <Search className="h-12 w-12 text-yellow-500/50" />
+            <div className="inline-flex items-center justify-center w-24 h-24 rounded-full bg-brand-50 dark:bg-brand-900/20 mb-8 ring-8 ring-brand-50/50 dark:ring-brand-900/10">
+              <Search className="h-12 w-12 text-brand-500/50" />
             </div>
             <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-3">No products found</h3>
             <p className="text-gray-500 dark:text-gray-400 mb-10 max-w-md mx-auto leading-relaxed">
@@ -191,7 +191,7 @@ export default function ProductsPage() {
             </p>
             <Link
               href="/dashboard/products/add"
-              className="inline-flex items-center gap-2 px-8 py-3.5 bg-yellow-500 hover:bg-yellow-600 text-white font-semibold rounded-xl transition-all duration-300 shadow-lg shadow-yellow-500/25 hover:shadow-yellow-500/40 hover:-translate-y-0.5 active:translate-y-0"
+              className="inline-flex items-center gap-2 px-8 py-3.5 bg-brand-500 hover:bg-brand-600 text-white font-semibold rounded-xl transition-all duration-300 shadow-lg shadow-brand-500/25 hover:shadow-brand-500/40 hover:-translate-y-0.5 active:translate-y-0"
             >
               <Plus className="h-5 w-5 stroke-[2.5]" />
               Add First Product
@@ -231,7 +231,7 @@ export default function ProductsPage() {
                           )}
                         </div>
                         <div className="min-w-0 py-1">
-                          <p className="text-sm font-bold text-gray-900 dark:text-white truncate group-hover:text-yellow-600 dark:group-hover:text-yellow-500 transition-colors">
+                          <p className="text-sm font-bold text-gray-900 dark:text-white truncate group-hover:text-brand-600 dark:group-hover:text-brand-500 transition-colors">
                             {product.name}
                           </p>
                           {product.description && (
@@ -256,7 +256,7 @@ export default function ProductsPage() {
                           ${product.sex.toLowerCase() === 'female'
                             ? 'bg-pink-50 text-pink-600 dark:bg-pink-500/10 dark:text-pink-400 ring-1 ring-pink-500/20'
                             : product.sex.toLowerCase() === 'male'
-                              ? 'bg-blue-50 text-blue-600 dark:bg-blue-500/10 dark:text-blue-400 ring-1 ring-blue-500/20'
+                              ? 'bg-brand-50 text-brand-600 dark:bg-brand-500/10 dark:text-brand-400 ring-1 ring-brand-500/20'
                               : 'bg-purple-50 text-purple-600 dark:bg-purple-500/10 dark:text-purple-400 ring-1 ring-purple-500/20'
                           }
                         `}>
@@ -293,7 +293,7 @@ export default function ProductsPage() {
                       <div className="flex items-center justify-end gap-2 opactity-0 group-hover:opacity-100 transition-opacity">
                         <Link
                           href={`/dashboard/products/edit/${product._id}`}
-                          className="p-2.5 text-gray-400 hover:text-yellow-600 dark:text-gray-500 dark:hover:text-yellow-400 hover:bg-yellow-50 dark:hover:bg-yellow-900/20 rounded-xl transition-all hover:scale-105 active:scale-95"
+                          className="p-2.5 text-gray-400 hover:text-brand-600 dark:text-gray-500 dark:hover:text-brand-400 hover:bg-brand-50 dark:hover:bg-brand-900/20 rounded-xl transition-all hover:scale-105 active:scale-95"
                           title="Edit Product"
                         >
                           <Pencil className="h-4 w-4 stroke-[2.5]" />

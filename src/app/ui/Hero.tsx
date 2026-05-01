@@ -66,13 +66,13 @@ export default function Hero({
       <div className="animate-fade-in-up delay-300 mt-8 flex flex-wrap items-center justify-center gap-3">
         <Link
           href={ctaPrimary.href}
-          className="rounded-2xl border border-yellow-400/50 bg-yellow-500 px-6 py-3 text-sm font-semibold text-white shadow transition hover:scale-[1.01] focus:outline-none focus:ring-2 focus:ring-yellow-400/60"
+          className="rounded-2xl border border-brand-400/50 bg-brand-500 px-6 py-3 text-sm font-semibold text-white shadow transition hover:scale-[1.01] focus:outline-none focus:ring-2 focus:ring-brand-400/60"
         >
           {ctaPrimary.label}
         </Link>
         <Link
           href={ctaSecondary.href}
-          className="rounded-2xl px-6 py-3 text-sm font-semibold transition hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-yellow-400/40"
+          className="rounded-2xl px-6 py-3 text-sm font-semibold transition hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-brand-400/40"
           style={{ color: "var(--foreground)" }}
         >
           {ctaSecondary.label}

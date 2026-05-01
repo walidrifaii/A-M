@@ -32,7 +32,11 @@ const schema = yup.object({
     .required("Email is required")
     .email("Invalid email format")
     .matches(/^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/, "Email must have a valid TLD"),
-  phone: yup.string().required("Phone is required"),
+  phone: yup
+    .string()
+    .required("Phone is required")
+    .matches(/^\+?[0-9]+$/, "Phone must contain only numbers")
+    .max(8, "Phone cannot exceed 8 numbers"),
   city: yup.string().required("City is required"),
   address: yup.string().required("Address Line 1 is required"),
   addressLine2: yup.string(),
@@ -52,6 +56,7 @@ function CheckoutForm() {
   const source = searchParams.get("source");
   const { cart: cartItems, buyNowItem, clearCart, setBuyNowItem } = useStore();
   const [loading, setLoading] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
 
   const displayItems = source === "buy_now" && buyNowItem ? [buyNowItem] : cartItems;
 
@@ -90,7 +95,7 @@ function CheckoutForm() {
     const payload = {
       customerName: data.fullName,
       customerEmail: data.email,
-      customerPhone: data.phone,
+      customerPhone: data.phone.startsWith("+961") ? data.phone : `+961${data.phone.replace(/^0+/, "")}`,
       addressLine1: data.address,
       addressLine2: data.addressLine2 || "",
       city: data.city,
@@ -105,7 +110,7 @@ function CheckoutForm() {
 
     try {
       setLoading(true);
-      const res = await fetch("https://api-perfuim.onrender.com/user/checkout", {
+      const res = await fetch("https://api-perfuim-production.up.railway.app/user/checkout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
@@ -118,8 +123,7 @@ function CheckoutForm() {
         } else {
           clearCart();
         }
-        toast.success("Order placed successfully!");
-        // window.location.href = "/success";
+        setShowSuccessModal(true);
       } else {
         toast.error(result.message || "Failed to place order");
       }
@@ -152,15 +156,16 @@ function CheckoutForm() {
               onSubmit={handleSubmit(onSubmit)}
             >
               {[
-                { placeholder: "Full Name", name: "fullName" },
-                { placeholder: "Email Address", name: "email" },
-                { placeholder: "Phone Number", name: "phone" },
-                { placeholder: "City", name: "city" },
+                { placeholder: "Full Name", name: "fullName", type: "text" },
+                { placeholder: "Email Address", name: "email", type: "email" },
+                { placeholder: "Phone Number", name: "phone", type: "tel", max: 8 },
+                { placeholder: "City", name: "city", type: "text" },
               ].map((field, index) => (
                 <div key={index} className="flex flex-col">
                   <input
-                    type="text"
+                    type={field.type}
                     placeholder={field.placeholder}
+                    maxLength={field.max}
                     {...register(field.name as keyof CheckoutFormValues)}
                     className="border border-neutral-300/50 rounded-xl p-3 w-full bg-transparent focus:ring-1 focus:ring-[#827978]"
                     style={{ color: "var(--foreground)" }}
@@ -311,6 +316,43 @@ function CheckoutForm() {
         </div>
       </div>
       <Footer />
+
+      {/* Success Modal */}
+      {showSuccessModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-md animate-in fade-in duration-300" />
+          <div
+            className="relative bg-[var(--background)] p-8 sm:p-10 rounded-[2.5rem] shadow-2xl border border-neutral-300/40 text-center max-w-md w-full animate-in zoom-in-95 fade-in duration-300"
+            style={{ color: "var(--foreground)" }}
+          >
+            <div className="w-20 h-20 bg-green-500/10 rounded-full flex items-center justify-center mx-auto mb-6">
+              <svg
+                className="w-10 h-10 text-green-500"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2.5}
+                  d="M5 13l4 4L19 7"
+                />
+              </svg>
+            </div>
+            <h2 className="text-2xl font-bold mb-2">Order Placed!</h2>
+            <p className="text-neutral-500 mb-8 leading-relaxed">
+              Thank you for your purchase. We have received your order and will contact you shortly for confirmation.
+            </p>
+            <Link
+              href="/"
+              className="block w-full bg-[#827978] hover:bg-[#6f6862] text-white font-semibold py-4 rounded-2xl transition-all hover:scale-[1.02] active:scale-95 shadow-lg shadow-[#827978]/20"
+            >
+              Go to Home Page
+            </Link>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
