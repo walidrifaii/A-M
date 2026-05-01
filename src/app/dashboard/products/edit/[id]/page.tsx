@@ -106,7 +106,7 @@ export default function EditProductPage() {
       } else {
         toast.error('Something went wrong. Please try again.');
       }
-      router.push('/dashboard/products');
+      router.push('/dashboard');
     } finally {
       setIsLoading(false);
     }
@@ -188,7 +188,7 @@ export default function EditProductPage() {
       if (response.status === 200) {
         toast.success('Product updated successfully!');
         setTimeout(() => {
-          router.push('/dashboard/products');
+          router.push('/dashboard');
         }, 1000);
       }
     } catch (error) {
@@ -421,7 +421,7 @@ export default function EditProductPage() {
             <button
               type="submit"
               disabled={isSubmitting}
-              className="flex-1 px-4 sm:px-6 py-2.5 sm:py-3 bg-gradient-to-r from-brand-500 to-brand-600 hover:from-brand-600 hover:to-brand-700 text-white text-sm sm:text-base font-semibold rounded-xl transition-all duration-200 disabled:opacity-50 shadow-lg hover:shadow-xl flex items-center justify-center gap-2"
+              className="flex-1 px-4 sm:px-6 py-2.5 sm:py-3 bg-[#6f6862] from-brand-500 to-brand-600 hover:from-brand-600 hover:to-brand-700 text-white text-sm sm:text-base font-semibold rounded-xl transition-all duration-200 disabled:opacity-50 shadow-lg hover:shadow-xl flex items-center justify-center gap-2"
             >
               {isSubmitting ? (
                 <>
@@ -433,7 +433,7 @@ export default function EditProductPage() {
               )}
             </button>
             <Link
-              href="/dashboard/products"
+              href="/dashboard"
               className="px-4 sm:px-6 py-2.5 sm:py-3 border border-gray-300 duration-300 text-sm sm:text-base font-medium rounded-xl hover:bg-gray-50 transition-all duration-200 text-center"
             >
               Cancel

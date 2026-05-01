@@ -110,13 +110,7 @@ export default function LoginPage() {
       <div className="w-full max-w-md">
         {/* Logo/Brand */}
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center gap-2 mb-4">
-            <span className="inline-flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-brand-500 to-brand-300 text-white shadow-lg">
-              <svg viewBox="0 0 24 24" aria-hidden="true" className="h-6 w-6">
-                <path fill="currentColor" d="M12 3l9 7-3 11H6L3 10l9-7z" />
-              </svg>
-            </span>
-          </div>
+         
           <h1 className="text-3xl font-bold mb-2">Welcome Back</h1>
           <p className="text-sm opacity-70">Sign in to your account to continue</p>
         </div>
@@ -183,7 +177,7 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={isSubmitting}
-              className="w-full bg-gradient-to-r from-brand-500 to-brand-400 hover:from-brand-600 hover:to-brand-500 text-white font-semibold py-3 px-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 ease-linear disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              className="w-full bg-[#6f6862]  text-white font-semibold py-3 px-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 ease-linear disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
               {isSubmitting ? (
                 <>

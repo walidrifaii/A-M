@@ -5,6 +5,9 @@ import { MdShoppingCart } from 'react-icons/md'
 import { RiMenuLine } from 'react-icons/ri'
 import Cookies from 'js-cookie'
 import { useRouter } from 'next/navigation'
+import Image from 'next/image'
+import logo2 from "../../../assets/logo2.png";
+
 
 interface NavbarProps {
     isSidebarOpen: boolean
@@ -54,17 +57,9 @@ const NavbarDashboard = ({ isSidebarOpen, setIsSidebarOpen }: NavbarProps) => {
                        h-[80px] sm:h-[90px] lg:h-[100px] fixed z-10 transition-colors duration-300'>
             {/* Logo */}
             <section className='flex items-center justify-between w-full'>
-                <div className='flex items-center gap-4'>
-                    {/* Brand */}
-                    <Link href="/" className="flex items-center gap-2">
-                        <span className="inline-flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-to-br from-brand-500 to-brand-300 text-white shadow">
-                            <svg viewBox="0 0 24 24" aria-hidden="true" className="h-5 w-5">
-                                <path fill="currentColor" d="M12 3l9 7-3 11H6L3 10l9-7z" />
-                            </svg>
-                        </span>
-                        <span className="text-lg font-semibold tracking-tight text-[var(--foreground)]">M&A</span>
-                    </Link>
-                </div>
+                <Link href="/" className="flex items-center gap-2">
+              <Image src={logo2} alt="Logo" width={250} height={250} />
+            </Link>
 
                 <div className='hidden lg:flex items-center gap-4'>
                     {/* <div className='bg-[var(--background)] border border-neutral-200 dark:border-neutral-700

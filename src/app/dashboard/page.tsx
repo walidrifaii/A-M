@@ -9,7 +9,7 @@ import Cookies from 'js-cookie';
 import toast from 'react-hot-toast';
 
 interface Product {
-  _id: string;
+  id: string;
   name: string;
   description: string;
   price: number;
@@ -212,7 +212,7 @@ export default function ProductsPage() {
               </thead>
               <tbody className="divide-y divide-gray-100 dark:divide-gray-700/50">
                 {filteredProducts.map((product) => (
-                  <tr key={product._id} className="group hover:bg-gray-50/80 dark:hover:bg-gray-700/20 transition-colors duration-200">
+                  <tr key={product.id} className="group hover:bg-gray-50/80 dark:hover:bg-gray-700/20 transition-colors duration-200">
                     <td className="px-8 py-5">
                       <div className="flex items-center gap-5">
                         <div className="relative w-14 h-14 rounded-2xl overflow-hidden bg-gray-100 dark:bg-gray-800 flex-shrink-0 border border-gray-100 dark:border-gray-700 shadow-sm">
@@ -292,7 +292,7 @@ export default function ProductsPage() {
                     <td className="px-8 py-5 text-right">
                       <div className="flex items-center justify-end gap-2 opactity-0 group-hover:opacity-100 transition-opacity">
                         <Link
-                          href={`/dashboard/products/edit/${product._id}`}
+                          href={`/dashboard/products/edit/${product.id}`}
                           className="p-2.5 text-gray-400 hover:text-brand-600 dark:text-gray-500 dark:hover:text-brand-400 hover:bg-brand-50 dark:hover:bg-brand-900/20 rounded-xl transition-all hover:scale-105 active:scale-95"
                           title="Edit Product"
                         >
