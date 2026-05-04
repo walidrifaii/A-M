@@ -61,7 +61,7 @@ export default function SingleProductPage() {
                 <div className="max-w-md text-center">
                     <h1 className="text-4xl font-bold   mb-4">Product Not Found</h1>
                     <p className="text-gray-600 mb-8">
-                        We couldn t find the product you re looking for. It may have been removed or the link might be broken.
+                        We couldn't find the product you're looking for. It may have been removed or the link might be broken.
                     </p>
                     <button
                         onClick={() => router.back()}
