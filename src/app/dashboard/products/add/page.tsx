@@ -1,37 +1,54 @@
 "use client";
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import Link from 'next/link';
-import { useForm, Controller } from 'react-hook-form';
-import * as yup from 'yup';
-import { yupResolver } from '@hookform/resolvers/yup';
-import axios from 'axios';
-import Cookies from 'js-cookie';
-import toast, { Toaster } from 'react-hot-toast';
-import { ArrowLeft, Plus, Loader2, X } from 'lucide-react';
-import Image from 'next/image';
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { useForm, Controller } from "react-hook-form";
+import * as yup from "yup";
+import { yupResolver } from "@hookform/resolvers/yup";
+import axios from "axios";
+import Cookies from "js-cookie";
+import toast, { Toaster } from "react-hot-toast";
+import { ArrowLeft, Plus, Loader2, X } from "lucide-react";
+import Image from "next/image";
+
+interface SizePrice {
+  size: string;
+  price: number;
+}
 
 interface ProductFormValues {
   name: string;
   brand: string;
-  price: number;
-  quantity?: number;
+  quantity: number;
   description: string;
-  size: string[];
+  sizePrices: SizePrice[];
   sex: string;
   isActive: boolean;
   image?: File;
 }
 
 const schema = yup.object({
-  name: yup.string().required('Product name is required'),
-  brand: yup.string().required('Brand is required'),
-  price: yup.number().required('Price is required').positive('Price must be positive'),
-  quantity: yup.number().positive('Quantity must be positive'),
+  name: yup.string().required("Product name is required"),
+  brand: yup.string().required("Brand is required"),
+  quantity: yup
+    .number()
+    .required("Quantity is required")
+    .min(0, "Quantity cannot be negative"),
   description: yup.string(),
-  size: yup.array().of(yup.string()).min(1, 'At least one size is required'),
-  sex: yup.string().required('Category is required'),
+  sizePrices: yup
+    .array()
+    .of(
+      yup.object({
+        size: yup.string().required("Size is required"),
+        price: yup
+          .number()
+          .required("Price is required")
+          .positive("Price must be positive"),
+      }),
+    )
+    .min(1, "At least one size and price is required"),
+  sex: yup.string().required("Category is required"),
   isActive: yup.boolean(),
 }) as yup.ObjectSchema<ProductFormValues>;
 
@@ -39,7 +56,9 @@ export default function AddProductPage() {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
-  const [sizes, setSizes] = useState<string[]>(['']);
+  const [sizePrices, setSizePrices] = useState<SizePrice[]>([
+    { size: "", price: 0 },
+  ]);
 
   const {
     register,
@@ -50,40 +69,52 @@ export default function AddProductPage() {
   } = useForm<ProductFormValues>({
     resolver: yupResolver(schema),
     defaultValues: {
-      name: '',
-      brand: '',
-      price: 0,
-      quantity: undefined,
-      description: '',
-      size: [],
-      sex: '',
+      name: "",
+      brand: "",
+      quantity: 0,
+      description: "",
+      sizePrices: [],
+      sex: "",
       isActive: true,
     },
   });
 
-  const handleSizeChange = (index: number, value: string) => {
-    const newSizes = [...sizes];
-    newSizes[index] = value;
-    setSizes(newSizes);
-    setValue('size', newSizes.filter(s => s.trim() !== ''));
+  const handleSizeChange = (
+    index: number,
+    field: keyof SizePrice,
+    value: string | number,
+  ) => {
+    const newSizePrices = [...sizePrices];
+    newSizePrices[index] = {
+      ...newSizePrices[index],
+      [field]: field === "price" ? Number(value) : value,
+    };
+    setSizePrices(newSizePrices);
+    setValue(
+      "sizePrices",
+      newSizePrices.filter((sp) => sp.size.trim() !== ""),
+    );
   };
 
   const addSizeField = () => {
-    setSizes([...sizes, '']);
+    setSizePrices([...sizePrices, { size: "", price: 0 }]);
   };
 
   const removeSizeField = (index: number) => {
-    if (sizes.length > 1) {
-      const newSizes = sizes.filter((_, i) => i !== index);
-      setSizes(newSizes);
-      setValue('size', newSizes.filter(s => s.trim() !== ''));
+    if (sizePrices.length > 1) {
+      const newSizePrices = sizePrices.filter((_, i) => i !== index);
+      setSizePrices(newSizePrices);
+      setValue(
+        "sizePrices",
+        newSizePrices.filter((sp) => sp.size.trim() !== ""),
+      );
     }
   };
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      setValue('image', file);
+      setValue("image", file);
       const reader = new FileReader();
       reader.onloadend = () => {
         setImagePreview(reader.result as string);
@@ -95,56 +126,51 @@ export default function AddProductPage() {
   const onSubmit = async (data: ProductFormValues) => {
     try {
       setIsSubmitting(true);
-      const token = Cookies.get('access_token');
+      const token = Cookies.get("access_token");
 
       // Create FormData for multipart/form-data
       const formData = new FormData();
-      formData.append('name', data.name);
-      formData.append('brand', data.brand);
-      formData.append('price', data.price.toString());
-      formData.append('description', data.description || '');
-      formData.append('sex', data.sex);
-      formData.append('isActive', data.isActive.toString());
+      formData.append("name", data.name);
+      formData.append("brand", data.brand);
+      formData.append("quantity", data.quantity.toString());
+      formData.append("description", data.description || "");
+      formData.append("sex", data.sex);
+      formData.append("isActive", data.isActive.toString());
 
-      // Append quantity if provided
-      if (data.quantity) {
-        formData.append('quantity', data.quantity.toString());
-      }
-
-      // Append sizes array
-      const validSizes = sizes.filter(s => s.trim() !== '');
-      validSizes.forEach(size => {
-        formData.append('size', size);
-      });
+      // Append sizePrices as JSON string
+      const validSizePrices = sizePrices.filter((sp) => sp.size.trim() !== "");
+      formData.append("sizePrices", JSON.stringify(validSizePrices));
 
       // Append image if provided
       if (data.image && data.image instanceof File) {
-        formData.append('image', data.image);
+        formData.append("image", data.image);
       }
 
       const response = await axios.post(
-        'https://api-perfuim-production.up.railway.app/products',
+        "https://api-perfuim-production.up.railway.app/products",
         formData,
         {
           headers: {
-            'Content-Type': 'multipart/form-data',
+            "Content-Type": "multipart/form-data",
             ...(token && { Authorization: `Bearer ${token}` }),
           },
-        }
+        },
       );
 
       if (response.status === 201) {
-        toast.success('Product created successfully!');
+        toast.success("Product created successfully!");
         setTimeout(() => {
-          router.push('/dashboard');
+          router.push("/dashboard");
         }, 1000);
       }
     } catch (error) {
-      console.error('Error creating product:', error);
+      console.error("Error creating product:", error);
       if (axios.isAxiosError(error)) {
-        toast.error(error.response?.data?.message || 'Failed to create product');
+        toast.error(
+          error.response?.data?.message || "Failed to create product",
+        );
       } else {
-        toast.error('Something went wrong. Please try again.');
+        toast.error("Something went wrong. Please try again.");
       }
     } finally {
       setIsSubmitting(false);
@@ -171,7 +197,9 @@ export default function AddProductPage() {
             <Plus className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
           </div>
           <h1 className="text-2xl sm:text-3xl font-bold ">Add New Product</h1>
-          <p className="text-sm sm:text-base  mt-2">Create a new product in your inventory</p>
+          <p className="text-sm sm:text-base  mt-2">
+            Create a new product in your inventory
+          </p>
         </div>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
@@ -183,9 +211,10 @@ export default function AddProductPage() {
             <input
               type="text"
               id="name"
-              {...register('name')}
-              className={`w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-400/50 focus:border-brand-400 transition ${errors.name ? 'border-red-300' : 'border-gray-300'
-                }`}
+              {...register("name")}
+              className={`w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-400/50 focus:border-brand-400 transition ${
+                errors.name ? "border-red-300" : "border-gray-300"
+              }`}
               placeholder="Enter product name"
             />
             {errors.name && (
@@ -196,19 +225,25 @@ export default function AddProductPage() {
           {/* Brand and Category */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label htmlFor="brand" className="block text-sm font-medium  mb-2">
+              <label
+                htmlFor="brand"
+                className="block text-sm font-medium  mb-2"
+              >
                 Brand *
               </label>
               <input
                 type="text"
                 id="brand"
-                {...register('brand')}
-                className={`w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-400/50 focus:border-brand-400 transition ${errors.brand ? 'border-red-300' : 'border-gray-300'
-                  }`}
+                {...register("brand")}
+                className={`w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-400/50 focus:border-brand-400 transition ${
+                  errors.brand ? "border-red-300" : "border-gray-300"
+                }`}
                 placeholder="Enter brand name"
               />
               {errors.brand && (
-                <p className="text-xs text-red-500 mt-1">{errors.brand.message}</p>
+                <p className="text-xs text-red-500 mt-1">
+                  {errors.brand.message}
+                </p>
               )}
             </div>
 
@@ -218,9 +253,10 @@ export default function AddProductPage() {
               </label>
               <select
                 id="sex"
-                {...register('sex')}
-                className={`w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-400/50 focus:border-brand-400 transition ${errors.sex ? 'border-red-300' : 'border-gray-300'
-                  }`}
+                {...register("sex")}
+                className={`w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-400/50 focus:border-brand-400 transition ${
+                  errors.sex ? "border-red-300" : "border-gray-300"
+                }`}
               >
                 <option value="">Select category</option>
                 <option value="men">Men</option>
@@ -228,71 +264,78 @@ export default function AddProductPage() {
                 <option value="unisex">Unisex</option>
               </select>
               {errors.sex && (
-                <p className="text-xs text-red-500 mt-1">{errors.sex.message}</p>
+                <p className="text-xs text-red-500 mt-1">
+                  {errors.sex.message}
+                </p>
               )}
             </div>
           </div>
 
-          {/* Price and Quantity */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label htmlFor="price" className="block text-sm font-medium  mb-2">
-                Price ($) *
-              </label>
-              <input
-                type="number"
-                id="price"
-                {...register('price', { valueAsNumber: true })}
-                min="0"
-                step="0.01"
-                className={`w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-400/50 focus:border-brand-400 transition ${errors.price ? 'border-red-300' : 'border-gray-300'
-                  }`}
-                placeholder="0.00"
-              />
-              {errors.price && (
-                <p className="text-xs text-red-500 mt-1">{errors.price.message}</p>
-              )}
-            </div>
-
-            <div>
-              <label htmlFor="quantity" className="block text-sm font-medium  mb-2">
-                Quantity
-              </label>
-              <input
-                type="number"
-                id="quantity"
-                {...register('quantity', { valueAsNumber: true })}
-                min="0"
-                className={`w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-400/50 focus:border-brand-400 transition ${errors.quantity ? 'border-red-300' : 'border-gray-300'
-                  }`}
-                placeholder="Optional"
-              />
-              {errors.quantity && (
-                <p className="text-xs text-red-500 mt-1">{errors.quantity.message}</p>
-              )}
-            </div>
-          </div>
-
-          {/* Sizes */}
+          {/* Quantity */}
           <div>
-            <label className="block text-sm font-medium  mb-2">
-              Sizes * (e.g., 50ml, 100ml)
+            <label
+              htmlFor="quantity"
+              className="block text-sm font-medium  mb-2"
+            >
+              Quantity *
             </label>
-            <div className="space-y-2">
-              {sizes.map((size, index) => (
-                <div key={index} className="flex items-center gap-2">
-                  <input
-                    type="text"
-                    value={size}
-                    onChange={(e) => handleSizeChange(index, e.target.value)}
-                    className="flex-1 px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-400/50 focus:border-brand-400 transition"
-                    placeholder={`Size ${index + 1} (e.g., 50ml)`}
-                  />
-                  {sizes.length > 1 && (
+            <input
+              type="number"
+              id="quantity"
+              {...register("quantity", { valueAsNumber: true })}
+              min="0"
+              className={`w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-400/50 focus:border-brand-400 transition ${
+                errors.quantity ? "border-red-300" : "border-gray-300"
+              }`}
+              placeholder="0"
+            />
+            {errors.quantity && (
+              <p className="text-xs text-red-500 mt-1">
+                {errors.quantity.message}
+              </p>
+            )}
+          </div>
+
+          {/* Sizes and Prices */}
+          <div>
+            <label className="block text-sm font-medium mb-2">
+              Sizes & Prices *
+            </label>
+            <div className="space-y-3">
+              {sizePrices.map((item, index) => (
+                <div
+                  key={index}
+                  className="flex flex-col sm:flex-row items-start sm:items-center gap-3 p-4 border border-gray-100 rounded-xl bg-gray-50/30"
+                >
+                  <div className="flex-1 w-full">
+                    <input
+                      type="text"
+                      value={item.size}
+                      onChange={(e) =>
+                        handleSizeChange(index, "size", e.target.value)
+                      }
+                      className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-400/50 focus:border-brand-400 transition bg-white"
+                      placeholder="Size (e.g., 50ml)"
+                    />
+                  </div>
+                  <div className="w-full sm:w-32">
+                    <input
+                      type="number"
+                      value={item.price}
+                      onChange={(e) =>
+                        handleSizeChange(index, "price", e.target.value)
+                      }
+                      min="0"
+                      step="0.01"
+                      className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-400/50 focus:border-brand-400 transition bg-white"
+                      placeholder="Price"
+                    />
+                  </div>
+                  {sizePrices.length > 1 && (
                     <button
                       type="button"
                       onClick={() => removeSizeField(index)}
-                      className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition"
+                      className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition self-end sm:self-center"
                     >
                       <X className="h-5 w-5" />
                     </button>
@@ -302,31 +345,39 @@ export default function AddProductPage() {
               <button
                 type="button"
                 onClick={addSizeField}
-                className="text-sm text-brand-600 hover:text-brand-700 font-medium"
+                className="text-sm text-brand-600 hover:text-brand-700 font-medium flex items-center gap-1"
               >
-                + Add Size
+                + Add Size & Price
               </button>
             </div>
-            {errors.size && (
-              <p className="text-xs text-red-500 mt-1">{errors.size.message}</p>
+            {errors.sizePrices && (
+              <p className="text-xs text-red-500 mt-1">
+                {errors.sizePrices.message}
+              </p>
             )}
           </div>
 
           {/* Description */}
           <div>
-            <label htmlFor="description" className="block text-sm font-medium  mb-2">
+            <label
+              htmlFor="description"
+              className="block text-sm font-medium  mb-2"
+            >
               Description
             </label>
             <textarea
               id="description"
-              {...register('description')}
+              {...register("description")}
               rows={4}
-              className={`w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-400/50 focus:border-brand-400 transition ${errors.description ? 'border-red-300' : 'border-gray-300'
-                }`}
+              className={`w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-400/50 focus:border-brand-400 transition ${
+                errors.description ? "border-red-300" : "border-gray-300"
+              }`}
               placeholder="Enter product description (optional)"
             />
             {errors.description && (
-              <p className="text-xs text-red-500 mt-1">{errors.description.message}</p>
+              <p className="text-xs text-red-500 mt-1">
+                {errors.description.message}
+              </p>
             )}
           </div>
 
@@ -368,7 +419,9 @@ export default function AddProductPage() {
                     onChange={field.onChange}
                     className="w-5 h-5 text-brand-600 border-gray-300 rounded focus:ring-brand-500"
                   />
-                  <span className="text-sm font-medium ">Product is active</span>
+                  <span className="text-sm font-medium ">
+                    Product is active
+                  </span>
                 </label>
               )}
             />
@@ -379,7 +432,7 @@ export default function AddProductPage() {
             <button
               type="submit"
               disabled={isSubmitting}
-              className="flex-1 px-4 sm:px-6 py-2.5 sm:py-3 bg-gradient-to-r from-brand-500 to-brand-600 hover:from-brand-600 hover:to-brand-700 text-white text-sm sm:text-base font-semibold rounded-xl transition-all duration-200 disabled:opacity-50 shadow-lg hover:shadow-xl flex items-center justify-center gap-2"
+              className="flex-1 px-4 sm:px-6 py-2.5 sm:py-3 bg-[#485e38] from-brand-500 to-brand-600 hover:from-brand-600 hover:to-brand-700 text-white text-sm sm:text-base font-semibold rounded-xl transition-all duration-200 disabled:opacity-50 shadow-lg hover:shadow-xl flex items-center justify-center gap-2"
             >
               {isSubmitting ? (
                 <>
@@ -387,7 +440,7 @@ export default function AddProductPage() {
                   Creating...
                 </>
               ) : (
-                'Add Product'
+                "Add Product"
               )}
             </button>
             <Link

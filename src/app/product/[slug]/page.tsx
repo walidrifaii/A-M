@@ -35,11 +35,13 @@ export default function SingleProductPage() {
     useEffect(() => {
         if (product) {
             setActiveImage(product.image);
-            if (product.size && product.size.length > 0) {
-                setSelectedSize(product.size[0]);
+            if (product.sizePrices && product.sizePrices.length > 0) {
+                setSelectedSize(product.sizePrices[0].size);
             }
         }
     }, [product]);
+
+    const currentPrice = product?.sizePrices?.find(sp => sp.size === selectedSize)?.price ?? 0;
 
     if (isLoading) {
         return (
@@ -61,7 +63,7 @@ export default function SingleProductPage() {
                 <div className="max-w-md text-center">
                     <h1 className="text-4xl font-bold   mb-4">Product Not Found</h1>
                     <p className="text-gray-600 mb-8">
-                        We couldn't find the product you're looking for. It may have been removed or the link might be broken.
+                        We couldn&apos;t find the product you&apos;re looking for. It may have been removed or the link might be broken.
                     </p>
                     <button
                         onClick={() => router.back()}
@@ -82,13 +84,13 @@ export default function SingleProductPage() {
         }
 
         addToCart({
-            id: product._id,
+            id: productId,
             _id: product._id,
             slug: product.name.toLowerCase().replace(/\s+/g, "-"),
             name: product.name,
-            price: product.price.toString(),
+            price: currentPrice.toString(),
             image: product.image,
-            sizes: product.size,
+            sizes: product.sizePrices.map(sp => sp.size),
             selectedSize: selectedSize,
             qty: quantity,
         });
@@ -126,9 +128,9 @@ export default function SingleProductPage() {
             _id: product._id,
             slug: product.name.toLowerCase().replace(/\s+/g, "-"),
             name: product.name,
-            price: product.price.toString(),
+            price: currentPrice.toString(),
             image: product.image,
-            sizes: product.size,
+            sizes: product.sizePrices.map(sp => sp.size),
             selectedSize: selectedSize,
             qty: quantity,
         });
@@ -138,15 +140,15 @@ export default function SingleProductPage() {
 
     const handleToggleFavorite = () => {
         if (isFavorite) {
-            addFavorite({ id: productId, name: product.name, price: product.price.toString(), image: product.image }, "remove");
+            addFavorite({ id: productId, name: product.name, price: currentPrice.toString(), image: product.image }, "remove");
         } else {
             addFavorite({
                 id: productId,
                 slug: product.name.toLowerCase().replace(/\s+/g, "-"),
                 name: product.name,
-                price: product.price.toString(),
+                price: currentPrice.toString(),
                 image: product.image,
-                sizes: product.size,
+                sizes: product.sizePrices.map(sp => sp.size),
             });
         }
     };
@@ -231,7 +233,7 @@ export default function SingleProductPage() {
                             </div>
 
                             <div className="text-5xl font-bold  mb-8 tracking-tight">
-                                ${product.price.toFixed(2)}
+                                ${currentPrice.toFixed(2)}
                             </div>
 
                             <p className="text-lg  leading-relaxed max-w-lg">
@@ -248,18 +250,18 @@ export default function SingleProductPage() {
                                 </button>
                             </div>
                             <div className="flex flex-wrap gap-3">
-                                {product.size && product.size.length > 0 ? (
-                                    product.size.map((size) => (
+                                {product.sizePrices && product.sizePrices.length > 0 ? (
+                                    product.sizePrices.map((sp) => (
                                         <button
-                                            key={size}
-                                            onClick={() => setSelectedSize(size)}
+                                            key={sp.size}
+                                            onClick={() => setSelectedSize(sp.size)}
                                             className={`min-w-[4.5rem] px-4 py-3 rounded-2xl text-sm font-bold transition-all duration-200 border-2
-                        ${selectedSize === size
+                        ${selectedSize === sp.size
                                                     ? 'border-[#445f21] bg-[#445f21] text-white shadow-lg shadow-[#445f21]/30 transform scale-105'
                                                     : 'border-gray-100 dark:border-neutral-800 bg-white dark:bg-neutral-800 text-gray-600 dark:text-gray-400 hover:border-[#385119] dark:hover:border-[#445f21]'
                                                 }`}
                                         >
-                                            {size}
+                                            {sp.size}
                                         </button>
                                     ))
                                 ) : (
@@ -299,7 +301,7 @@ export default function SingleProductPage() {
                             <button
                                 onClick={handleBuyNow}
                                 className="flex-1 flex items-center justify-center gap-3 text-[16px]
-                                   font-bold py-2 px-8 rounded-2xl border-2 border-[#445f21] dark:border-[#7d9654] text-[#445f21] dark:text-[#e8eedd]
+                                   font-bold py-2 px-8 rounded-2xl border-2 border-[#445f21] dark:border-[#7d9654] text-[#445f21] 
                                      transition-all hover:bg-[#445f21]/5 dark:hover:bg-[#445f21]/10 hover:-translate-y-1 active:scale-95 "
                             >
                                 <CreditCard className="h-5 w-5 stroke-[2.5]" />

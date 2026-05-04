@@ -1,13 +1,18 @@
 // store/api/productsApi.ts
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
+export interface SizePrice {
+  size: string;
+  price: number;
+}
+
 export interface Product {
   _id: string;
   name: string;
   description: string;
-  price: number;
+  quantity: number;
   image: string;
-  size: string[];
+  sizePrices: SizePrice[];
   sex?: string;
   brand?: string;
 }

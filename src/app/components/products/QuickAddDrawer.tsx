@@ -11,6 +11,7 @@ export type QuickProduct = {
   slug: string;
   name: string;
   price: string;
+  sizePrices?: { size: string; price: number }[];
   compareAtPrice?: string;
   image: string | StaticImageData;
   sizes?: string[];
@@ -37,10 +38,15 @@ export default function QuickAddModal({
   const [size, setSize] = useState(sizes[0]);
   const [qty, setQty] = useState(1);
 
+  // Calculate price based on selected size
+  const currentPrice = product?.sizePrices?.find(sp => sp.size === size)?.price 
+    ?? parseFloat(product?.price.replace('$', '') || '0');
+
   // reset on product change
   useEffect(() => {
     if (!product) return;
-    setSize(product.sizes && product.sizes.length ? product.sizes[0] : "50ml");
+    const initialSize = product.sizes && product.sizes.length ? product.sizes[0] : "50ml";
+    setSize(initialSize);
     setQty(Math.max(1, Math.min(product.qty ?? 1, product.maxQty ?? 99)));
   }, [product]);
 
@@ -115,7 +121,7 @@ export default function QuickAddModal({
             <div className="flex flex-col">
               <TitlePrice
                 name={product.name}
-                price={product.price}
+                price={currentPrice}
                 compareAtPrice={product.compareAtPrice}
                 short={product.shortDescription}
               />
@@ -212,7 +218,7 @@ export default function QuickAddModal({
           <div className="p-5 pb-6">
             <TitlePrice
               name={product.name}
-              price={product.price}
+              price={currentPrice}
               compareAtPrice={product.compareAtPrice}
               short={product.shortDescription}
             />
@@ -266,15 +272,16 @@ function TitlePrice({
   short,
 }: {
   name: string;
-  price: string;
+  price: number | string;
   compareAtPrice?: string;
   short?: string;
 }) {
+  const displayPrice = typeof price === 'number' ? `$${price.toFixed(2)}` : price;
   return (
     <>
       <h2 className="text-xl sm:text-2xl font-semibold tracking-tight">{name}</h2>
       <div className="mt-2 flex items-center gap-3">
-        <span className="text-lg font-semibold text-[#445f21]">{price}</span>
+        <span className="text-lg font-semibold text-[#445f21]">{displayPrice}</span>
         {compareAtPrice && <span className="text-sm line-through opacity-60">{compareAtPrice}</span>}
       </div>
       {short && <p className="mt-2 text-sm text-black/80 dark:text-white/80">{short}</p>}
@@ -305,7 +312,7 @@ function SizePicker({
               className={[
                 "rounded-xl px-4 py-2 text-sm border transition",
                 active
-                  ? "border-[#445f21] bg-[#445f21]/10 text-[#2d4215] dark:text-[#e8eedd]"
+                  ? "border-[#445f21] bg-[#445f21] text-white "
                   : "border-neutral-300 dark:border-neutral-700 hover:border-neutral-500 dark:hover:border-neutral-500",
               ].join(" ")}
               aria-pressed={active}

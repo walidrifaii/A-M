@@ -16,6 +16,7 @@ export type Product = {
   slug: string;
   name: string;
   price: string;
+  sizePrices: { size: string; price: number }[];
   shortDescription?: string;
   longDescription?: string;
   image: string;
@@ -32,6 +33,10 @@ export default function ProductsPage() {
   const [modalOpen, setModalOpen] = useState(false);
   const [activeProduct, setActiveProduct] = useState<QuickProduct | null>(null);
 
+  // 📄 Pagination
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 8;
+
   // 🛍️ Global store
   const { addToCart, addFavorite, favorites, setBuyNowItem, removeFavItem } = useStore();
   const router = useRouter();
@@ -43,7 +48,13 @@ export default function ProductsPage() {
     } else {
       setFilter("all");
     }
+    setCurrentPage(1); // Reset to page 1 on filter change
   }, [sexParam]);
+
+  // Reset to page 1 when filter changes manually
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [filter]);
 
   // 🟡 Fetch products
   const { data, isLoading } = useGetProductsQuery(
@@ -54,17 +65,29 @@ export default function ProductsPage() {
     data?.map((p: ApiProduct & { id?: string }) => {
       const rawId = p._id ?? p.id;
       const id = rawId != null ? String(rawId).trim() : "";
+
+      const displayPrice = p.sizePrices && p.sizePrices.length > 0
+        ? p.sizePrices[0].price
+        : 0;
+
       return {
-      id,
-      _id: id || undefined,
-      slug: (p.name || "").toLowerCase().replace(/\s+/g, "-"),
-      name: p.name,
-      price: `$${(p.price || 0).toFixed(2)}`,
-      shortDescription: p.description,
-      image: p.image,
-      sizes: Array.isArray(p.size) ? p.size : [p.size],
-    };
+        id,
+        _id: id || undefined,
+        slug: (p.name || "").toLowerCase().replace(/\s+/g, "-"),
+        name: p.name,
+        price: `$${displayPrice.toFixed(2)}`,
+        sizePrices: p.sizePrices || [],
+        shortDescription: p.description,
+        image: p.image,
+        sizes: p.sizePrices?.map(sp => sp.size) || [],
+      };
     }) ?? [];
+
+  const totalPages = Math.ceil(products.length / itemsPerPage);
+  const displayedProducts = products.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
 
   // ❤️ Toggle favorite
   const toggleFavorite = (product: Product) => {
@@ -84,25 +107,17 @@ export default function ProductsPage() {
   };
 
   // 🛒 Quick add modal
-  const openQuickAdd = (p: {
-    id: string;
-    _id?: string;
-    slug: string;
-    name: string;
-    price: string;
-    image: string;
-    sizes?: string[];
-    shortDescription: string;
-  }) => {
+  const openQuickAdd = (p: Product) => {
     setActiveProduct({
       id: p.id,
       _id: p._id,
       slug: p.slug,
       name: p.name,
       price: p.price,
+      sizePrices: p.sizePrices,
       image: p.image,
       sizes: p.sizes ?? ["50ml", "100ml"],
-      shortDescription: p.shortDescription,
+      shortDescription: p.shortDescription || "",
     });
     setModalOpen(true);
   };
@@ -165,7 +180,7 @@ export default function ProductsPage() {
           ref={gridRef}
           className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4"
         >
-          {products.map((p, idx) => {
+          {displayedProducts.map((p, idx) => {
             const wished = favorites.some((f) => f.id === p.id);
             return (
               <article
@@ -253,6 +268,46 @@ export default function ProductsPage() {
               </article>
             );
           })}
+        </div>
+      )}
+
+      {/* 📄 Pagination UI */}
+      {totalPages > 1 && (
+        <div className="flex justify-center items-center gap-2 mt-12">
+          <button
+            onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+            disabled={currentPage === 1}
+            className="p-2 rounded-xl border border-neutral-200 dark:border-neutral-800 disabled:opacity-30 hover:bg-neutral-100 dark:hover:bg-neutral-900 transition-colors"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            </svg>
+          </button>
+
+          <div className="flex gap-1">
+            {[...Array(totalPages)].map((_, i) => (
+              <button
+                key={i + 1}
+                onClick={() => setCurrentPage(i + 1)}
+                className={`w-10 h-10 rounded-xl font-bold transition-all ${currentPage === i + 1
+                  ? "bg-[#445f21] text-white shadow-lg shadow-[#445f21]/30"
+                  : "border border-neutral-200 dark:border-neutral-800 hover:bg-neutral-100 dark:hover:bg-neutral-900"
+                  }`}
+              >
+                {i + 1}
+              </button>
+            ))}
+          </div>
+
+          <button
+            onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+            disabled={currentPage === totalPages}
+            className="p-2 rounded-xl border border-neutral-200 dark:border-neutral-800 disabled:opacity-30 hover:bg-neutral-100 dark:hover:bg-neutral-900 transition-colors"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            </svg>
+          </button>
         </div>
       )}
 

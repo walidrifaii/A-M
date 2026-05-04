@@ -42,7 +42,10 @@ const schema = yup.object({
     .string()
     .required("Email is required")
     .email("Invalid email format")
-    .matches(/^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/, "Email must have a valid TLD"),
+    .matches(
+      /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/,
+      "Email must have a valid TLD",
+    ),
   phone: yup
     .string()
     .required("Phone is required")
@@ -69,7 +72,8 @@ function CheckoutForm() {
   const [loading, setLoading] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
 
-  const displayItems = source === "buy_now" && buyNowItem ? [buyNowItem] : cartItems;
+  const displayItems =
+    source === "buy_now" && buyNowItem ? [buyNowItem] : cartItems;
 
   const {
     register,
@@ -90,7 +94,8 @@ function CheckoutForm() {
 
   const subtotal = displayItems.reduce((sum, i) => {
     const p = i.price;
-    const val = typeof p === "string" ? parseFloat(p.replace("$", "")) : Number(p);
+    const val =
+      typeof p === "string" ? parseFloat(p.replace("$", "")) : Number(p);
     return sum + (isNaN(val) ? 0 : val) * (i.qty || 1);
   }, 0);
   const shipping = displayItems.length > 0 ? 4 : 0;
@@ -121,7 +126,9 @@ function CheckoutForm() {
     const payload = {
       customerName: data.fullName,
       customerEmail: data.email,
-      customerPhone: data.phone.startsWith("+961") ? data.phone : `+961${data.phone.replace(/^0+/, "")}`,
+      customerPhone: data.phone.startsWith("+961")
+        ? data.phone
+        : `+961${data.phone.replace(/^0+/, "")}`,
       addressLine1: data.address,
       addressLine2: data.addressLine2 || "",
       city: data.city,
@@ -136,11 +143,14 @@ function CheckoutForm() {
 
     try {
       setLoading(true);
-      const res = await fetch("https://api-perfuim-production.up.railway.app/user/checkout", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
+      const res = await fetch(
+        "https://api-perfuim-production.up.railway.app/user/checkout",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        },
+      );
       const result = await res.json();
 
       if (res.ok) {
@@ -164,17 +174,25 @@ function CheckoutForm() {
   return (
     <div
       className="min-h-screen transition-colors duration-300"
-      style={{ backgroundColor: "var(--background)", color: "var(--foreground)" }}
+      style={{
+        backgroundColor: "var(--background)",
+        color: "var(--foreground)",
+      }}
     >
       <Navbar />
 
-      <div className="mx-auto  px-4 sm:px-6 lg:px-32 py-12 lg:py-16
-       grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div
+        className="mx-auto  px-4 sm:px-6 lg:px-32 py-12 lg:py-16
+       grid grid-cols-1 lg:grid-cols-3 gap-6"
+      >
         {/* Left - Shipping & Payment */}
         <div className="lg:col-span-2 space-y-6">
           <div
             className="p-6 rounded-2xl shadow-sm border border-neutral-300/40"
-            style={{ backgroundColor: "var(--background)", color: "var(--foreground)" }}
+            style={{
+              backgroundColor: "var(--background)",
+              color: "var(--foreground)",
+            }}
           >
             <h2 className="text-lg font-semibold mb-4">Shipping Details</h2>
             <form
@@ -184,7 +202,12 @@ function CheckoutForm() {
               {[
                 { placeholder: "Full Name", name: "fullName", type: "text" },
                 { placeholder: "Email Address", name: "email", type: "email" },
-                { placeholder: "Phone Number", name: "phone", type: "tel", max: 8 },
+                {
+                  placeholder: "Phone Number",
+                  name: "phone",
+                  type: "tel",
+                  max: 8,
+                },
                 { placeholder: "City", name: "city", type: "text" },
               ].map((field, index) => (
                 <div key={index} className="flex flex-col">
@@ -213,7 +236,9 @@ function CheckoutForm() {
                   style={{ color: "var(--foreground)" }}
                 />
                 {errors.address && (
-                  <p className="text-xs text-red-500 mt-1">{errors.address.message}</p>
+                  <p className="text-xs text-red-500 mt-1">
+                    {errors.address.message}
+                  </p>
                 )}
               </div>
 
@@ -226,7 +251,9 @@ function CheckoutForm() {
                   style={{ color: "var(--foreground)" }}
                 />
                 {errors.addressLine2 && (
-                  <p className="text-xs text-red-500 mt-1">{errors.addressLine2.message}</p>
+                  <p className="text-xs text-red-500 mt-1">
+                    {errors.addressLine2.message}
+                  </p>
                 )}
               </div>
 
@@ -239,18 +266,29 @@ function CheckoutForm() {
                   style={{ color: "var(--foreground)" }}
                 />
                 {errors.notes && (
-                  <p className="text-xs text-red-500 mt-1">{errors.notes.message}</p>
+                  <p className="text-xs text-red-500 mt-1">
+                    {errors.notes.message}
+                  </p>
                 )}
               </div>
 
               <div
                 className="p-6 rounded-2xl shadow-sm border border-neutral-300/40 sm:col-span-2"
-                style={{ backgroundColor: "var(--background)", color: "var(--foreground)" }}
+                style={{
+                  backgroundColor: "var(--background)",
+                  color: "var(--foreground)",
+                }}
               >
                 <h2 className="text-lg font-semibold mb-4">Payment Method</h2>
                 <label className="flex items-center justify-between border border-[#445f21] rounded-xl p-3 bg-transparent">
                   <span>Cash on Delivery</span>
-                  <input type="radio" name="payment" value="cash" defaultChecked className="accent-[#445f21]" />
+                  <input
+                    type="radio"
+                    name="payment"
+                    value="cash"
+                    defaultChecked
+                    className="accent-[#445f21]"
+                  />
                 </label>
               </div>
             </form>
@@ -260,7 +298,10 @@ function CheckoutForm() {
         {/* Right - Order Summary */}
         <div
           className="lg:sticky lg:top-8 h-fit p-6 rounded-2xl shadow-sm border border-neutral-300/40"
-          style={{ backgroundColor: "var(--background)", color: "var(--foreground)" }}
+          style={{
+            backgroundColor: "var(--background)",
+            color: "var(--foreground)",
+          }}
         >
           <h2 className="text-lg font-semibold mb-4">Order Summary</h2>
 
@@ -269,7 +310,10 @@ function CheckoutForm() {
               <div className="space-y-3 mb-4">
                 {displayItems.map((item, idx) => {
                   const p = item.price;
-                  const priceNumber = typeof p === "string" ? parseFloat(p.replace("$", "")) : Number(p);
+                  const priceNumber =
+                    typeof p === "string"
+                      ? parseFloat(p.replace("$", ""))
+                      : Number(p);
                   const lineKey = `${item.id}-${item.selectedSize ?? "default"}-${idx}`;
                   return (
                     <div
@@ -296,7 +340,9 @@ function CheckoutForm() {
                           </p>
                         </div>
                       </div>
-                      <p className="text-sm font-medium">${(priceNumber * (item.qty || 1)).toFixed(2)}</p>
+                      <p className="text-sm font-medium">
+                        ${(priceNumber * (item.qty || 1)).toFixed(2)}
+                      </p>
                     </div>
                   );
                 })}
@@ -369,7 +415,8 @@ function CheckoutForm() {
             </div>
             <h2 className="text-2xl font-bold mb-2">Order Placed!</h2>
             <p className="text-[var(--foreground)]/70 mb-8 leading-relaxed">
-              Thank you for your purchase. We have received your order and will contact you shortly for confirmation.
+              Thank you for your purchase. We have received your order and will
+              contact you shortly for confirmation.
             </p>
             <Link
               href="/"

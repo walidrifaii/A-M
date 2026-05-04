@@ -8,13 +8,18 @@ import axios from 'axios';
 import Cookies from 'js-cookie';
 import toast from 'react-hot-toast';
 
+interface SizePrice {
+  size: string;
+  price: number;
+}
+
 interface Product {
   id: string;
   name: string;
   description: string;
-  price: number;
+  quantity: number;
   image: string;
-  size: string[];
+  sizePrices: SizePrice[];
   sex?: string;
   brand?: string;
   createdAt?: string;
@@ -26,10 +31,19 @@ export default function ProductsPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  
+  // Pagination State
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 5;
 
   useEffect(() => {
     fetchProducts();
   }, []);
+
+  // Reset to page 1 when search term changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm]);
 
   const fetchProducts = async () => {
     try {
@@ -71,8 +85,8 @@ export default function ProductsPage() {
       color: 'text-gray-300'
     },
     {
-      label: 'In Stock',
-      value: products.filter(p => p.size && p.size.length > 0).length.toString(),
+      label: 'Total Stock',
+      value: products.reduce((acc, p) => acc + (p.quantity || 0), 0).toString(),
       color: 'text-green-600'
     },
     {
@@ -87,6 +101,15 @@ export default function ProductsPage() {
     product.brand?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     product.description?.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  // Pagination Logic
+  const totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const paginatedProducts = filteredProducts.slice(startIndex, startIndex + itemsPerPage);
+
+  const goToPage = (page: number) => {
+    setCurrentPage(Math.max(1, Math.min(page, totalPages)));
+  };
 
   // const handleDelete = (id: string) => {
   //   if (confirm('Are you sure you want to delete this product?')) {
@@ -200,18 +223,19 @@ export default function ProductsPage() {
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full">
-              <thead className="bg-gray-50/80 dark:bg-gray-900/50 border-b border-gray-100 dark:border-gray-700 backdrop-blur-sm">
+              <thead className=" bg-[#485e38] backdrop-blur-sm">
                 <tr>
-                  <th className="px-8 py-5 text-left text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider">Product</th>
-                  <th className="px-6 py-5 text-left text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider hidden sm:table-cell">Brand</th>
-                  <th className="px-6 py-5 text-left text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider">Category</th>
-                  <th className="px-6 py-5 text-left text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider">Price</th>
-                  <th className="px-6 py-5 text-left text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider hidden md:table-cell">Sizes</th>
-                  <th className="px-8 py-5 text-right text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider">Actions</th>
+                  <th className="px-8 py-5 text-left text-xs font-bold text-white uppercase tracking-wider">Product</th>
+                  <th className="px-6 py-5 text-left text-xs font-bold text-white uppercase tracking-wider hidden sm:table-cell">Brand</th>
+                  <th className="px-6 py-5 text-left text-xs font-bold text-white uppercase tracking-wider">Category</th>
+                  <th className="px-6 py-5 text-left text-xs font-bold text-white uppercase tracking-wider">Stock</th>
+                  <th className="px-6 py-5 text-left text-xs font-bold text-white uppercase tracking-wider">Price</th>
+                  <th className="px-6 py-5 text-left text-xs font-bold text-white uppercase tracking-wider hidden md:table-cell">Sizes</th>
+                  <th className="px-8 py-5 text-right text-xs font-bold text-white uppercase tracking-wider">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100 dark:divide-gray-700/50">
-                {filteredProducts.map((product) => (
+                {paginatedProducts.map((product) => (
                   <tr key={product.id} className="group hover:bg-gray-50/80 dark:hover:bg-gray-700/20 transition-colors duration-200">
                     <td className="px-8 py-5">
                       <div className="flex items-center gap-5">
@@ -268,24 +292,39 @@ export default function ProductsPage() {
                     </td>
                     <td className="px-6 py-5">
                       <div className="flex flex-col">
+                        <span className={`text-sm font-bold font-mono ${product.quantity > 0 ? 'text-gray-900 dark:text-white' : 'text-red-500'}`}>
+                          {product.quantity || 0}
+                        </span>
+                      </div>
+                    </td>
+                    <td className="px-6 py-5">
+                      <div className="flex flex-col">
                         <span className="text-sm font-bold text-gray-900 dark:text-white font-mono">
-                          ${product.price?.toFixed(2) || '0.00'}
+                          {product.sizePrices && product.sizePrices.length > 0 
+                            ? product.sizePrices.map(
+                              (sizePrice) => (
+                                <span key={sizePrice.size} className="px-2 py-1 text-[10px] font-bold text-gray-600 dark:text-gray-300 bg-white dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-700 shadow-sm">
+                                  {sizePrice.price} $
+                                </span>
+                              )
+                            )
+                            : '0.00'}
                         </span>
                       </div>
                     </td>
                     <td className="px-6 py-5 hidden md:table-cell">
                       <div className="flex flex-wrap gap-1.5">
-                        {product.size && product.size.length > 0 ? (
-                          product.size.slice(0, 3).map((s, i) => (
+                        {product.sizePrices && product.sizePrices.length > 0 ? (
+                          product.sizePrices.slice(0, 3).map((sp, i) => (
                             <span key={i} className="px-2 py-1 text-[10px] font-bold text-gray-600 dark:text-gray-300 bg-white dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-700 shadow-sm">
-                              {s}
+                              {sp.size}
                             </span>
                           ))
                         ) : (
                           <span className="text-xs text-gray-400 dark:text-gray-500 italic">No sizes</span>
                         )}
-                        {product.size && product.size.length > 3 && (
-                          <span className="px-1.5 py-1 text-[10px] font-medium text-gray-400 bg-gray-50 dark:bg-gray-800/50 rounded">+{product.size.length - 3}</span>
+                        {product.sizePrices && product.sizePrices.length > 3 && (
+                          <span className="px-1.5 py-1 text-[10px] font-medium text-gray-400 bg-gray-50 dark:bg-gray-800/50 rounded">+{product.sizePrices.length - 3}</span>
                         )}
                       </div>
                     </td>
@@ -304,6 +343,53 @@ export default function ProductsPage() {
                 ))}
               </tbody>
             </table>
+          </div>
+        )}
+
+        {/* Pagination */}
+        {!isLoading && filteredProducts.length > 0 && (
+          <div className="px-8 py-5 bg-gray-50/50 dark:bg-gray-900/30 border-t border-gray-100 dark:border-gray-700/50 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div className="text-sm text-gray-500 dark:text-gray-400 font-medium">
+              Showing <span className="text-gray-900 dark:text-white">{startIndex + 1}</span> to <span className="text-gray-900 dark:text-white">{Math.min(startIndex + itemsPerPage, filteredProducts.length)}</span> of <span className="text-gray-900 dark:text-white">{filteredProducts.length}</span> products
+            </div>
+            
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => goToPage(currentPage - 1)}
+                disabled={currentPage === 1}
+                className="p-2 text-gray-500 hover:text-brand-600 disabled:opacity-30 disabled:hover:text-gray-500 transition-colors"
+              >
+                <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                </svg>
+              </button>
+              
+              <div className="flex items-center gap-1">
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                  <button
+                    key={page}
+                    onClick={() => goToPage(page)}
+                    className={`w-9 h-9 rounded-xl text-sm font-bold transition-all duration-200 ${
+                      currentPage === page
+                        ? 'bg-[#485e38] text-white shadow-lg shadow-brand-500/20'
+                        : 'text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-700/50 hover:text-gray-900 dark:hover:text-white'
+                    }`}
+                  >
+                    {page}
+                  </button>
+                ))}
+              </div>
+
+              <button
+                onClick={() => goToPage(currentPage + 1)}
+                disabled={currentPage === totalPages}
+                className="p-2 text-gray-500 hover:text-brand-600 disabled:opacity-30 disabled:hover:text-gray-500 transition-colors"
+              >
+                <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              </button>
+            </div>
           </div>
         )}
       </div>

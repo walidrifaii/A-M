@@ -3,11 +3,17 @@
 import Link from "next/link";
 import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { useGetProductsQuery, type Product as ApiProduct } from "../store/api/productsApi";
-import QuickAddModal, { QuickProduct } from "../components/products/QuickAddDrawer";
+import {
+  useGetProductsQuery,
+  type Product as ApiProduct,
+} from "../store/api/productsApi";
+import QuickAddModal, {
+  QuickProduct,
+} from "../components/products/QuickAddDrawer";
 import { useStore } from "../store/StoreContext";
 import PageSkeleton from "../components/loading/PageSkeleton";
 import { CreditCard } from "lucide-react";
+import Image from "next/image";
 
 export type Product = {
   id: string;
@@ -15,6 +21,7 @@ export type Product = {
   slug: string;
   name: string;
   price: string;
+  sizePrices?: { size: string; price: number }[];
   shortDescription?: string;
   longDescription?: string;
   image: string;
@@ -25,7 +32,9 @@ interface FeaturedProductsProps {
   title?: string;
 }
 
-export default function FeaturedProducts({ title = "Featured Perfumes" }: FeaturedProductsProps) {
+export default function FeaturedProducts({
+  title = "Featured Perfumes",
+}: FeaturedProductsProps) {
   const gridRef = useRef<HTMLDivElement | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [activeProduct, setActiveProduct] = useState<QuickProduct | null>(null);
@@ -36,21 +45,30 @@ export default function FeaturedProducts({ title = "Featured Perfumes" }: Featur
 
   const { data, isLoading } = useGetProductsQuery();
   const products: Product[] =
-    data?.map((p: ApiProduct & { id?: string }) => {
-      const rawId = p._id ?? p.id;
-      const id = rawId != null ? String(rawId).trim() : "";
-      return {
-      id,
-      _id: id || undefined,
-      slug: (p.name || "").toLowerCase().replace(/\s+/g, "-"),
-      name: p.name,
-      price: `$${(p.price || 0).toFixed(2)}`,
-      shortDescription: p.description,
-      longDescription: p.description,
-      image: p.image,
-      sizes: Array.isArray(p.size) ? p.size : [p.size],
-    };
-    }) ?? [];
+    data
+      ?.map((p: ApiProduct & { id?: string }) => {
+        const rawId = p._id ?? p.id;
+        const id = rawId != null ? String(rawId).trim() : "";
+
+        // Get the price of the first size or fallback
+        const displayPrice =
+          p.sizePrices && p.sizePrices.length > 0 ? p.sizePrices[0].price : 0;
+
+        return {
+          id,
+          _id: id || undefined,
+          slug: (p.name || "").toLowerCase().replace(/\s+/g, "-"),
+          name: p.name,
+          price: `$${displayPrice.toFixed(2)}`,
+          sizePrices: p.sizePrices || [],
+          shortDescription: p.description,
+          longDescription: p.description,
+          image: p.image,
+          sizes: p.sizePrices?.map((sp) => sp.size) || [],
+        };
+      })
+      .slice(-4)
+      .reverse() ?? [];
 
   // ✅ Use global favorite handler
   const toggleFavorite = (product: Product) => {
@@ -76,6 +94,7 @@ export default function FeaturedProducts({ title = "Featured Perfumes" }: Featur
       slug: p.slug,
       name: p.name,
       price: p.price,
+      sizePrices: p.sizePrices,
       image: p.image,
       sizes: p.sizes ?? ["50ml", "100ml"],
       shortDescription: p.shortDescription,
@@ -84,7 +103,11 @@ export default function FeaturedProducts({ title = "Featured Perfumes" }: Featur
     setModalOpen(true);
   };
 
-  const handleAddToCart = (product: QuickProduct, size: string, qty: number) => {
+  const handleAddToCart = (
+    product: QuickProduct,
+    size: string,
+    qty: number,
+  ) => {
     addToCart({
       ...product,
       sizes: [size],
@@ -93,7 +116,7 @@ export default function FeaturedProducts({ title = "Featured Perfumes" }: Featur
       image:
         typeof product.image === "string"
           ? product.image
-          : product.image.src ?? "",
+          : (product.image.src ?? ""),
     });
     setModalOpen(false);
   };
@@ -107,7 +130,7 @@ export default function FeaturedProducts({ title = "Featured Perfumes" }: Featur
       image:
         typeof product.image === "string"
           ? product.image
-          : product.image.src ?? "",
+          : (product.image.src ?? ""),
     });
     setModalOpen(false);
     router.push("/checkout?source=buy_now");
@@ -119,9 +142,12 @@ export default function FeaturedProducts({ title = "Featured Perfumes" }: Featur
     <section className=" py-12 sm:py-16">
       <h2 className="mb-6 text-xl font-semibold tracking-tight sm:text-2xl ">
         {title}
-        </h2>
+      </h2>
 
-      <div ref={gridRef} className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div
+        ref={gridRef}
+        className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4"
+      >
         {products.map((p, idx) => {
           const wished = favorites.some((f) => f.id === p.id);
           return (
@@ -137,7 +163,9 @@ export default function FeaturedProducts({ title = "Featured Perfumes" }: Featur
                   className="relative mx-auto block aspect-square w-full max-w-[240px]
                    overflow-hidden rounded-2xl  "
                 >
-                  {p.image && typeof p.image === "string" && p.image.trim() !== "" ? (
+                  {p.image &&
+                  typeof p.image === "string" &&
+                  p.image.trim() !== "" ? (
                     <Image
                       src={p.image}
                       alt={p.name}
@@ -180,15 +208,18 @@ export default function FeaturedProducts({ title = "Featured Perfumes" }: Featur
                   >
                     <HeartIcon filled={wished} />
                   </button>
-
-                
                 </div>
 
                 <div className="mt-3">
                   <h3 className="text-sm font-semibold tracking-tight sm:text-base">
-                    <span className="bg-gradient-to-r from-[#445f21] to-[#385119] bg-clip-text text-transparent">{p.name}</span>
+                    <span className="bg-gradient-to-r from-[#445f21] to-[#385119] bg-clip-text text-transparent">
+                      {p.name}
+                    </span>
                   </h3>
-                  <p className="mt-1.5 text-xs  text-[var(--foreground)]" style={{ minHeight: 36 }}>
+                  <p
+                    className="mt-1.5 text-xs  text-[var(--foreground)]"
+                    style={{ minHeight: 36 }}
+                  >
                     {p.shortDescription}
                   </p>
                 </div>
@@ -207,6 +238,15 @@ export default function FeaturedProducts({ title = "Featured Perfumes" }: Featur
         })}
       </div>
 
+      <div className="flex justify-center py-4">
+        <Link
+          href="/products"
+          className="mt-6 inline-flex items-center gap-2 text-md font-semibold  bg-[#485e38] dark:text-white text-black px-4 py-2 rounded-xl border border-neutral-300 dark:border-neutral-700"
+        >
+          View All Products
+          
+        </Link>
+      </div>
       <QuickAddModal
         open={modalOpen}
         product={activeProduct}
@@ -215,14 +255,23 @@ export default function FeaturedProducts({ title = "Featured Perfumes" }: Featur
         onConfirmBuy={handleBuyNow}
       />
     </section>
-
-
   );
 }
 
 /* ---------- Icons ---------- */
 function HeartIcon({ filled }: { filled?: boolean }) {
   return (
-    <svg viewBox="0 0 24 24" width="16" height="16" className={filled ? "fill-current" : ""}> <path fill="currentColor" d="M12 21s-6.716-4.434-9.066-7.226C.9 10.376 2.28 6.6 5.734 5.39A5.002 5.002 0 0 1 12 7a5.002 5.002 0 0 1 6.266-1.61c3.454 1.21 4.835 4.986 2.8 8.384C18.716 16.566 12 21 12 21z" /> </svg>
+    <svg
+      viewBox="0 0 24 24"
+      width="16"
+      height="16"
+      className={filled ? "fill-current" : ""}
+    >
+      {" "}
+      <path
+        fill="currentColor"
+        d="M12 21s-6.716-4.434-9.066-7.226C.9 10.376 2.28 6.6 5.734 5.39A5.002 5.002 0 0 1 12 7a5.002 5.002 0 0 1 6.266-1.61c3.454 1.21 4.835 4.986 2.8 8.384C18.716 16.566 12 21 12 21z"
+      />{" "}
+    </svg>
   );
 }
