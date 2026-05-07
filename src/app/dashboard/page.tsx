@@ -1,98 +1,56 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Plus, Search, Pencil } from 'lucide-react';
-import axios from 'axios';
-import Cookies from 'js-cookie';
-import toast from 'react-hot-toast';
-
-interface SizePrice {
-  size: string;
-  price: number;
-}
-
-interface Product {
-  id: string;
-  name: string;
-  description: string;
-  quantity: number;
-  image: string;
-  sizePrices: SizePrice[];
-  sex?: string;
-  brand?: string;
-  createdAt?: string;
-  updatedAt?: string;
-}
+import { Plus, Search, Pencil, Trash2, AlertTriangle, Package, Tag } from 'lucide-react';
+import toast, { Toaster } from 'react-hot-toast';
+import { useGetProductsQuery, useDeleteProductMutation, Product } from '@/app/store/api/productsApi';
 
 export default function ProductsPage() {
-  const [products, setProducts] = useState<Product[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  
-  // Pagination State
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
 
-  useEffect(() => {
-    fetchProducts();
-  }, []);
+  // Delete State
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [productToDelete, setProductToDelete] = useState<Product | null>(null);
 
-  // Reset to page 1 when search term changes
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [searchTerm]);
+  // RTK Query hooks
+  const { data: products = [], isLoading, isError, refetch } = useGetProductsQuery();
+  const [deleteProduct, { isLoading: isDeleting }] = useDeleteProductMutation();
 
-  const fetchProducts = async () => {
+  const handleDelete = async () => {
+    if (!productToDelete) return;
     try {
-      setIsLoading(true);
-      setError(null);
-
-      const token = Cookies.get('access_token');
-      const response = await axios.get(
-        'https://api-perfuim-production.up.railway.app/user/products',
-        {
-          headers: {
-            'Content-Type': 'application/json',
-            ...(token && { Authorization: `Bearer ${token}` }),
-          },
-        }
-      );
-
-      if (response.status === 200) {
-        setProducts(response.data);
-      }
+      await deleteProduct(productToDelete.id || productToDelete._id!).unwrap();
+      toast.success('Product deleted successfully');
+      setIsDeleteModalOpen(false);
+      setProductToDelete(null);
     } catch (err) {
-      console.error('Error fetching products:', err);
-      if (axios.isAxiosError(err)) {
-        setError(err.response?.data?.message || 'Failed to fetch products');
-        toast.error(err.response?.data?.message || 'Failed to fetch products');
-      } else {
-        setError('Something went wrong. Please try again.');
-        toast.error('Something went wrong. Please try again.');
-      }
-    } finally {
-      setIsLoading(false);
+      toast.error('Failed to delete product');
+      console.log(err);
     }
   };
 
   const stats = [
     {
       label: 'Total Products',
-      value: products.length.toString(),
-      color: 'text-gray-300'
+      value: products.length,
+      icon: Package,
+      color: 'text-[#485e38]',
     },
     {
       label: 'Total Stock',
-      value: products.reduce((acc, p) => acc + (p.quantity || 0), 0).toString(),
-      color: 'text-green-600'
+      value: products.reduce((acc, p) => acc + (p.quantity || 0), 0),
+      icon: Search,
+      color: 'text-emerald-500',
     },
     {
       label: 'Categories',
-      value: new Set(products.map(p => p.sex).filter(Boolean)).size.toString(),
-      color: 'text-orange-600'
+      value: new Set(products.map(p => p.sex).filter(Boolean)).size,
+      icon: Tag,
+      color: 'text-amber-500',
     },
   ];
 
@@ -111,232 +69,190 @@ export default function ProductsPage() {
     setCurrentPage(Math.max(1, Math.min(page, totalPages)));
   };
 
-  // const handleDelete = (id: string) => {
-  //   if (confirm('Are you sure you want to delete this product?')) {
-  //     console.log('Delete product:', id);
-  //   }
-  // };
-
   return (
-    <div className="space-y-8">
+    <div className="space-y-10 text-white">
+      <Toaster position="top-right" />
+      
       {/* Header Section */}
-      <div className="flex flex-col gap-8">
-        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
-          <div>
-            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-3 
-             tracking-tight">
-              Products Inventory
-            </h1>
-            <p className="text-gray-500 dark:text-gray-400 text-base sm:text-lg max-w-2xl">
-              Manage your product catalogue, track stock levels, and organize categories efficiently.
-            </p>
-          </div>
-
-          {/* Stats Cards */}
-          <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 lg:min-w-[500px]">
-            {stats.map((stat, index) => (
-              <div
-                key={index}
-                className=" bg-gray-100 dark:bg-gray-800 backdrop-blur-xl p-5 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700/50 hover:shadow-md hover:scale-[1.02] transition-all duration-300"
-              >
-                <div className="flex flex-col">
-                  <span className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-2">{stat.label}</span>
-                  <span className={`text-2xl sm:text-3xl font-extrabold tracking-tight ${stat.color}`}>
-                    {stat.value}
-                  </span>
-                </div>
-              </div>
-            ))}
-          </div>
+      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-8">
+        <div className="space-y-2">
+          <h1 className="text-4xl lg:text-5xl font-extrabold tracking-tight">
+            Inventory <span className="text-[#485e38]">Overview</span>
+          </h1>
+          <p className="text-gray-400 text-lg max-w-xl">
+            Manage your product catalog, track inventory levels, and organize categories with precision.
+          </p>
         </div>
 
-        {/* Actions Bar */}
-        <div className="p-1">
-          <div className="flex flex-col sm:flex-row gap-4 bg-white dark:bg-gray-800 p-2 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700/50">
-            <div className="relative flex-1 group">
-              <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                <Search className="h-5 w-5 text-gray-400 group-focus-within:text-brand-500 transition-colors" />
-              </div>
-              <input
-                type="text"
-                placeholder="Search products by name, brand..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="block w-full pl-11 pr-4 py-3 bg-gray-50 dark:bg-gray-900/50 border-0 rounded-xl text-gray-900 dark:text-white placeholder:text-gray-400 focus:ring-2 focus:ring-brand-500/20 focus:bg-white dark:focus:bg-gray-900 transition-all duration-300 sm:text-sm"
-              />
-            </div>
-
-            <Link
-              href="/dashboard/products/add"
-              className="flex items-center justify-center gap-2 px-8 py-3 bg-gradient-to-r from-brand-500 to-brand-600 hover:from-brand-400 hover:to-brand-500 text-white font-semibold rounded-xl transition-all duration-300 shadow-lg shadow-brand-500/20 hover:shadow-brand-500/40 active:scale-95 whitespace-nowrap"
+        {/* Stats Cards */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 w-full lg:w-auto">
+          {stats.map((stat, index) => (
+            <div
+              key={index}
+              className="bg-white/5 dark:bg-black/20 backdrop-blur-sm p-6 rounded-[2.5rem] border border-white/10 hover:border-white/20 transition-all duration-300 min-w-[180px] group"
             >
-              <Plus className="h-5 w-5 stroke-[2.5]" />
-              <span>Add Product</span>
-            </Link>
-          </div>
+              <div className="flex flex-col gap-4">
+                <div className={`w-12 h-12 rounded-2xl bg-white/5 flex items-center justify-center border border-white/5 group-hover:scale-110 transition-transform`}>
+                  <stat.icon className={`h-6 w-6 ${stat.color}`} />
+                </div>
+                <div>
+                  <p className="text-[10px] font-bold text-gray-500 uppercase tracking-[0.2em] mb-1">{stat.label}</p>
+                  <p className="text-3xl font-black tracking-tight text-white">
+                    {stat.value}
+                  </p>
+                </div>
+              </div>
+            </div>
+          ))}
         </div>
       </div>
 
+      {/* Actions Bar */}
+      <div className="flex flex-col sm:flex-row gap-4 items-center">
+        <div className="relative flex-1 group w-full">
+          <div className="absolute inset-y-0 left-0 pl-6 flex items-center pointer-events-none">
+            <Search className="h-5 w-5 text-gray-500 group-focus-within:text-white transition-colors" />
+          </div>
+          <input
+            type="text"
+            placeholder="Search products by name, brand, or description..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="block w-full pl-16 pr-6 py-4 bg-white/5 dark:bg-black/20 border border-white/10 rounded-[2rem] text-white placeholder:text-gray-500 focus:ring-0 transition-all duration-300 backdrop-blur-sm"
+          />
+        </div>
+
+        <Link
+          href="/dashboard/products/add"
+          className="flex items-center justify-center gap-3 px-8 py-4 bg-[#485e38] hover:bg-[#5a7447] text-white font-bold rounded-2xl transition-all duration-300 shadow-xl shadow-[#485e38]/10 hover:shadow-[#485e38]/20 active:scale-95 whitespace-nowrap w-full sm:w-auto"
+        >
+          <Plus className="h-5 w-5 stroke-[3]" />
+          <span>Add New Product</span>
+        </Link>
+      </div>
+
       {/* Table Section */}
-      <div className="bg-white dark:bg-gray-800 rounded-3xl shadow-xl shadow-gray-200/50 dark:shadow-black/20 border border-gray-100 dark:border-gray-700/50 overflow-hidden">
+      <div className="bg-white/5 dark:bg-black/20 backdrop-blur-md rounded-[3rem] shadow-2xl border border-white/10 overflow-hidden">
         {isLoading ? (
           <div className="p-32 text-center">
-            <div className="relative inline-flex mb-6">
-              <div className="w-16 h-16 border-4 border-brand-100 dark:border-brand-900/30 rounded-full animate-ping absolute"></div>
-              <div className="w-16 h-16 border-4 border-brand-500 border-t-transparent rounded-full animate-spin relative z-10"></div>
-            </div>
-            <p className="text-gray-500 dark:text-gray-400 font-medium animate-pulse">Loading directory...</p>
+            <div className="w-16 h-16 border-4 border-[#485e38] border-t-transparent rounded-full animate-spin mx-auto mb-6"></div>
+            <p className="text-gray-400 font-medium animate-pulse">Syncing inventory...</p>
           </div>
-        ) : error ? (
+        ) : isError ? (
           <div className="p-20 text-center">
-            <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-red-50 dark:bg-red-900/20 mb-6 ring-8 ring-red-50/50 dark:ring-red-900/10">
-              <svg className="h-10 w-10 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-              </svg>
-            </div>
-            <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">Unavailable</h3>
-            <p className="text-gray-500 dark:text-gray-400 mb-8 max-w-sm mx-auto">{error}</p>
+            <AlertTriangle className="h-12 w-12 text-red-500 mx-auto mb-4" />
+            <p className="text-white mb-6 font-bold">Failed to connect to catalog.</p>
             <button
-              onClick={fetchProducts}
-              className="px-8 py-3 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-900 dark:text-white font-semibold rounded-xl transition-all active:scale-95"
+              onClick={() => refetch()}
+              className="px-8 py-3 bg-[#485e38] text-white font-bold rounded-xl active:scale-95 transition-all"
             >
-              Try Again
+              Reconnect Now
             </button>
           </div>
         ) : filteredProducts.length === 0 ? (
           <div className="p-24 text-center">
-            <div className="inline-flex items-center justify-center w-24 h-24 rounded-full bg-brand-50 dark:bg-brand-900/20 mb-8 ring-8 ring-brand-50/50 dark:ring-brand-900/10">
-              <Search className="h-12 w-12 text-brand-500/50" />
-            </div>
-            <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-3">No products found</h3>
-            <p className="text-gray-500 dark:text-gray-400 mb-10 max-w-md mx-auto leading-relaxed">
-              We couldn&apos;t find any products matching your search criteria. Try adjusting your search terms or add a new product to your inventory.
+            <Package className="h-16 w-16 text-white/10 mx-auto mb-6" />
+            <h3 className="text-xl font-bold text-white mb-3">No products found</h3>
+            <p className="text-gray-500 mb-10 max-w-md mx-auto">
+              We couldn&apos;t find anything matching your search. Try broadening your criteria or add a new item.
             </p>
             <Link
               href="/dashboard/products/add"
-              className="inline-flex items-center gap-2 px-8 py-3.5 bg-brand-500 hover:bg-brand-600 text-white font-semibold rounded-xl transition-all duration-300 shadow-lg shadow-brand-500/25 hover:shadow-brand-500/40 hover:-translate-y-0.5 active:translate-y-0"
+              className="inline-flex items-center gap-3 px-8 py-4 bg-[#485e38] text-white font-bold rounded-2xl hover:scale-105 active:scale-95 transition-all"
             >
-              <Plus className="h-5 w-5 stroke-[2.5]" />
+              <Plus className="h-5 w-5" />
               Add First Product
             </Link>
           </div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full">
-              <thead className=" bg-[#485e38] backdrop-blur-sm">
+              <thead className="bg-[#485e38]/80 text-white backdrop-blur-md">
                 <tr>
-                  <th className="px-8 py-5 text-left text-xs font-bold text-white uppercase tracking-wider">Product</th>
-                  <th className="px-6 py-5 text-left text-xs font-bold text-white uppercase tracking-wider hidden sm:table-cell">Brand</th>
-                  <th className="px-6 py-5 text-left text-xs font-bold text-white uppercase tracking-wider">Category</th>
-                  <th className="px-6 py-5 text-left text-xs font-bold text-white uppercase tracking-wider">Stock</th>
-                  <th className="px-6 py-5 text-left text-xs font-bold text-white uppercase tracking-wider">Price</th>
-                  <th className="px-6 py-5 text-left text-xs font-bold text-white uppercase tracking-wider hidden md:table-cell">Sizes</th>
-                  <th className="px-8 py-5 text-right text-xs font-bold text-white uppercase tracking-wider">Actions</th>
+                  <th className="px-8 py-6 text-left text-[10px] font-black uppercase tracking-[0.2em]">Product</th>
+                  <th className="px-6 py-6 text-left text-[10px] font-black uppercase tracking-[0.2em] hidden sm:table-cell">Brand</th>
+                  <th className="px-6 py-6 text-left text-[10px] font-black uppercase tracking-[0.2em]">Category</th>
+                  <th className="px-6 py-6 text-left text-[10px] font-black uppercase tracking-[0.2em]">Stock</th>
+                  <th className="px-6 py-6 text-left text-[10px] font-black uppercase tracking-[0.2em]">Pricing</th>
+                  <th className="px-8 py-6 text-right text-[10px] font-black uppercase tracking-[0.2em]">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-100 dark:divide-gray-700/50">
+              <tbody className="divide-y divide-white/5">
                 {paginatedProducts.map((product) => (
-                  <tr key={product.id} className="group hover:bg-gray-50/80 dark:hover:bg-gray-700/20 transition-colors duration-200">
-                    <td className="px-8 py-5">
+                  <tr key={product.id || product._id} className="group hover:bg-white/5 transition-all duration-300">
+                    <td className="px-8 py-6">
                       <div className="flex items-center gap-5">
-                        <div className="relative w-14 h-14 rounded-2xl overflow-hidden bg-gray-100 dark:bg-gray-800 flex-shrink-0 border border-gray-100 dark:border-gray-700 shadow-sm">
+                        <div className="relative w-16 h-16 rounded-[1.5rem] overflow-hidden bg-white/5 border border-white/10 shadow-lg">
                           {product.image ? (
                             <Image
                               src={product.image}
                               alt={product.name}
                               fill
-                              className="object-cover transition-transform duration-500 group-hover:scale-110"
-                              sizes="56px"
+                              className="object-cover transition-transform duration-700 group-hover:scale-125"
+                              sizes="64px"
                             />
                           ) : (
-                            <div className="w-full h-full flex items-center justify-center text-gray-400">
-                              <Search className="h-6 w-6" />
+                            <div className="w-full h-full flex items-center justify-center text-white/20">
+                              <Package className="h-8 w-8" />
                             </div>
                           )}
                         </div>
-                        <div className="min-w-0 py-1">
-                          <p className="text-sm font-bold text-gray-900 dark:text-white truncate group-hover:text-brand-600 dark:group-hover:text-brand-500 transition-colors">
+                        <div className="min-w-0">
+                          <p className="text-sm font-black text-white group-hover:text-[#485e38] transition-colors truncate">
                             {product.name}
                           </p>
-                          {product.description && (
-                            <p className="text-xs text-gray-500 dark:text-gray-400 truncate max-w-[200px] hidden sm:block mt-1">
-                              {product.description}
-                            </p>
-                          )}
-                          <p className="text-xs text-gray-400 dark:text-gray-500 sm:hidden mt-0.5">
-                            {product.brand || 'No brand'}
+                          <p className="text-[10px] text-gray-500 uppercase tracking-widest mt-1 truncate max-w-[200px]">
+                            {product.brand || 'No Brand'}
                           </p>
                         </div>
                       </div>
                     </td>
-                    <td className="px-6 py-5 hidden sm:table-cell">
-                      <span className="text-xs font-semibold text-gray-600 dark:text-gray-300 bg-gray-100 dark:bg-gray-800 px-3 py-1.5 rounded-lg border border-gray-200 dark:border-gray-700">
+                    <td className="px-6 py-6 hidden sm:table-cell">
+                      <span className="text-xs font-bold text-gray-400 bg-white/5 px-3 py-1.5 rounded-lg border border-white/5">
                         {product.brand || 'N/A'}
                       </span>
                     </td>
-                    <td className="px-6 py-5">
-                      {product.sex ? (
-                        <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold tracking-wide capitalize
-                          ${product.sex.toLowerCase() === 'female'
-                            ? 'bg-pink-50 text-pink-600 dark:bg-pink-500/10 dark:text-pink-400 ring-1 ring-pink-500/20'
-                            : product.sex.toLowerCase() === 'male'
-                              ? 'bg-brand-50 text-brand-600 dark:bg-brand-500/10 dark:text-brand-400 ring-1 ring-brand-500/20'
-                              : 'bg-purple-50 text-purple-600 dark:bg-purple-500/10 dark:text-purple-400 ring-1 ring-purple-500/20'
-                          }
-                        `}>
-                          {product.sex}
-                        </span>
-                      ) : (
-                        <span className="text-xs text-gray-400 dark:text-gray-500">N/A</span>
-                      )}
+                    <td className="px-6 py-6">
+                      <span className={`inline-flex items-center px-4 py-1 rounded-full text-[10px] font-black uppercase tracking-tighter ring-1 
+                        ${product.sex?.toLowerCase() === 'female' ? 'bg-pink-500/10 text-pink-400 ring-pink-500/20' : 
+                          product.sex?.toLowerCase() === 'male' ? 'bg-[#485e38]/20 text-[#485e38] ring-[#485e38]/30' : 
+                          'bg-purple-500/10 text-purple-400 ring-purple-500/20'}`}>
+                        {product.sex || 'Unisex'}
+                      </span>
                     </td>
-                    <td className="px-6 py-5">
-                      <div className="flex flex-col">
-                        <span className={`text-sm font-bold font-mono ${product.quantity > 0 ? 'text-gray-900 dark:text-white' : 'text-red-500'}`}>
-                          {product.quantity || 0}
-                        </span>
-                      </div>
+                    <td className="px-6 py-6">
+                      <span className={`text-sm font-black font-mono ${product.quantity > 0 ? 'text-white' : 'text-red-500'}`}>
+                        {product.quantity || 0}
+                      </span>
                     </td>
-                    <td className="px-6 py-5">
-                      <div className="flex flex-col">
-                        <span className="text-sm font-bold text-gray-900 dark:text-white font-mono">
-                          {product.sizePrices && product.sizePrices.length > 0 
-                            ? product.sizePrices.map(
-                              (sizePrice) => (
-                                <span key={sizePrice.size} className="px-2 py-1 text-[10px] font-bold text-gray-600 dark:text-gray-300 bg-white dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-700 shadow-sm">
-                                  {sizePrice.price} $
-                                </span>
-                              )
-                            )
-                            : '0.00'}
-                        </span>
-                      </div>
-                    </td>
-                    <td className="px-6 py-5 hidden md:table-cell">
+                    <td className="px-6 py-6">
                       <div className="flex flex-wrap gap-1.5">
-                        {product.sizePrices && product.sizePrices.length > 0 ? (
-                          product.sizePrices.slice(0, 3).map((sp, i) => (
-                            <span key={i} className="px-2 py-1 text-[10px] font-bold text-gray-600 dark:text-gray-300 bg-white dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-700 shadow-sm">
-                              {sp.size}
-                            </span>
-                          ))
-                        ) : (
-                          <span className="text-xs text-gray-400 dark:text-gray-500 italic">No sizes</span>
-                        )}
-                        {product.sizePrices && product.sizePrices.length > 3 && (
-                          <span className="px-1.5 py-1 text-[10px] font-medium text-gray-400 bg-gray-50 dark:bg-gray-800/50 rounded">+{product.sizePrices.length - 3}</span>
-                        )}
+                        {product.sizePrices?.map((sp, i) => (
+                          <span key={i} className="px-2.5 py-1 text-[10px] font-bold text-white/80 bg-white/5 rounded-lg border border-white/10">
+                            {sp.price} $
+                          </span>
+                        ))}
                       </div>
                     </td>
-                    <td className="px-8 py-5 text-right">
-                      <div className="flex items-center justify-end gap-2 opactity-0 group-hover:opacity-100 transition-opacity">
+                    <td className="px-8 py-6 text-right">
+                      <div className="flex items-center justify-end gap-2">
                         <Link
-                          href={`/dashboard/products/edit/${product.id}`}
-                          className="p-2.5 text-gray-400 hover:text-brand-600 dark:text-gray-500 dark:hover:text-brand-400 hover:bg-brand-50 dark:hover:bg-brand-900/20 rounded-xl transition-all hover:scale-105 active:scale-95"
+                          href={`/dashboard/products/edit/${product.id || product._id}`}
+                          className="p-3 text-white/30 hover:text-white hover:bg-white/10 rounded-2xl transition-all active:scale-95"
                           title="Edit Product"
                         >
-                          <Pencil className="h-4 w-4 stroke-[2.5]" />
+                          <Pencil className="h-4 w-4" />
                         </Link>
+                        <button
+                          onClick={() => {
+                            setProductToDelete(product);
+                            setIsDeleteModalOpen(true);
+                          }}
+                          className="p-3 text-white/30 hover:text-red-400 hover:bg-red-500/10 rounded-2xl transition-all active:scale-95"
+                          title="Delete Product"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </button>
                       </div>
                     </td>
                   </tr>
@@ -348,31 +264,29 @@ export default function ProductsPage() {
 
         {/* Pagination */}
         {!isLoading && filteredProducts.length > 0 && (
-          <div className="px-8 py-5 bg-gray-50/50 dark:bg-gray-900/30 border-t border-gray-100 dark:border-gray-700/50 flex flex-col sm:flex-row items-center justify-between gap-4">
-            <div className="text-sm text-gray-500 dark:text-gray-400 font-medium">
-              Showing <span className="text-gray-900 dark:text-white">{startIndex + 1}</span> to <span className="text-gray-900 dark:text-white">{Math.min(startIndex + itemsPerPage, filteredProducts.length)}</span> of <span className="text-gray-900 dark:text-white">{filteredProducts.length}</span> products
-            </div>
+          <div className="px-8 py-8 bg-white/5 border-t border-white/5 flex flex-col sm:flex-row items-center justify-between gap-6">
+            <p className="text-xs font-bold text-gray-500 uppercase tracking-widest">
+              Page <span className="text-white">{currentPage}</span> of <span className="text-white">{totalPages}</span>
+            </p>
             
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-3">
               <button
                 onClick={() => goToPage(currentPage - 1)}
                 disabled={currentPage === 1}
-                className="p-2 text-gray-500 hover:text-brand-600 disabled:opacity-30 disabled:hover:text-gray-500 transition-colors"
+                className="p-3 text-white/30 hover:text-white disabled:opacity-10 transition-all"
               >
-                <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                </svg>
+                <Search className="h-5 w-5 rotate-90" /> {/* Placeholder for arrow */}
               </button>
               
-              <div className="flex items-center gap-1">
+              <div className="flex items-center gap-2">
                 {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
                   <button
                     key={page}
                     onClick={() => goToPage(page)}
-                    className={`w-9 h-9 rounded-xl text-sm font-bold transition-all duration-200 ${
+                    className={`w-10 h-10 rounded-2xl text-xs font-black transition-all ${
                       currentPage === page
-                        ? 'bg-[#485e38] text-white shadow-lg shadow-brand-500/20'
-                        : 'text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-700/50 hover:text-gray-900 dark:hover:text-white'
+                        ? 'bg-[#485e38] text-white shadow-xl shadow-[#485e38]/20 scale-110'
+                        : 'text-white/30 hover:bg-white/5 hover:text-white'
                     }`}
                   >
                     {page}
@@ -383,16 +297,60 @@ export default function ProductsPage() {
               <button
                 onClick={() => goToPage(currentPage + 1)}
                 disabled={currentPage === totalPages}
-                className="p-2 text-gray-500 hover:text-brand-600 disabled:opacity-30 disabled:hover:text-gray-500 transition-colors"
+                className="p-3 text-white/30 hover:text-white disabled:opacity-10 transition-all"
               >
-                <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                </svg>
+                <Search className="h-5 w-5 -rotate-90" /> {/* Placeholder for arrow */}
               </button>
             </div>
           </div>
         )}
       </div>
+
+      {/* Delete Confirmation Modal */}
+      {isDeleteModalOpen && (
+        <div className="fixed inset-0 z-[200] flex items-center justify-center p-6">
+          <div 
+            className="absolute inset-0 bg-black/90 backdrop-blur-xl transition-opacity"
+            onClick={() => !isDeleting && setIsDeleteModalOpen(false)}
+          />
+          
+          <div className="relative bg-[#0f172a] rounded-[3.5rem] shadow-2xl border border-white/10 w-full max-w-md overflow-hidden transform animate-in fade-in zoom-in duration-300">
+            <div className="p-10 text-center">
+              <div className="w-20 h-20 rounded-[2rem] bg-red-500/10 flex items-center justify-center mx-auto mb-8 border border-red-500/20">
+                <AlertTriangle className="h-10 w-10 text-red-500" />
+              </div>
+
+              <h3 className="text-3xl font-black text-white mb-4">
+                Delete Product?
+              </h3>
+              <p className="text-gray-400 text-sm leading-relaxed mb-10">
+                Are you sure you want to remove <span className="text-white font-bold italic">&quot;{productToDelete?.name}&quot;</span>? This action is irreversible.
+              </p>
+
+              <div className="grid grid-cols-2 gap-4">
+                <button
+                  onClick={() => setIsDeleteModalOpen(false)}
+                  disabled={isDeleting}
+                  className="px-6 py-4 text-xs font-black uppercase tracking-widest text-white/50 hover:text-white bg-white/5 hover:bg-white/10 rounded-[1.5rem] transition-all disabled:opacity-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleDelete}
+                  disabled={isDeleting}
+                  className="px-6 py-4 text-xs font-black uppercase tracking-widest text-white bg-red-600 hover:bg-red-700 rounded-[1.5rem] transition-all shadow-xl shadow-red-900/20 active:scale-95 disabled:opacity-50 flex items-center justify-center gap-3"
+                >
+                  {isDeleting ? (
+                    <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  ) : (
+                    "Confirm"
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -1,10 +1,9 @@
 'use client'
 import React, { useEffect } from 'react'
 import Link from 'next/link'
-import { usePathname, useRouter } from 'next/navigation'
-import { LayoutDashboard, LogOut } from 'lucide-react'
-import Cookies from 'js-cookie'
-import toast, { Toaster } from 'react-hot-toast'
+import { usePathname } from 'next/navigation'
+import { ShoppingBag, Package } from 'lucide-react'
+import { Toaster } from 'react-hot-toast'
 
 interface SidebarProps {
   isOpen: boolean
@@ -13,9 +12,7 @@ interface SidebarProps {
 
 const Sidebar = ({ isOpen, setIsOpen}: SidebarProps) => {
   const pathname = usePathname()
-  const router = useRouter()
 
-  //  Prevent body scroll when sidebar open
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = 'hidden'
@@ -27,41 +24,34 @@ const Sidebar = ({ isOpen, setIsOpen}: SidebarProps) => {
     }
   }, [isOpen])
 
-  const handleLogout = () => {
-    // Remove access token from cookies
-    Cookies.remove('access_token')
-    toast.success('Logged out successfully')
-    // Close sidebar on mobile
-    setIsOpen(false)
-    // Redirect to login page
-    router.push('/auth/login')
-  }
 
-  // Check if pathname matches or starts with the href (for nested routes)
+
   const isActiveRoute = (href: string) => {
-    if (href === '/dashboard') {
-      return pathname === '/dashboard'
-    }
+    if (href === '/dashboard') return pathname === '/dashboard'
     return pathname.startsWith(href)
   }
 
   const menuItems = [
     {
       href: '/dashboard',
-      icon: LayoutDashboard,
-      label: 'Dashboard'
+      icon: Package,
+      label: 'Inventory'
     },
-  
+    {
+      href: '/dashboard/orders',
+      icon: ShoppingBag,
+      label: 'Orders'
+    },
   ]
 
   return (
     <>
       <Toaster position="top-right" />
       
-      {/* ====== Overlay for mobile ====== */}
+      {/* ====== Mobile Overlay ====== */}
       {isOpen && (
         <div
-          className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 lg:hidden"
+          className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[60] lg:hidden"
           onClick={() => setIsOpen(false)}
         />
       )}
@@ -69,41 +59,28 @@ const Sidebar = ({ isOpen, setIsOpen}: SidebarProps) => {
       {/* ====== Sidebar ====== */}
       <aside
         className={`
-           fixed top-0 left-0 lg:top-28 lg:left-16
-          bg-[var(--background)]  lg:bg-transparent
-           shadow-xl lg:shadow-none
-           z-50 lg:z-auto
-           flex flex-col
-           h-screen lg:h-[calc(100vh-7rem)]
-           w-72 lg:w-56
-           px-4 sm:px-6 lg:px-0
-           transition-transform duration-300 ease-in-out
-           ${isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
-           overflow-hidden
-           pt-20 lg:pt-6
-         `}
+          fixed top-0 left-0 z-[70] h-screen
+          bg-[#485e38] 
+          border-r border-white/10
+          transition-all duration-300 ease-in-out
+          w-72 lg:w-64 shadow-2xl
+          ${isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
+          flex flex-col
+        `}
       >
-        {/* Header Section */}
-        <div className="flex-shrink-0 lg:pt-6">
-          <h1 className="hidden lg:block text-2xl lg:text-3xl text-[var(--foreground)]/70 mb-8 font-semibold">
-            Manage
-          </h1>
-          <Link 
-            href="/" 
-            className="flex items-center gap-2 lg:hidden mb-6 px-2"
-            onClick={() => setIsOpen(false)}
-          >
-            <span className="inline-flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-xl bg-gradient-to-br from-brand-500 to-brand-300 text-white shadow-lg">
-              <svg viewBox="0 0 24 24" aria-hidden="true" className="h-5 w-5 sm:h-6 sm:w-6">
-                <path fill="currentColor" d="M12 3l9 7-3 11H6L3 10l9-7z" />
-              </svg>
-            </span>
-            <span className="text-lg sm:text-xl font-semibold tracking-tight ">M&A</span>
+        {/* Sidebar Header */}
+        <div className="h-[70px] sm:h-[80px] lg:h-[90px] flex items-center px-8 border-b border-white/10">
+          <Link href="/dashboard" className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center border border-white/20">
+              <Package className="text-white h-6 w-6" />
+            </div>
+            <span className="text-xl font-bold tracking-tight text-white">Admin Panel</span>
           </Link>
         </div>
 
-        {/* ====== Navigation ====== */}
-        <nav className="flex-1 space-y-3 pb-4 overflow-y-auto min-h-0">
+        {/* Navigation */}
+        <nav className="flex-1 px-4 py-8 space-y-2 overflow-y-auto">
+          <p className="px-4 text-[10px] font-bold uppercase tracking-[0.2em] text-white/40 mb-4">Main Menu</p>
           {menuItems.map((item) => {
             const isActive = isActiveRoute(item.href)
             const Icon = item.icon
@@ -111,40 +88,25 @@ const Sidebar = ({ isOpen, setIsOpen}: SidebarProps) => {
               <Link
                 key={item.href}
                 href={item.href}
-                onClick={() => setIsOpen(false)} // auto close sidebar on mobile
+                onClick={() => setIsOpen(false)}
                 className={`
-                  flex items-center gap-3 px-4  py-3 lg:py-4  w-full  rounded-lg transition-all duration-200
+                  flex items-center gap-3 px-4 py-3.5 rounded-2xl transition-all duration-300
                   ${isActive
-                    ? 'bg-[#fcebc0] dark:bg-amber-500/20 text-amber-600 dark:text-amber-300 font-semibold'
-                    : 'hover:bg-gray-100 dark:hover:bg-white/10'
+                    ? 'bg-white text-[#485e38] shadow-xl font-bold translate-x-1'
+                    : 'text-white/70 hover:bg-white/10 hover:text-white'
                   }
-                  active:scale-95 lg:active:scale-100
                 `}
               >
-                <div className={`flex-shrink-0 ${isActive ? 'text-amber-600' : ''}`}>
-                  <Icon className="h-5 w-5 lg:h-6 lg:w-6" />
-                </div>
-                <span className={`text-sm lg:text-base ${isActive ? 'font-semibold' : 'font-medium'}`}>
-                  {item.label}
-                </span>
+                <Icon className={`h-5 w-5 ${isActive ? 'text-[#485e38]' : ''}`} />
+                <span className="text-sm">{item.label}</span>
+                {isActive && (
+                  <div className="ml-auto w-1.5 h-1.5 rounded-full bg-[#485e38] animate-pulse" />
+                )}
               </Link>
             )
           })}
         </nav>
 
-        {/* ====== Logout Button ====== */}
-        <div className="flex-shrink-0 pt-4 pb-6 lg:pb-6 border-t border-gray-200 dark:border-white/10 lg:border-t-0 mt-auto">
-          <button
-            onClick={handleLogout}
-            className="group w-full lg:w-fit border border-red-400 flex items-center gap-3 px-10 py-3 lg:py-4 
-            rounded-lg transition-all duration-200 text-[var(--foreground)] hover:bg-red-50 dark:hover:bg-red-500/10 hover:text-red-600 active:scale-95 lg:active:scale-100"
-          >
-            <div className="  text-red-600 transition-colors">
-              <LogOut className="h-5 w-5 lg:h-6 lg:w-6" />
-            </div>
-            <span className="text-sm lg:text-base text-red-600  font-medium">Logout</span>
-          </button>
-        </div>
       </aside>
     </>
   )

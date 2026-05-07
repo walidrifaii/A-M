@@ -6,11 +6,10 @@ import Link from "next/link";
 import { useForm, Controller } from "react-hook-form";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
-import axios from "axios";
-import Cookies from "js-cookie";
 import toast, { Toaster } from "react-hot-toast";
 import { ArrowLeft, Plus, Loader2, X } from "lucide-react";
 import Image from "next/image";
+import { useCreateProductMutation } from "@/app/store/api/productsApi";
 
 interface SizePrice {
   size: string;
@@ -54,7 +53,7 @@ const schema = yup.object({
 
 export default function AddProductPage() {
   const router = useRouter();
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [createProduct, { isLoading: isSubmitting }] = useCreateProductMutation();
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [sizePrices, setSizePrices] = useState<SizePrice[]>([
     { size: "", price: 0 },
@@ -125,9 +124,6 @@ export default function AddProductPage() {
 
   const onSubmit = async (data: ProductFormValues) => {
     try {
-      setIsSubmitting(true);
-      const token = Cookies.get("access_token");
-
       // Create FormData for multipart/form-data
       const formData = new FormData();
       formData.append("name", data.name);
@@ -146,59 +142,40 @@ export default function AddProductPage() {
         formData.append("image", data.image);
       }
 
-      const response = await axios.post(
-        "https://api-perfuim-production.up.railway.app/products",
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-            ...(token && { Authorization: `Bearer ${token}` }),
-          },
-        },
-      );
-
-      if (response.status === 201) {
-        toast.success("Product created successfully!");
-        setTimeout(() => {
-          router.push("/dashboard");
-        }, 1000);
-      }
+      await createProduct(formData).unwrap();
+      
+      toast.success("Product created successfully!");
+      setTimeout(() => {
+        router.push("/dashboard");
+      }, 1000);
     } catch (error) {
       console.error("Error creating product:", error);
-      if (axios.isAxiosError(error)) {
-        toast.error(
-          error.response?.data?.message || "Failed to create product",
-        );
-      } else {
-        toast.error("Something went wrong. Please try again.");
-      }
-    } finally {
-      setIsSubmitting(false);
+      toast.error("Failed to create product. Please try again.");
     }
   };
 
   return (
-    <div className="">
+    <div className="text-white space-y-8">
       <Toaster position="top-right" />
 
       {/* Back Button */}
       <Link
         href="/dashboard"
-        className="inline-flex items-center gap-2 text-sm  hover:text-brand-600 mb-6 transition-colors"
+        className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-gray-500 hover:text-white mb-4 transition-all group"
       >
-        <ArrowLeft className="h-4 w-4" />
-        Back to Products
+        <ArrowLeft className="h-4 w-4 group-hover:-translate-x-1 transition-transform" />
+        Back to Inventory
       </Link>
 
       {/* Form */}
-      <div className="rounded-xl sm:rounded-2xl shadow-xl border border-gray-100 p-4 sm:p-6 lg:p-8">
-        <div className="mb-6 sm:mb-8">
-          <div className="h-10 w-10 sm:h-12 sm:w-12 rounded-xl bg-gradient-to-br from-brand-500 to-brand-400 flex items-center justify-center mb-3 sm:mb-4 shadow-lg">
-            <Plus className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
+      <div className="bg-white/5 dark:bg-black/20 backdrop-blur-md rounded-[3rem] shadow-2xl border border-white/10 p-8 lg:p-12">
+        <div className="mb-12">
+          <div className="h-14 w-14 rounded-[1.5rem] bg-[#485e38] flex items-center justify-center mb-6 shadow-xl shadow-[#485e38]/20">
+            <Plus className="h-7 w-7 text-white" />
           </div>
-          <h1 className="text-2xl sm:text-3xl font-bold ">Add New Product</h1>
-          <p className="text-sm sm:text-base  mt-2">
-            Create a new product in your inventory
+          <h1 className="text-4xl font-black tracking-tight ">Add New <span className="text-[#485e38]">Product</span></h1>
+          <p className="text-gray-500 mt-2 font-medium">
+            Launch a new item into your luxury catalog.
           </p>
         </div>
 
@@ -212,8 +189,8 @@ export default function AddProductPage() {
               type="text"
               id="name"
               {...register("name")}
-              className={`w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-400/50 focus:border-brand-400 transition ${
-                errors.name ? "border-red-300" : "border-gray-300"
+              className={`w-full px-5 py-4 bg-white/5 border rounded-[1.25rem] focus:outline-none focus:ring-2 focus:ring-[#485e38]/30 focus:border-[#485e38] transition-all text-white placeholder:text-gray-600 ${
+                errors.name ? "border-red-500/50 bg-red-500/5" : "border-white/10"
               }`}
               placeholder="Enter product name"
             />
@@ -235,8 +212,8 @@ export default function AddProductPage() {
                 type="text"
                 id="brand"
                 {...register("brand")}
-                className={`w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-400/50 focus:border-brand-400 transition ${
-                  errors.brand ? "border-red-300" : "border-gray-300"
+                className={`w-full px-5 py-4 bg-white/5 border rounded-[1.25rem] focus:outline-none focus:ring-2 focus:ring-[#485e38]/30 focus:border-[#485e38] transition-all text-white placeholder:text-gray-600 ${
+                  errors.brand ? "border-red-500/50 bg-red-500/5" : "border-white/10"
                 }`}
                 placeholder="Enter brand name"
               />
@@ -254,14 +231,14 @@ export default function AddProductPage() {
               <select
                 id="sex"
                 {...register("sex")}
-                className={`w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-400/50 focus:border-brand-400 transition ${
-                  errors.sex ? "border-red-300" : "border-gray-300"
+                className={`w-full px-5 py-4 bg-white/5 border rounded-[1.25rem] focus:outline-none focus:ring-2 focus:ring-[#485e38]/30 focus:border-[#485e38] transition-all text-white appearance-none cursor-pointer ${
+                  errors.sex ? "border-red-500/50 bg-red-500/5" : "border-white/10"
                 }`}
               >
-                <option value="">Select category</option>
-                <option value="men">Men</option>
-                <option value="women">Women</option>
-                <option value="unisex">Unisex</option>
+                <option value="" className="bg-[#0f172a]">Select category</option>
+                <option value="men" className="bg-[#0f172a]">Men</option>
+                <option value="women" className="bg-[#0f172a]">Women</option>
+                <option value="unisex" className="bg-[#0f172a]">Unisex</option>
               </select>
               {errors.sex && (
                 <p className="text-xs text-red-500 mt-1">
@@ -305,7 +282,7 @@ export default function AddProductPage() {
               {sizePrices.map((item, index) => (
                 <div
                   key={index}
-                  className="flex flex-col sm:flex-row items-start sm:items-center gap-3 p-4 border border-gray-100 rounded-xl bg-gray-50/30"
+                  className="flex flex-col sm:flex-row items-start sm:items-center gap-3 p-4 border border-gray-100 rounded-xl "
                 >
                   <div className="flex-1 w-full">
                     <input
@@ -314,7 +291,7 @@ export default function AddProductPage() {
                       onChange={(e) =>
                         handleSizeChange(index, "size", e.target.value)
                       }
-                      className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-400/50 focus:border-brand-400 transition bg-white"
+                      className="w-full px-5 py-3.5 bg-white/5 border border-white/10 rounded-[1.25rem] focus:outline-none focus:ring-2 focus:ring-[#485e38]/30 focus:border-[#485e38] transition-all text-white placeholder:text-gray-600"
                       placeholder="Size (e.g., 50ml)"
                     />
                   </div>
@@ -327,7 +304,7 @@ export default function AddProductPage() {
                       }
                       min="0"
                       step="0.01"
-                      className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-400/50 focus:border-brand-400 transition bg-white"
+                      className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-400/50 focus:border-brand-400 transition"
                       placeholder="Price"
                     />
                   </div>

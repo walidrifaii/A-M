@@ -1,5 +1,6 @@
 // store/api/checkoutApi.ts
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
+import Cookies from 'js-cookie';
 
 export interface CheckoutItem {
   productId: string;
@@ -45,17 +46,42 @@ export interface CheckoutResponse {
 
 export const checkoutApi = createApi({
   reducerPath: 'checkoutApi',
-  baseQuery: fetchBaseQuery({ baseUrl: 'https://api-perfuim-production.up.railway.app/user' }),
+  baseQuery: fetchBaseQuery({ 
+    baseUrl: 'https://api-perfuim-production.up.railway.app',
+    prepareHeaders: (headers) => {
+      const token = Cookies.get('access_token');
+      if (token) {
+        headers.set('Authorization', `Bearer ${token}`);
+      }
+      return headers;
+    },
+  }),
   endpoints: (builder) => ({
+    // User endpoints
     placeOrder: builder.mutation<CheckoutResponse, CheckoutRequest>({
       query: (body) => ({
-        url: '/checkout',
+        url: '/user/checkout',
         method: 'POST',
         body,
-        headers: { 'Content-Type': 'application/json' },
       }),
     }),
+    
+    // Admin endpoints
+    getOrders: builder.query<CheckoutResponse[], void>({
+      query: () => '/admin/checkout',
+      providesTags: ['Orders'],
+    }),
+    
+    getOrderById: builder.query<CheckoutResponse, string>({
+      query: (id) => `/admin/checkout/${id}`,
+      providesTags: (_result, _error, id) => [{ type: 'Orders', id }],
+    }),
   }),
+  tagTypes: ['Orders'],
 });
 
-export const { usePlaceOrderMutation } = checkoutApi;
+export const { 
+  usePlaceOrderMutation, 
+  useGetOrdersQuery, 
+  useGetOrderByIdQuery 
+} = checkoutApi;

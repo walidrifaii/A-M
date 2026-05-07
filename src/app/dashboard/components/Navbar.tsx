@@ -7,14 +7,12 @@ import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import logo2 from "../../../assets/logo2.png";
 
-
 interface NavbarProps {
     isSidebarOpen: boolean
     setIsSidebarOpen: (open: boolean) => void
 }
 
 const NavbarDashboard = ({ isSidebarOpen, setIsSidebarOpen }: NavbarProps) => {
-
     const [mounted, setMounted] = useState(false);
     const [isDark, setIsDark] = useState(false);
     const router = useRouter();
@@ -26,7 +24,6 @@ const NavbarDashboard = ({ isSidebarOpen, setIsSidebarOpen }: NavbarProps) => {
         root.classList.add(mode === "dark" ? "dark" : "light");
     }
 
-    // Load theme
     useEffect(() => {
         setMounted(true);
         try {
@@ -38,7 +35,6 @@ const NavbarDashboard = ({ isSidebarOpen, setIsSidebarOpen }: NavbarProps) => {
         } catch { }
     }, []);
 
-    // Persist theme
     useEffect(() => {
         if (!mounted) return;
         applyThemeClass(isDark ? "dark" : "light");
@@ -51,65 +47,55 @@ const NavbarDashboard = ({ isSidebarOpen, setIsSidebarOpen }: NavbarProps) => {
     };
 
     return (
-        <div className='bg-[var(--background)]  flex items-center justify-between mx-auto 
-        px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 w-full 
-                       h-[80px] sm:h-[90px] lg:h-[100px] fixed z-10 transition-colors duration-300'>
-            {/* Logo */}
-            <section className='flex items-center justify-between w-full'>
+        <div className='bg-[#485e38] flex items-center justify-between mx-auto 
+        px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16 w-full shadow-lg
+        h-[70px] sm:h-[80px] lg:h-[90px] fixed z-[100] transition-all duration-300'>
+            {/* Logo Section */}
+            <div className="flex items-center gap-4">
+                <button
+                    onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+                    className="lg:hidden p-2 text-white hover:bg-white/10 rounded-xl transition-colors"
+                >
+                    <RiMenuLine size={24} />
+                </button>
                 <Link href="/" className="flex items-center gap-2">
-              <Image src={logo2} alt="Logo" width={250} height={250} />
-            </Link>
+                    <Image src={logo2} alt="Logo" width={180} height={180} className="brightness-0 invert object-contain" />
+                </Link>
+            </div>
 
-                <div className='hidden lg:flex items-center gap-4'>
-                    {/* <div className='bg-[var(--background)] border border-neutral-200 dark:border-neutral-700
-                     rounded-full p-3  transition-colors'>
-                        <MdShoppingCart className='text-2xl text-[var(--foreground)]' />
-                    </div> */}
+            {/* Desktop Actions */}
+            <div className='hidden lg:flex items-center gap-6'>
+                {/* Theme Toggle */}
+                <button
+                    onClick={() => setIsDark((v) => !v)}
+                    className="rounded-xl p-2.5 text-white hover:bg-white/10 transition-all duration-300 border border-white/20"
+                    aria-label="Toggle theme"
+                >
+                    {isDark ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+                </button>
 
-                    {/* Logout Button */}
-                    <button
-                        onClick={handleLogout}
-                        className="flex items-center gap-2 px-4 py-2 rounded-xl text-red-500 
-                         hover:bg-red-50 dark:hover:bg-red-900/10 cursor-pointer
-                         transition-colors border border-red-500"
-                    >
-                        <LogOut className="h-5 w-5" />
-                        <span className="font-medium">Logout</span>
-                    </button>
+                <div className="h-8 w-px bg-white/20"></div>
 
-                    <div className="h-6 w-px bg-gray-200 dark:bg-gray-700"></div>
+                {/* Logout Button */}
+                <button
+                    onClick={handleLogout}
+                    className="flex items-center gap-2 px-6 py-2.5 rounded-xl text-white font-bold
+                     hover:bg-red-500 transition-all duration-300 border-2 border-white/30"
+                >
+                    <LogOut className="h-5 w-5" />
+                    <span>Sign Out</span>
+                </button>
+            </div>
 
-                    {/* Theme Toggle */}
-                    <button
-                        onClick={() => setIsDark((v) => !v)}
-                        className="rounded-xl p-2 text-[var(--foreground)] hover:bg-brand-400/20
-                         dark:hover:bg-brand-400/10 focus:outline-none ring-2
-                          ring-brand-400/60 transition-colors"
-                        aria-label="Toggle theme"
-                    >
-                        {isDark ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
-                    </button>
-
-                </div>
-                <div className='lg:hidden flex items-center gap-4'>
-                    {/* Mobile Theme Toggle */}
-                    <button
-                        onClick={() => setIsDark((v) => !v)}
-                        className="p-2 rounded-lg text-[var(--foreground)] hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-                    >
-                        {isDark ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
-                    </button>
-
-                    {/* Mobile Menu Button */}
-                    <button
-                        onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-                        className="p-2 bg-[var(--background)] border border-neutral-200 dark:border-neutral-700 
-                        rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-800 text-[var(--foreground)] transition-colors"
-                    >
-                        <RiMenuLine size={24} />
-                    </button>
-                </div>
-            </section>
+            {/* Mobile Menu Icon */}
+            <div className='lg:hidden flex items-center gap-4'>
+                <button
+                    onClick={() => setIsDark((v) => !v)}
+                    className="p-2 text-white hover:bg-white/10 rounded-lg transition-colors"
+                >
+                    {isDark ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+                </button>
+            </div>
         </div>
     )
 }

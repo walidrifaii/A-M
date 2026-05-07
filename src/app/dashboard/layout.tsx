@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Cookies from 'js-cookie'
 import NavbarDashboard from './components/Navbar'
+import Sidebar from './components/Sidebar'
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
@@ -10,48 +11,40 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
   const router = useRouter()
 
   useEffect(() => {
-    // Check for access token
     const token = Cookies.get('access_token')
-    
     if (!token) {
-      // No token found, redirect to login
       router.push('/auth/login?redirect=' + encodeURIComponent(window.location.pathname))
       return
     }
-    
-    // Token exists, allow access
     setIsAuthenticated(true)
   }, [router])
 
-  // Show loading state while checking authentication
   if (isAuthenticated === null) {
     return (
-      <div className='min-h-screen flex items-center justify-center'>
+      <div className='min-h-screen flex items-center justify-center bg-gray-50 dark:bg-[#0f172a]'>
         <div className='text-center'>
-          <div className='inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-brand-500 border-r-transparent'></div>
-          <p className='mt-4 text-[var(--foreground)]/70'>Loading...</p>
+          <div className='inline-block h-12 w-12 animate-spin rounded-full border-4 border-solid border-brand-500 border-r-transparent'></div>
+          <p className='mt-4 text-gray-500 dark:text-gray-400 font-medium'>Verifying session...</p>
         </div>
       </div>
     )
   }
 
-  // If not authenticated, don't render (redirect is happening)
-  if (!isAuthenticated) {
-    return null
-  }
+  if (!isAuthenticated) return null
 
   return (
-    <div className='min-h-screen '>
+    <div className='min-h-screen bg-gray-50 dark:bg-[#0f172a]'>
       <NavbarDashboard isSidebarOpen={isSidebarOpen} setIsSidebarOpen={setIsSidebarOpen} />
-       <div className="min-h-screen pt-20 sm:pt-24 lg:pt-28  py-4 sm:py-6 lg:py-10 px-4 sm:px-6 md:px-8 lg:px-12 xl:px-16">
-         <div className='min-h-[70vh] '>
-          <main className={`bg-[var(--background)] rounded-xl sm:rounded-2xl
-            lg:rounded-[52px] lg:min-h-[80vh]
-       py-4 sm:py-6 lg:py-10 mb-10 sm:mb-16 lg:mb-20  z-50 `}>
-             {children}
-           </main>
-         </div>
-       </div>
+      <Sidebar isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} />
+      
+      {/* Main Content Wrapper */}
+      <div className="transition-all duration-300 lg:pl-64 min-h-screen flex flex-col">
+        <main className="flex-1 pt-20 sm:pt-24 lg:pt-28 p-4 sm:p-6 lg:p-8">
+          <div className=" rounded-[2.5rem] shadow-sm border border-gray-100 dark:border-gray-800/50 min-h-[calc(100vh-10rem)] p-6 lg:p-10">
+            {children}
+          </div>
+        </main>
+      </div>
     </div>
   )
 }
