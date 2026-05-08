@@ -70,7 +70,7 @@ export default function ProductsPage() {
   };
 
   return (
-    <div className="space-y-10 text-white">
+    <div className="space-y-10  text-white">
       <Toaster position="top-right" />
       
       {/* Header Section */}
