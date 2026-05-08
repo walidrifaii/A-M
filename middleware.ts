@@ -3,7 +3,7 @@ import type { NextRequest } from 'next/server';
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
-  
+  // test
   // Get the access token from cookies
   const accessToken = request.cookies.get('access_token')?.value;
 
