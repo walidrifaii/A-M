@@ -13,14 +13,14 @@ export default function HeroShowcase() {
         {/* Left large card */}
         {/* Left large card */}
         <div className="relative overflow-hidden rounded-3xl lg:col-span-2 min-h-[300px] sm:min-h-[400px] lg:min-h-[520px] bg-[#445f21] dark:bg-[#2d4215] flex flex-col sm:flex-row items-center justify-between px-6 sm:px-10">
-
           {/* Text Content */}
           <div className="relative z-10 flex flex-col gap-3 text-left max-w-sm sm:max-w-md pt-10 sm:pt-16 lg:pt-20">
             <h3 className="text-3xl sm:text-4xl font-semibold text-white">
-              Opening Sales 15%
+              Discover Our Premium Collection
             </h3>
             <p className="text-sm sm:text-base text-white/80">
-              Enjoy 15% off on all products for a limited time.
+              Explore high-quality products crafted to elevate your everyday
+              experience.
             </p>
             <div className="mt-2">
               <Link
@@ -49,8 +49,6 @@ export default function HeroShowcase() {
             />
           </div>
         </div>
-
-
 
         {/* Right side stack */}
         <div className="flex flex-col gap-4 sm:gap-6">
