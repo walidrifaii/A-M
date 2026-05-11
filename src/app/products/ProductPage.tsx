@@ -25,7 +25,7 @@ export type Product = {
 
 export default function ProductsPage() {
   const searchParams = useSearchParams();
-  const sexParam = searchParams.get("sex"); // read ?sex=men or ?sex=women
+  const sexParam = searchParams.get("sex"); // read ?sex=men|women|unisex
   const [filter, setFilter] = useState<"all" | "men" | "women" | "unisex">("all");
   const gridRef = useRef<HTMLDivElement | null>(null);
 
@@ -149,11 +149,11 @@ export default function ProductsPage() {
   return (
     <div className="pb-12">
       {/* 🟢 Filter Buttons */}
-      <div className="flex justify-center gap-3 mb-6">
-        {["all", "men", "women"].map((type) => (
+      <div className="flex flex-wrap justify-center gap-3 mb-6">
+        {(["all", "men", "women", "unisex"] as const).map((type) => (
           <button
             key={type}
-            onClick={() => setFilter(type as "all" | "men" | "women")}
+            onClick={() => setFilter(type)}
             className={`px-4 py-2 rounded-full text-sm font-medium transition ${filter === type
               ? "bg-[#445f21]  text-white"
               : "bg-gray-100 dark:bg-neutral-800 dark:text-white hover:bg-gray-200 dark:hover:bg-neutral-700"
